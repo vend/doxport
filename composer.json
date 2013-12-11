@@ -1,0 +1,39 @@
+{
+    "_-x-vim-formatting": " vim: set ft=javascript ts=4 sw=4 et : ",
+
+    "name":        "vend/doxport",
+    "type":        "library",
+    "description": "Doctrine relational walk export/delete tool",
+    "keywords":    ["doctrine2", "export"],
+    "license":     "proprietary",
+
+    "authors": [
+        {
+            "name":  "Vend Devteam",
+            "email": "devteam@vendhq.com"
+        }
+    ],
+
+    "autoload": {
+        "psr-0": {
+            "Doxport\\": "src/"
+        }
+    },
+
+    "bin": ["doxport"],
+
+    "require": {
+        "php": ">=5.4.0",
+
+        "doctrine/orm":                 "2.4.*",
+        "symfony/console":              "2.4.*",
+        "symfony/config":               "2.3.*",
+        "symfony/dependency-injection": "2.3.*",
+        "symfony/yaml":                 "2.3.*"
+    },
+
+    "require-dev": {
+        "squizlabs/php_codesniffer": "1.*",
+        "phpunit/phpunit":           "3.7.*"
+    }
+}
