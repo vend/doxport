@@ -12,11 +12,13 @@ class ExportCommand extends Command
     {
         $this
             ->setName('export')
+            ->addOption(
+                'bootstrap'
+            )
             ->setDescription('Exports a set of data from the database');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        var_dump($input);
     }
 }

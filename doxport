@@ -2,11 +2,42 @@
 <?php
 
 use Doxport\Console\ExportCommand;
+use Doxport\Version;
 use Symfony\Component\Console\Application;
 
 (@include_once __DIR__ . '/vendor/autoload.php') || @include_once __DIR__ . '/../../autoload.php';
 
+$directories = array(
+    getcwd(),
+    getcwd() . DIRECTORY_SEPARATOR . 'config'
+);
 
-$application = new Application();
+$config = null;
+foreach ($directories as $directory) {
+    $config = $directory . DIRECTORY_SEPARATOR . 'cli-config.php';
+
+    if (file_exists($config)) {
+        break;
+    }
+}
+
+if (!file_exists($config)) {
+    echo "Doxport expects Doctrine2 cli-config.php configuration file in " . implode(' or ', $directories) . "\n";
+    exit(1);
+}
+
+if (!is_readable($config)) {
+    echo 'Configuration file [' . $config . '] does not have read permission.' . "\n";
+    exit(1);
+}
+
+$helperSet = require $config;
+
+$application = new Application('Doxport relational data tool', Version::VERSION);
+$application->setCatchExceptions(true);
+$application->setHelperSet($helperSet);
+
+// Commands
 $application->add(new ExportCommand());
+
 $application->run();
