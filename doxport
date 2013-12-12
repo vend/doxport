@@ -1,7 +1,12 @@
 #!/usr/bin/env php
 <?php
 
-require 'vendor/autoload.php';
+use Doxport\Console\ExportCommand;
+use Symfony\Component\Console\Application;
+
+(@include_once __DIR__ . '/vendor/autoload.php') || @include_once __DIR__ . '/../../autoload.php';
 
 
-
+$application = new Application();
+$application->add(new ExportCommand());
+$application->run();

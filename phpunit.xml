@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<phpunit bootstrap="src/Doxport/Tests/bootstrap.php">
+    <testsuites>
+        <testsuite name="Default Testsuite">
+            <directory>test/Doxport</directory>
+        </testsuite>
+    </testsuites>
+    <filter>
+        <whitelist>
+            <directory>src/Doxport</directory>
+        </whitelist>
+    </filter>
+    <logging>
+        <log type="coverage-html" target="build/report" charset="UTF-8"
+             yui="true" highlight="true"
+             lowUpperBound="35" highLowerBound="70"/>
+        <log type="coverage-clover" target="build/coverage.xml"/>
+        <log type="coverage-php" target="build/coverage.serialized"/>
+        <log type="coverage-text" target="php://stdout" showUncoveredFiles="false"/>
+        <log type="junit" target="build/junit.xml" logIncompleteSkipped="false"/>
+    </logging>
+</phpunit>
