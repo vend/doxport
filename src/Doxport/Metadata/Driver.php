@@ -19,11 +19,12 @@ class Driver
         $this->em = $em;
     }
 
-    /**
-     * @return \Doctrine\Common\Annotations\AnnotationReader
-     * @throws LogicException
-     */
-    protected function getAnnotationReader()
+    public function getEntityNames()
+    {
+        return $this->getDoctrineMetadataDriver()->getAllClassNames();
+    }
+
+    protected function getDoctrineMetadataDriver()
     {
         $driver = $this->em->getConfiguration()->getMetadataDriverImpl();
 
@@ -31,7 +32,16 @@ class Driver
             throw new LogicException('Expects Doctrine2 to be using an annotation metadata driver');
         }
 
-        return $driver->getReader();
+        return $driver;
+    }
+
+    /**
+     * @return \Doctrine\Common\Annotations\AnnotationReader
+     * @throws LogicException
+     */
+    protected function getAnnotationReader()
+    {
+        return $this->getDoctrineMetadataDriver()->getReader();
     }
 
     /**

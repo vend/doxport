@@ -13,6 +13,9 @@ class Criteria
      */
     private static $indent = 0;
 
+    /**
+     * @var Entity
+     */
     protected $metadata;
 
     protected $parent;
@@ -24,9 +27,21 @@ class Criteria
         $this->metadata = $metadata;
     }
 
+    public function getEntityName()
+    {
+        return $this->metadata->getName();
+    }
+
+
     public function addWhereEq($column, $value)
     {
         $this->whereEq[] = [$column, $value];
+    }
+
+
+    public function getAssociationsTo(Entity $other)
+    {
+        return $this->metadata->getClassMetadata()->getAssociationsByTargetClass($other->getName());
     }
 
     public function getPropertiesToFollow()
@@ -48,9 +63,13 @@ class Criteria
         // the
     }
 
-    public function attachChild(Criteria $criteria)
+    public function attachChild(Criteria $criteria, $via = null)
     {
-        $this->children[] = $criteria;
+        if ($via) {
+            $this->children[$via] = $criteria;
+        } else {
+            $this->children[] = $criteria;
+        }
     }
 
     public function __toString()
