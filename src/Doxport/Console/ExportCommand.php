@@ -3,7 +3,8 @@
 namespace Doxport\Console;
 
 use Doxport\CriteriaBuilder;
-use Symfony\Component\Console\Command\Command;
+use Doxport\JoinPass;
+use Doxport\Schema;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -22,14 +23,14 @@ class ExportCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        /* @var \Doctrine\ORM\EntityManager $em */
-        $em = $this->getHelper('em')->getEntityManager();
+        $schema = new Schema($this->getMetadataDriver());
+        $schema->getCriteria($input->getArgument('entity'))
+            ->addWhereEq($input->getArgument('column'), $input->getArgument('value'));
+        $schema->setRoot($input->getArgument('entity'));
 
-        $criteria = (new CriteriaBuilder($em))
-            ->from($input->getArgument('entity'))
-            ->where($input->getArgument('column'), $input->getArgument('value'))
-            ->build();
+        $pass = new JoinPass($this->getMetadataDriver(), $schema);
+        $pass->reduce();
 
-        echo (string)$criteria;
+        echo (string)$schema;
     }
 }
