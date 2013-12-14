@@ -12,52 +12,61 @@ class CriteriaBuilder
      */
     protected $em;
 
-    protected $root;
-    protected $id;
-    protected $type;
-
+    /**
+     * @var Metadata\Driver
+     */
     protected $driver;
+
+    /**
+     * @var Criteria
+     */
+    protected $target;
 
     public function __construct(EntityManager $em)
     {
         $this->em = $em;
         $this->driver = new Driver($this->em);
+        $this->target = new Criteria();
     }
+
+    // Fluent interface
 
     public function from($entity)
     {
-        $this->root = $entity;
+        $this->target->setEntity($this->driver->getEntityMetadata($entity));
         return $this;
     }
 
-    public function id($id)
+    public function where($column, $value)
     {
-        $this->id = $id;
+        $this->target->addWhereEq($column, $value);
         return $this;
     }
+
+    // Fluent interface end
 
     public function build()
     {
         $this->validate();
-        return $this->doBuild($this->root);
+        return $this->doBuild();
     }
+
+    // Public interface end
 
     protected function doBuild()
     {
-        $criteria = new Criteria($this->driver->getEntityMetadata($this->root));
-
-        $this->follow($criteria);
-
-        return $criteria;
+        $this->follow($this->target);
+        return $this->target;
     }
 
     protected function follow(Criteria $criteria)
     {
         foreach ($criteria->getPropertiesToFollow() as $property) {
-            $new = new Criteria($this->driver->getEntityMetadata($property->getTargetEntity()));
+            $new = new Criteria();
+            $new->setEntity($this->driver->getEntityMetadata($property->getTargetEntity()));
             $new->setParent($criteria);
 
-            $criteria->attach($new);
+            $criteria->attachChild($new);
             $this->follow($new); // recurse
         }
     }
@@ -66,6 +75,5 @@ class CriteriaBuilder
     {
         // TODO at least a where criteria (or id() has been called)
         // TODO the root class is selected
-        $metadata = $this->driver->getEntityMetadata($this->root);
     }
 }

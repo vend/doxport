@@ -15,7 +15,8 @@ class ExportCommand extends Command
         $this
             ->setName('export')
             ->addArgument('entity', InputArgument::REQUIRED, 'The entity to begin exporting from', null)
-            ->addArgument('id', InputArgument::REQUIRED, 'The entity that the export will start from', null)
+            ->addArgument('column', InputArgument::REQUIRED, 'A column to limit exporting', null)
+            ->addArgument('value', InputArgument::REQUIRED, 'The value to limit by', null)
             ->setDescription('Exports a set of data from the database, beginning with a specified type');
     }
 
@@ -26,7 +27,7 @@ class ExportCommand extends Command
 
         $criteria = (new CriteriaBuilder($em))
             ->from($input->getArgument('entity'))
-            ->id($input->getArgument('id'))
+            ->where($input->getArgument('column'), $input->getArgument('value'))
             ->build();
 
         echo (string)$criteria;

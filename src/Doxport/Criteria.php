@@ -6,20 +6,34 @@ use Doxport\Metadata\Entity;
 
 class Criteria
 {
+    /**
+     * toString support only
+     *
+     * @var int
+     */
     private static $indent = 0;
 
     protected $metadata;
 
     protected $parent;
     protected $children = [];
+    protected $whereEq = [];
 
-    public function __construct(Entity $metadata)
+    public function setEntity(Entity $metadata)
     {
         $this->metadata = $metadata;
     }
 
+    public function addWhereEq($column, $value)
+    {
+        $this->whereEq[] = [$column, $value];
+    }
+
     public function getPropertiesToFollow()
     {
+        if (!$this->metadata) {
+            throw new \LogicException('No entity set');
+        }
         return $this->metadata->getProperties();
     }
 
@@ -34,7 +48,7 @@ class Criteria
         // the
     }
 
-    public function attach(Criteria $criteria)
+    public function attachChild(Criteria $criteria)
     {
         $this->children[] = $criteria;
     }
@@ -42,7 +56,17 @@ class Criteria
     public function __toString()
     {
         $string = str_repeat(' ', self::$indent);
-        $string .= '+--' . $this->metadata->getName() . "\n";
+        $string .= '+--' . $this->metadata->getName();
+
+        if ($this->whereEq) {
+            $string .= ' (';
+            $string .= implode(', ', array_map(function ($v) {
+                return $v[0] . '=' . $v[1];
+            }, $this->whereEq));
+            $string .= ')';
+        }
+
+        $string .= "\n";
 
         self::$indent += 2;
 
