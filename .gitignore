@@ -3,3 +3,5 @@ syntax: glob
 # Composer
 composer.phar
 vendor
+bin/*
+build/*
