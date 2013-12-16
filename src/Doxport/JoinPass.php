@@ -37,12 +37,12 @@ class JoinPass
     {
         foreach ($this->schema->getAllUnjoinedCriteria() as $criteria) {
             foreach ($this->schema->getAllJoinedCriteria() as $level => $entities) { // In BFS order
-                foreach ($entities as $name => $target) {
-                    if (($via = $this->schema->canBeLinked($criteria, $target))) {
+                foreach ($entities as $name => $_unusedInstance) {
+                    if (($via = $this->schema->canBeLinked($criteria, $name))) {
                         // If there's a covered relation between $criteria and $target
-                        $this->schema->link($criteria, $target, $via);
-                        $this->schema->markJoined($criteria->getEntityName(), $level + 1);
-                        continue 2;
+                        $this->schema->link($name, $criteria, $via);
+                        $this->schema->markJoined($criteria, $level + 1);
+                        continue 3;
                     }
                 }
             }
