@@ -50,7 +50,7 @@ class ExportCommand extends Command
 
         $output->write('Doing export...');
 
-        $export = new Export($schema);
+        $export = new Export($this->getEntityManager(), $schema);
         $export->run();
 
         $output->writeln('done.');

@@ -207,6 +207,7 @@ class Schema
         foreach ($this->unjoined as $name) {
             $string .= (string)$this->criteria[$name];
         }
+
         $string .= "\n";
 
         $string .= 'End of schema';

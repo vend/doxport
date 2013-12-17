@@ -2,47 +2,72 @@
 
 namespace Doxport\Action;
 
-use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\Query;
 use Doxport\Criteria;
-use Doxport\Schema;
+use Doxport\Util\Serializer;
 
 class Export extends Action
 {
-    protected $schema;
+    use JoiningAction;
 
-    protected $em;
+    const CHUNK_SIZE = 100;
 
-    public function __construct(EntityManager $em, Schema $schema)
+    /**
+     * Directory to export to
+     *
+     * @var string
+     */
+    protected $to;
+
+    protected function configure()
     {
-        $this->em = $em;
-        $this->schema = $schema;
+        $this->to = 'build/export/' . date('YmdHis');
+    }
+
+    /**
+     * @return integer
+     */
+    protected function getType()
+    {
+        return Action::TYPE_DFS;
     }
 
     public function run()
     {
-        $this->walk($this->schema->getRootCriteria());
+        if (!is_dir($this->to)) {
+            mkdir($this->to, 0644, true);
+        }
+
+        parent::run();
     }
 
-    /**
-     * @param Criteria $criteria
-     */
-    protected function walk(Criteria $criteria)
+    protected function process(Criteria $criteria)
     {
-        // Recurse for children
-        foreach ($criteria->getChildren() as $child) {
-            $this->walk($child);
+        $file       = $this->to . '/' . $criteria->getEntityClassName();
+        $handle     = fopen($file, 'a+');
+
+        $query = $this->getQuery($criteria);
+        $iterator = $query->iterate(null, Query::HYDRATE_SIMPLEOBJECT);
+
+        foreach ($iterator as $result) {
+            $entity = $result[0];
+            $serialized = $this->serialize($entity);
+
+            fputcsv($handle, $serialized);
+            fflush($handle);
+
+            $this->em->detach($entity); // Allow GC
         }
 
+        fclose($handle);
+    }
+
+    protected function getQuery(Criteria $criteria)
+    {
         $qb = $this->em->createQueryBuilder();
 
-        $qb->from($criteria->getEntityName(), 'c');
+        $this->apply($criteria, $qb);
 
-        if (($parent = $criteria->getParent())) {
-            $a = $parent;
-
-            // Collect criteria/join to parent
-        }
-
-
+        return $qb->getQuery();
     }
 }

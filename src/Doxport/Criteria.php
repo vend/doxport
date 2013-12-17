@@ -2,17 +2,17 @@
 
 namespace Doxport;
 
-use Doxport\Exception\UnimplementedException;
 use Doxport\Metadata\Entity;
+use Doxport\Util\CriteriaOutputFormatter;
 
 class Criteria
 {
     /**
-     * toString support only
+     * Table alias map
      *
-     * @var int
+     * @var array<string => string>
      */
-    private static $indent = 0;
+    protected static $alias = [];
 
     /**
      * @var Entity
@@ -24,26 +24,107 @@ class Criteria
      */
     protected $name;
 
+    /**
+     * @var Criteria
+     */
     protected $parent;
+
+    /**
+     * @var Criteria[]
+     */
     protected $children = [];
 
+    /**
+     * @var array
+     */
     protected $whereEqParent = [];
+
+    /**
+     * @var array
+     */
     protected $whereEq = [];
 
+    /**
+     * @param Entity $metadata
+     * @return void
+     */
     public function setEntity(Entity $metadata)
     {
         $this->metadata = $metadata;
         $this->name     = $metadata->getName();
     }
 
+    /**
+     * @param Criteria $criteria
+     * @param array    $via
+     * @return void
+     */
+    public function attachChild(Criteria $criteria, array $via)
+    {
+        $this->children[] = $criteria;
+
+        $criteria->setParent($this);
+        $criteria->setWhereEqParent($via['fieldName']);
+    }
+
+    /**
+     * @param string $column
+     * @param mixed  $value
+     * @return void
+     */
+    public function addWhereEq($column, $value)
+    {
+        $this->whereEq[$column] = $value;
+    }
+
+    /**
+     * @param string $association Field name of the association
+     * @return void
+     */
+    public function setWhereEqParent($association)
+    {
+        $this->whereEqParent = $association;
+    }
+
+    /**
+     * @return string
+     */
     public function getEntityName()
     {
         return $this->name;
     }
 
-    public function addWhereEq($column, $value)
+    /**
+     * @return string
+     */
+    public function getEntityClassName()
     {
-        $this->whereEq[] = [$column, $value];
+        $parts = explode('\\', $this->name);
+        return $parts[count($parts) - 1];
+    }
+
+    /**
+     * @return Criteria[]
+     */
+    public function getChildren()
+    {
+        return $this->children;
+    }
+
+    /**
+     * @return array
+     */
+    public function getWhereEqParent()
+    {
+        return $this->whereEqParent;
+    }
+
+    /**
+     * @return array
+     */
+    public function getWhereEq()
+    {
+        return $this->whereEq;
     }
 
     /**
@@ -55,25 +136,6 @@ class Criteria
         return $this->metadata->getClassMetadata()->getAssociationsByTargetClass($other);
     }
 
-    public function getPropertiesToFollow()
-    {
-        throw new UnimplementedException('Not used?');
-
-        if (!$this->metadata) {
-            throw new \LogicException('No entity set');
-        }
-
-        return $this->metadata->getProperties();
-    }
-
-    /**
-     * @param Criteria $criteria
-     */
-    protected function setParent(Criteria $criteria)
-    {
-        $this->parent = $criteria;
-    }
-
     /**
      * @return mixed
      */
@@ -83,78 +145,42 @@ class Criteria
     }
 
     /**
-     * @param array $columnMap
+     * @return string
      */
-    public function setWhereEqParent($association)
+    public function getQueryAlias()
     {
-        $this->whereEqParent[] = $association;
+        $name = $this->getEntityName();
+
+        if (!isset(self::$alias[$name])) {
+            $char   = strtolower(strrchr($name, '\\')[1]);
+            $simple = $char;
+            $index  = 1;
+
+            while (in_array($simple, self::$alias)) {
+                $simple = $char . (++$index);
+            }
+
+            self::$alias[$name] = $simple;
+        }
+
+        return self::$alias[$name];
     }
 
     /**
      * @param Criteria $criteria
-     * @param array    $via
+     * @return void
      */
-    public function attachChild(Criteria $criteria, array $via)
+    protected function setParent(Criteria $criteria)
     {
-        $this->children[] = $criteria;
-
-        $criteria->setParent($this);
-        $criteria->setWhereEqParent($via['fieldName']);
+        $this->parent = $criteria;
     }
 
     /**
-     * toString
-     *
      * @return string
      */
     public function __toString()
     {
-        $string = str_repeat(' ', self::$indent);
-        $string .= '+--' . $this->metadata->getName();
-
-        if ($this->whereEq) {
-            $string .= ' (';
-
-            $string .= implode(', ', array_map(function ($v) {
-                return $v[0] . ' = ' . $v[1];
-            }, $this->whereEq));
-
-            $string .= ')';
-        }
-
-        if ($this->whereEqParent) {
-            $string .= ' (';
-
-            $result = [];
-            foreach ($this->whereEqParent as $local => $foreign) {
-                $result[] = $local . ' = %.' . $foreign;
-            }
-
-            $string .= implode(', ', $result);
-
-            $string .= ')';
-        }
-
-        $string .= "\n";
-
-        self::$indent += 2;
-
-        foreach ($this->children as $child) {
-            $string .= (string)$child;
-        }
-
-        self::$indent -= 2;
-
-        return $string;
-    }
-
-    public function getChildren()
-    {
-        return $this->children;
-    }
-
-    public function getWhereEqParent()
-    {
-        return $this->whereEqParent;
+        $formatter = new CriteriaOutputFormatter($this);
+        return $formatter->getOutput();
     }
 }
