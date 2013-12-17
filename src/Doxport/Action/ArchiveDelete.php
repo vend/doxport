@@ -4,9 +4,8 @@ namespace Doxport\Action;
 
 use Doctrine\ORM\Query;
 use Doxport\Criteria;
-use Doxport\Util\SimpleObjectSerializer;
 
-class Export extends Action
+class ArchiveDelete extends Action
 {
     use JoiningAction;
 
@@ -69,15 +68,5 @@ class Export extends Action
         $this->apply($criteria, $qb);
 
         return $qb->getQuery();
-    }
-
-    protected function serialize($entity)
-    {
-        if (method_exists($entity, '__sleep')) {
-            return $entity->__sleep();
-        }
-
-        $serializer = new SimpleObjectSerializer($this->em);
-        return $serializer->serialize($entity);
     }
 }

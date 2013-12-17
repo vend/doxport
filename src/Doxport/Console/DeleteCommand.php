@@ -2,14 +2,14 @@
 
 namespace Doxport\Console;
 
-use Doxport\Action\Export;
+use Doxport\Action\ArchiveDelete;
 use Doxport\JoinPass;
 use Doxport\Schema;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class ExportCommand extends Command
+class DeleteCommand extends Command
 {
     /**
      * @return void
@@ -19,11 +19,11 @@ class ExportCommand extends Command
         parent::configure();
 
         $this
-            ->setName('export')
-            ->addArgument('entity', InputArgument::REQUIRED, 'The entity to begin exporting from', null)
-            ->addArgument('column', InputArgument::REQUIRED, 'A column to limit exporting', null)
+            ->setName('delete')
+            ->addArgument('entity', InputArgument::REQUIRED, 'The entity to begin deleting from', null)
+            ->addArgument('column', InputArgument::REQUIRED, 'A column to limit deleting', null)
             ->addArgument('value', InputArgument::REQUIRED, 'The value to limit by', null)
-            ->setDescription('Exports a set of data from the database, beginning with a specified type, in the ' . \VendApplicationConfiguration::getActive()->getEnvironment() . ' env');
+            ->setDescription('Deletes a set of data from the database, beginning with a specified type, but not including it');
     }
 
     /**
@@ -45,12 +45,12 @@ class ExportCommand extends Command
      * @param OutputInterface $output
      * @return void
      */
-    protected function performExport(Schema $schema, OutputInterface $output)
+    protected function performDelete(Schema $schema, OutputInterface $output)
     {
-        $output->write('Doing export...');
+        $output->write('Doing delete...');
 
-        $export = new Export($this->getEntityManager(), $schema, $output);
-        $export->run();
+        $delete = new ArchiveDelete($this->getEntityManager(), $schema, $output);
+        $delete->run();
 
         $output->writeln('done.');
     }

@@ -1,6 +1,7 @@
 #!/usr/bin/env php
 <?php
 
+use Doxport\Console\DeleteCommand;
 use Doxport\Console\ExportCommand;
 use Doxport\Version;
 use Symfony\Component\Console\Application;
@@ -39,5 +40,6 @@ $application->setHelperSet($helperSet);
 
 // Commands
 $application->add(new ExportCommand());
+$application->add(new DeleteCommand());
 
 $application->run();

@@ -6,6 +6,7 @@ use Doctrine\ORM\EntityManager;
 use Doxport\Criteria;
 use Doxport\Schema;
 use Doxport\Util\SimpleObjectSerializer;
+use Symfony\Component\Console\Output\OutputInterface;
 
 abstract class Action
 {
@@ -21,6 +22,11 @@ abstract class Action
      * @var EntityManager
      */
     protected $em;
+
+    /**
+     * @var OutputInterface
+     */
+    protected $output;
 
     /**
      * @param Criteria $criteria
@@ -43,6 +49,15 @@ abstract class Action
         $this->schema = $schema;
 
         $this->configure();
+    }
+
+    /**
+     * @param OutputInterface $output
+     * @return void
+     */
+    public function setOutputInterface(OutputInterface $output)
+    {
+        $this->output = $output;
     }
 
     /**
@@ -98,13 +113,5 @@ abstract class Action
         }
     }
 
-    protected function serialize($entity)
-    {
-        if (method_exists($entity, '__sleep')) {
-            return $entity->__sleep();
-        }
 
-        $serializer = new SimpleObjectSerializer($this->em);
-        return $serializer->serialize($entity);
-    }
 }
