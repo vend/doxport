@@ -37,7 +37,7 @@ class DeleteCommand extends Command
 
         $schema = $this->prepareSchema($input, $output);
         $this->writeSchemaToOutput($schema, $output);
-        $this->performExport($schema, $output);
+        $this->performDelete($schema, $output);
     }
 
     /**

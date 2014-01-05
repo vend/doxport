@@ -29,6 +29,13 @@ abstract class Action
     protected $output;
 
     /**
+     * File descriptor to output file
+     *
+     * @var resource
+     */
+    protected $file;
+
+    /**
      * @param Criteria $criteria
      * @return void
      */
@@ -113,5 +120,18 @@ abstract class Action
         }
     }
 
+    /**
+     * @todo better name, not really serialization
+     * @param $entity
+     * @return array
+     */
+    protected function serialize($entity)
+    {
+        if (method_exists($entity, '__sleep')) {
+            return $entity->__sleep();
+        }
 
+        $serializer = new SimpleObjectSerializer($this->em);
+        return $serializer->serialize($entity);
+    }
 }

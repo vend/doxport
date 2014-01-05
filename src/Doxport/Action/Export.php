@@ -4,24 +4,14 @@ namespace Doxport\Action;
 
 use Doctrine\ORM\Query;
 use Doxport\Criteria;
-use Doxport\Util\SimpleObjectSerializer;
 
-class Export extends Action
+class Export extends FileAction
 {
     use JoiningAction;
 
-    const CHUNK_SIZE = 100;
-
-    /**
-     * Directory to export to
-     *
-     * @var string
-     */
-    protected $to;
-
-    protected function configure()
+    protected function getFilePath(Criteria $criteria)
     {
-        $this->to = 'build/export/' . date('YmdHis');
+        return 'build/export/' . date('YmdHis') . '/' . strtolower($criteria->getEntityClassName()) . '.sql';
     }
 
     /**
@@ -32,52 +22,20 @@ class Export extends Action
         return Action::TYPE_DFS;
     }
 
-    public function run()
+    protected function doProcess(Criteria $criteria)
     {
-        if (!is_dir($this->to)) {
-            mkdir($this->to, 0644, true);
-        }
-
-        parent::run();
-    }
-
-    protected function process(Criteria $criteria)
-    {
-        $file   = $this->to . '/' . $criteria->getEntityClassName();
-        $handle = fopen($file, 'a');
-
-        $query = $this->getQuery($criteria);
+        $query = $this->getSelectQuery($criteria);
         $iterator = $query->iterate(null, Query::HYDRATE_SIMPLEOBJECT);
 
         foreach ($iterator as $result) {
             $entity = $result[0];
             $serialized = $this->serialize($entity);
 
-            fputcsv($handle, $serialized);
-            fflush($handle);
+            $this->file->writeCsvRow($serialized);
 
             $this->em->detach($entity); // Allow GC
         }
 
-        fclose($handle);
-    }
-
-    protected function getQuery(Criteria $criteria)
-    {
-        $qb = $this->em->createQueryBuilder();
-
-        $this->apply($criteria, $qb);
-
-        return $qb->getQuery();
-    }
-
-    protected function serialize($entity)
-    {
-        if (method_exists($entity, '__sleep')) {
-            return $entity->__sleep();
-        }
-
-        $serializer = new SimpleObjectSerializer($this->em);
-        return $serializer->serialize($entity);
+        $this->file->flush();
     }
 }

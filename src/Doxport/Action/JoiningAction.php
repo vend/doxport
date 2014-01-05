@@ -34,6 +34,13 @@ trait JoiningAction
 //        ));
     }
 
+    protected function getSelectQuery(Criteria $criteria)
+    {
+        $qb = $this->em->createQueryBuilder();
+        $this->apply($criteria, $qb);
+        return $qb->getQuery();
+    }
+
     /**
      * @param Criteria     $criteria
      * @param QueryBuilder $builder

@@ -4,24 +4,11 @@ namespace Doxport\Action;
 
 use Doctrine\ORM\Query;
 use Doxport\Criteria;
+use Exception;
 
-class ArchiveDelete extends Action
+class ArchiveDelete extends FileAction
 {
     use JoiningAction;
-
-    const CHUNK_SIZE = 100;
-
-    /**
-     * Directory to export to
-     *
-     * @var string
-     */
-    protected $to;
-
-    protected function configure()
-    {
-        $this->to = 'build/export/' . date('YmdHis');
-    }
 
     /**
      * @return integer
@@ -31,42 +18,71 @@ class ArchiveDelete extends Action
         return Action::TYPE_DFS;
     }
 
-    public function run()
+    protected function getFilePath(Criteria $criteria)
     {
-        if (!is_dir($this->to)) {
-            mkdir($this->to, 0644, true);
-        }
-
-        parent::run();
+        return 'build/archived/' . date('YmdHis') . '/' . strtolower($criteria->getEntityClassName()) . '.sql';
     }
 
-    protected function process(Criteria $criteria)
+    protected function doProcess(Criteria $criteria)
     {
-        $file   = $this->to . '/' . $criteria->getEntityClassName();
-        $handle = fopen($file, 'a');
-
-        $query = $this->getQuery($criteria);
+        // Do initial query for entities to process
+        $query = $this->getSelectQuery($criteria);
         $iterator = $query->iterate(null, Query::HYDRATE_SIMPLEOBJECT);
 
-        foreach ($iterator as $result) {
-            $entity = $result[0];
-            $serialized = $this->serialize($entity);
+        // Start a transaction
+        $connection = $this->em->getConnection();
+        $connection->beginTransaction(); // Don't want transactional()
 
-            fputcsv($handle, $serialized);
-            fflush($handle);
+        try {
+            foreach ($iterator as $result) {
+                $entity = $result[0];
 
-            $this->em->detach($entity); // Allow GC
+                $serialized = $this->serialize($entity);
+
+                $this->file->writeCsvRow($serialized);  // Write to file
+                $this->delete($criteria, $entity); // Send DELETE query, TODO return value
+
+                $this->em->detach($entity); // Allow GC
+            }
+
+            // Sync the results to the file
+            $this->file->flush();
+            $this->file->sync(function ($data, $result) {
+                if (!$result || true) { // TODO Debugging or branch
+                    throw new IOException('Could not write to result file, should skip transaction');
+                }
+            });
+            $this-            >file->close();
+
+            $connection->commit();   // db commit
+        } catch (Exception $e) {
+            $connection->rollBack(); // or rollback
+            throw $e;
         }
-
-        fclose($handle);
     }
 
-    protected function getQuery(Criteria $criteria)
+    /**
+     * Does a single row delete based on the identifiers of the row
+     *
+     * @param Criteria $criteria
+     * @param $entity
+     * @return mixed
+     */
+    protected function delete(Criteria $criteria, $entity)
     {
-        $qb = $this->em->createQueryBuilder();
+        $unit = $this->em->getUnitOfWork();
 
-        $this->apply($criteria, $qb);
+        $qb = $this->em->createQueryBuilder()
+            ->delete()
+            ->from($criteria->getEntityName(), $criteria->getQueryAlias());
 
-        return $qb->getQuery();
+        $data = $unit->getOriginalEntityData($entity);
+
+        foreach ($criteria->getMetadata()->getClassMetadata()->getIdentifierFieldNames() as $idField) {
+            $qb->andWhere($qb->expr()->eq($criteria->getQueryAlias() . '.' . $idField, ':' . $criteria->getQueryAlias() . $idField));
+            $qb->setParameter(':' . $criteria->getQueryAlias() . $idField, $data[$idField]);
+        }
+
+        return $qb->getQuery()->execute();
     }
 }

@@ -3,6 +3,7 @@
 
 use Doxport\Console\DeleteCommand;
 use Doxport\Console\ExportCommand;
+use Doxport\Console\ConsoleRunner;
 use Doxport\Version;
 use Symfony\Component\Console\Application;
 
@@ -33,13 +34,4 @@ if (!is_readable($config)) {
 }
 
 $helperSet = require $config;
-
-$application = new Application('Doxport relational data tool', Version::VERSION);
-$application->setCatchExceptions(true);
-$application->setHelperSet($helperSet);
-
-// Commands
-$application->add(new ExportCommand());
-$application->add(new DeleteCommand());
-
-$application->run();
+ConsoleRunner::run($helperSet);

@@ -54,6 +54,11 @@ class Criteria
         $this->name     = $metadata->getName();
     }
 
+    public function getMetadata()
+    {
+        return $this->metadata;
+    }
+
     /**
      * @param Criteria $criteria
      * @param array    $via
