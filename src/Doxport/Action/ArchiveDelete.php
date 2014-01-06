@@ -5,6 +5,7 @@ namespace Doxport\Action;
 use Doctrine\ORM\Query;
 use Doxport\Criteria;
 use Exception;
+use Doxport\Util\SimpleObjectSerializer;
 
 class ArchiveDelete extends FileAction
 {
@@ -84,5 +85,15 @@ class ArchiveDelete extends FileAction
         }
 
         return $qb->getQuery()->execute();
+    }
+
+    protected function serialize($entity)
+    {
+        if (method_exists($entity, '__sleep')) {
+            return $entity->__sleep();
+        }
+
+        $serializer = new SimpleObjectSerializer($this->em);
+        return $serializer->serialize($entity);
     }
 }
