@@ -9,8 +9,6 @@ use Doxport\Util\SimpleObjectSerializer;
 
 class ArchiveDelete extends FileAction
 {
-    use JoiningAction;
-
     const CHUNK_SIZE = 100;
 
     /**

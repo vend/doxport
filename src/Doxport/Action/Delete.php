@@ -2,9 +2,12 @@
 
 namespace Doxport\Action;
 
-class Delete
+use Doxport\Criteria;
+
+class Delete extends QueryAction
 {
-    public function addJoin()
-    {
-    }
+
+
+
+
 }
