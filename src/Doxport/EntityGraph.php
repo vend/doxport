@@ -21,8 +21,9 @@ class EntityGraph
     /**
      * @param Driver $driver
      */
-    public function __construct()
+    public function __construct($root)
     {
+        $this->root   = $root;
         $this->graph  = new Graph();
     }
 
@@ -51,9 +52,9 @@ class EntityGraph
         }
     }
 
-    public function connectedTo($root)
+    public function connectedTo()
     {
-        $alg = new BreadthFirst($this->graph->getVertex($root));
+        $alg = new BreadthFirst($this->graph->getVertex($this->root));
         $alg->setDirection(BreadthFirst::DIRECTION_REVERSE);
         $vertices = $alg->getVertices();
 

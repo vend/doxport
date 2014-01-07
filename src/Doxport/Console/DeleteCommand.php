@@ -47,13 +47,14 @@ class DeleteCommand extends Command
 
         $driver = $this->getMetadataDriver();
 
-        $graph = new EntityGraph();
-        $pass = new ConstraintPass($driver, $graph, $input->getArgument('entity'));
+        $graph = new EntityGraph($input->getArgument('entity'));
+        $pass = new ConstraintPass($driver, $graph);
         $vertices = $pass->run();
 
         $graph->export($dir . '/constraints.png');
 
-        $pass = new JoinPass($vertices, $driver, new Delete($this->getEntityManager()));
+        $graph = new EntityGraph($input->getArgument('entity'));
+        $pass = new JoinPass($vertices, $driver, $graph, new Delete($this->getEntityManager()));
         $pass->run();
 
         $output->writeln('All done.');
