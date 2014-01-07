@@ -5,6 +5,7 @@ namespace Doxport\Console;
 use Doxport\Action\Delete;
 use Doxport\Schema;
 use Doxport\EntityGraph;
+use Doxport\Util\QueryAliases;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -53,68 +54,13 @@ class DeleteCommand extends Command
 
         $graph->export($dir . '/constraints.png');
 
+        $action = new Delete($this->getEntityManager(), new QueryAliases());
+        $action->addRootCriteria($input->getArgument('column'), $input->getArgument('value'));
+
         $graph = new EntityGraph($input->getArgument('entity'));
-        $pass = new JoinPass($vertices, $driver, $graph, new Delete($this->getEntityManager()));
+        $pass = new JoinPass($driver, $graph, $vertices, $action);
         $pass->run();
 
         $output->writeln('All done.');
-
-        //$schema = $this->prepareSchema($input, $output);
-        //$this->writeSchemaToOutput($schema, $output);
-        //$this->performDelete($schema, $output);
-    }
-
-    /**
-     * @param Schema          $schema
-     * @param OutputInterface $output
-     * @return void
-     */
-    protected function performDelete(Schema $schema, OutputInterface $output)
-    {
-        $output->write('Doing delete...');
-
-        $delete = new ArchiveDelete($this->getEntityManager(), $schema, $output);
-        $delete->setOutputInterface($output);
-        $delete->run();
-
-        $output->writeln('done.');
-    }
-
-    /**
-     * @param Schema          $schema
-     * @param OutputInterface $output
-     * @return void
-     */
-    protected function writeSchemaToOutput(Schema $schema, OutputInterface $output)
-    {
-        if ($output->getVerbosity() > OutputInterface::VERBOSITY_NORMAL) {
-            $output->write((string)$schema);
-        }
-    }
-
-    /**
-     * @param InputInterface  $input
-     * @param OutputInterface $output
-     * @return Schema
-     */
-    protected function prepareSchema(InputInterface $input, OutputInterface $output)
-    {
-        $output->write('Preparing schema for export...');
-
-        $schema = new Schema($this->getMetadataDriver());
-
-        $schema->getCriteria($input->getArgument('entity'))
-            ->addWhereEq($input->getArgument('column'), $input->getArgument('value'));
-        $schema->setRoot($input->getArgument('entity'));
-
-        $output->writeln('done.');
-        $output->write('Choosing path through tables...');
-
-        $pass = new JoinPass($this->getMetadataDriver(), $schema);
-        $pass->reduce();
-
-        $output->writeln('done.');
-
-        return $schema;
     }
 }

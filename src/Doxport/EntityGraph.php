@@ -19,7 +19,12 @@ class EntityGraph
     protected $entities = [];
 
     /**
-     * @param Driver $driver
+     * @var string
+     */
+    protected $root;
+
+    /**
+     * @param string $root
      */
     public function __construct($root)
     {
@@ -52,7 +57,7 @@ class EntityGraph
         }
     }
 
-    public function connectedTo()
+    public function filterConnected()
     {
         $alg = new BreadthFirst($this->graph->getVertex($this->root));
         $alg->setDirection(BreadthFirst::DIRECTION_REVERSE);
@@ -74,4 +79,10 @@ class EntityGraph
         $sort = new TopologicalSort($this->graph);
         return $sort->getVertices();
     }
+
+    public function getRoot()
+    {
+        return $this->root;
+    }
+
 }

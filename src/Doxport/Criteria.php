@@ -150,28 +150,6 @@ class Criteria
     }
 
     /**
-     * @return string
-     */
-    public function getQueryAlias()
-    {
-        $name = $this->getEntityName();
-
-        if (!isset(self::$alias[$name])) {
-            $char   = strtolower(strrchr($name, '\\')[1]);
-            $simple = $char;
-            $index  = 1;
-
-            while (in_array($simple, self::$alias)) {
-                $simple = $char . (++$index);
-            }
-
-            self::$alias[$name] = $simple;
-        }
-
-        return self::$alias[$name];
-    }
-
-    /**
      * @param Criteria $criteria
      * @return void
      */

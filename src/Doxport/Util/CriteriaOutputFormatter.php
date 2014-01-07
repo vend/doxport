@@ -4,6 +4,9 @@ namespace Doxport\Util;
 
 use Doxport\Criteria;
 
+/**
+ * @deprecated
+ */
 class CriteriaOutputFormatter
 {
     /**

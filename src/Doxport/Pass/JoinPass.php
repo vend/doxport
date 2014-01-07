@@ -2,11 +2,12 @@
 
 namespace Doxport\Pass;
 
+use Doxport\Action\Action;
 use Doxport\EntityGraph;
-use Doxport\Action\Delete;
 use Doxport\Metadata\Driver;
 use Fhaculty\Graph\Algorithm\ShortestPath\BreadthFirst;
 use Fhaculty\Graph\Set\Vertices;
+use Fhaculty\Graph\Vertex;
 
 class JoinPass extends Pass
 {
@@ -16,20 +17,27 @@ class JoinPass extends Pass
     protected $vertices;
 
     /**
-     * @var \Fhaculty\Graph\Graph
+     * @var \Doxport\Action\Action
      */
-    protected $graph;
-
     protected $action;
 
-    public function __construct(Vertices $vertices, Driver $driver, EntityGraph $graph, Delete $action)
+    /**
+     * @param Driver      $driver
+     * @param EntityGraph $graph
+     * @param Vertices    $vertices
+     * @param Action      $action
+     */
+    public function __construct(Driver $driver, EntityGraph $graph, Vertices $vertices, Action $action)
     {
+        parent::__construct($driver, $graph);
+
         $this->vertices = $vertices;
-        $this->graph = $graph;
         $this->action = $action;
-        $this->driver = $driver;
     }
 
+    /**
+     * @return void
+     */
     public function run()
     {
         $this->graph->from($this->driver, function (array $association) {
@@ -40,15 +48,18 @@ class JoinPass extends Pass
                 && !$this->driver->isOptionalAssociation($association);
         });
 
-        $this->graph->connectedTo($this->vertices->getVertexLast()->getId());
+        $this->graph->filterConnected();
 
         foreach ($this->vertices as $vertex) {
-            $shortestPath = new BreadthFirst($vertex);
-            $walk = $shortestPath->getWalkTo($this->vertices->getVertexFirst());
-
-            foreach ($walk->getEdges() as $edge) {
-                $this->action->addJoin($edge);
+            /* @var $vertex Vertex */
+            if ($vertex->getId() == $this->graph->getRoot()) {
+                continue;
             }
+
+            $shortestPath = new BreadthFirst($vertex);
+            $walk = $shortestPath->getWalkTo($this->vertices->getVertexLast());
+
+            $this->action->process($vertex, $walk);
         }
     }
 

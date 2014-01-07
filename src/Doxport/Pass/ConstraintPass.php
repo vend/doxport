@@ -8,17 +8,6 @@ use Doxport\EntityGraph;
 
 class ConstraintPass extends Pass
 {
-    protected $driver;
-
-    protected $root;
-
-    public function __construct(Driver $driver, EntityGraph $graph, $root)
-    {
-        $this->driver = $driver;
-        $this->root = $root;
-        $this->graph = $graph;
-    }
-
     /**
      * @return \Fhaculty\Graph\Set\Vertices In work order to respect constraints
      */
@@ -32,7 +21,7 @@ class ConstraintPass extends Pass
                 && !$this->driver->isOptionalAssociation($association);
         });
 
-        $this->graph->connectedTo($this->root);
+        $this->graph->filterConnected();
 
         return $this->graph->topologicalSort();
     }
