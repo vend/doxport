@@ -46,7 +46,7 @@ abstract class QueryAction extends Action
     {
         $target = $vertex->getId();
 
-        $this->log('Collecting criteria to produce SELECT for ' . $target);
+        $this->logger->notice('Collecting criteria to produce SELECT for ' . $target);
 
         $builder = new QueryBuilder($this->em);
         $builder->select($alias = $this->aliases->get($target));

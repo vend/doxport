@@ -3,13 +3,18 @@
 namespace Doxport\Console;
 
 use Doctrine\ORM\EntityManager;
+use Doxport\Log\OutputLogger;
 use Doxport\Metadata\Driver;
+use Psr\Log\LoggerAwareInterface;
+use Psr\Log\LoggerAwareTrait;
 use Symfony\Component\Console\Command\Command as CommandComponent;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-abstract class Command extends CommandComponent
+abstract class Command extends CommandComponent implements LoggerAwareInterface
 {
+    use LoggerAwareTrait;
+
     /**
      * @return EntityManager
      */
@@ -33,6 +38,8 @@ abstract class Command extends CommandComponent
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        // Nada.
+        if (!$this->logger) {
+            $this->logger = new OutputLogger($output);
+        }
     }
 }

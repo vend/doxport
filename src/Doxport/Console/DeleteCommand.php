@@ -55,12 +55,13 @@ class DeleteCommand extends Command
         $graph->export($dir . '/constraints.png');
 
         $action = new Delete($this->getEntityManager(), new QueryAliases());
+        $action->setLogger($this->logger);
         $action->addRootCriteria($input->getArgument('column'), $input->getArgument('value'));
 
         $graph = new EntityGraph($input->getArgument('entity'));
         $pass = new JoinPass($driver, $graph, $vertices, $action);
         $pass->run();
 
-        $output->writeln('All done.');
+        $this->logger->notice('All done.');
     }
 }

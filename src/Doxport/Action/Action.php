@@ -6,27 +6,16 @@ use Doxport\Schema;
 use Doxport\Util\SimpleObjectSerializer;
 use Fhaculty\Graph\Vertex;
 use Fhaculty\Graph\Walk;
-use Symfony\Component\Console\Output\OutputInterface;
+use Psr\Log\LoggerAwareInterface;
+use Psr\Log\LoggerAwareTrait;
 
-abstract class Action
+abstract class Action implements LoggerAwareInterface
 {
-    /**
-     * @var OutputInterface
-     */
-    protected $output;
+    use LoggerAwareTrait;
 
     /**
-     * @param OutputInterface $output
-     * @return void
-     */
-    public function setOutputInterface(OutputInterface $output)
-    {
-        $this->output = $output;
-    }
-
-    /**
-     * @param \Fhaculty\Graph\Vertex $target
-     * @param \Fhaculty\Graph\Walk   $walkToRoot
+     * @param Vertex $target
+     * @param Walk   $walkToRoot
      * @return void
      */
     abstract public function process(Vertex $target, Walk $walkToRoot);
