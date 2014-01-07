@@ -68,59 +68,6 @@ abstract class Action
     }
 
     /**
-     * Configures the action
-     */
-    protected function configure()
-    {
-    }
-
-    /**
-     * Runs the action
-     *
-     * @return void
-     */
-    public function run()
-    {
-        $root = $this->schema->getRootCriteria();
-
-        if ($this->getType() == self::TYPE_DFS) {
-            $this->dfs($root);
-        } elseif ($this->getType() == self::TYPE_BFS) {
-            $this->bfs($root);
-        }
-    }
-
-    /**
-     * Does a depth first search
-     *
-     * @param Criteria $criteria
-     * @return void
-     */
-    protected function dfs(Criteria $criteria)
-    {
-        foreach ($criteria->getChildren() as $child) {
-            $this->dfs($child);
-        }
-
-        $this->process($criteria);
-    }
-
-    /**
-     * Does a breadth first search
-     *
-     * @param Criteria $criteria
-     * @return void
-     */
-    protected function bfs(Criteria $criteria)
-    {
-        $this->process($criteria);
-
-        foreach ($criteria->getChildren() as $child) {
-            $this->bfs($child);
-        }
-    }
-
-    /**
      * @todo better name, not really serialization
      * @param $entity
      * @return array

@@ -4,6 +4,7 @@ namespace Doxport\Metadata;
 
 use Doctrine\Common\Persistence\Mapping\Driver\MappingDriver;
 use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\Mapping\ClassMetadata;
 use Doctrine\ORM\Mapping\Driver\AnnotationDriver;
 use Doctrine\DBAL\Driver\Statement;
 use \LogicException;
@@ -38,6 +39,12 @@ class Driver
     public function __construct(EntityManager $em)
     {
         $this->em = $em;
+
+        $this->doctrine = $this->em->getConfiguration()->getMetadataDriverImpl();
+
+        if (!($this->doctrine instanceof AnnotationDriver)) {
+            throw new LogicException('Doxport expects Doctrine2 to be using an annotation metadata driver');
+        }
     }
 
     /**
@@ -81,21 +88,27 @@ class Driver
         return true;  //$this->driver->isNullableColumn($association['sourceEntity'], $association['joinColumnFieldNames']);
     }
 
-    /**
-     * @return MappingDriver
-     * @throws LogicException
-     */
-    protected function getDoctrineMetadataDriver()
+    public function isSupportedAssociation(array $association)
     {
-        if (!isset($this->doctrine)) {
-            $this->doctrine = $this->em->getConfiguration()->getMetadataDriverImpl();
-
-            if (!($this->doctrine instanceof AnnotationDriver)) {
-                throw new LogicException('Doxport expects Doctrine2 to be using an annotation metadata driver');
-            }
+        if ($association['type'] == ClassMetadata::MANY_TO_MANY) {
+            return false;
         }
 
-        return $this->doctrine;
+        if (!$association['isOwningSide']) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * @param array $association
+     * @todo Whether the association is covered by a relational constraint preventing deletion
+     *       (not including onDelete={cascade, set_null, ...?}
+     */
+    public function isConstraintAssociation(array $association)
+    {
+        return true;
     }
 
     /**
@@ -104,7 +117,7 @@ class Driver
      */
     protected function getAnnotationReader()
     {
-        return $this->getDoctrineMetadataDriver()->getReader();
+        return $this->doctrine->getReader();
     }
 
     /**
@@ -172,6 +185,10 @@ class Driver
      */
     public function isCoveredAssociation(array $association)
     {
+        if (!isset($association['joinColumnFieldNames'])) {
+            $b = 2;
+        }
+
         return $this->isCovered($association['sourceEntity'], $association['joinColumnFieldNames']);
     }
 }

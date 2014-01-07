@@ -4,13 +4,15 @@ namespace Doxport;
 
 use Doxport\Metadata\Driver;
 use Doxport\Metadata\Entity;
-use Fhaculty\Graph\Edge\Directed;
+use Fhaculty\Graph\Algorithm\ConnectedComponents;
+use Fhaculty\Graph\Algorithm\Search\BreadthFirst;
+use Fhaculty\Graph\Algorithm\TopologicalSort;
+use Fhaculty\Graph\Algorithm\Weight;
+use Fhaculty\Graph\Exporter\Image;
 use Fhaculty\Graph\Graph;
 
 class EntityGraph
 {
-    protected $driver;
-
     /**
      * @var Entity[]
      */
@@ -19,25 +21,56 @@ class EntityGraph
     /**
      * @param Driver $driver
      */
-    public function __construct($driver = null)
+    public function __construct()
     {
-        $this->driver = $driver;
         $this->graph  = new Graph();
     }
 
-    public function from(Driver $driver)
+    public function from(Driver $driver, callable $associationFilter)
     {
         $entities = $driver->getEntityNames();
 
         foreach ($entities as $entity) {
-            $this->entities[$entity] = new Entity($driver->getEntityMetadata($entity));
+            $this->entities[$entity] = $driver->getEntityMetadata($entity);
             $this->graph->createVertex($entity);
         }
 
         foreach ($this->entities as $entity) {
             foreach ($entity->getClassMetadata()->getAssociationMappings() as $association) {
-                $a = 1;
+                if (!$associationFilter($association)) {
+                    continue;
+                }
+
+                $source = $this->graph->getVertex($association['sourceEntity']);
+                $target = $this->graph->getVertex($association['targetEntity']);
+                $via    = $association['fieldName'];
+
+                $edge = $source->createEdgeTo($target);
+                $edge->setLayoutAttribute('label', $via);
             }
         }
+    }
+
+    public function connectedTo($root)
+    {
+        $alg = new BreadthFirst($this->graph->getVertex($root));
+        $alg->setDirection(BreadthFirst::DIRECTION_REVERSE);
+        $vertices = $alg->getVertices();
+
+        $this->graph = $this->graph->createGraphCloneVertices($vertices);
+    }
+
+    public function export($path)
+    {
+        $exporter = new Image();
+        $this->graph->setExporter($exporter);
+
+        file_put_contents($path, (string)$this->graph);
+    }
+
+    public function topologicalSort()
+    {
+        $sort = new TopologicalSort($this->graph);
+        return $sort->getVertices();
     }
 }

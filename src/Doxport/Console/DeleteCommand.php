@@ -2,13 +2,15 @@
 
 namespace Doxport\Console;
 
-use Doxport\Action\ArchiveDelete;
-use Doxport\ConstraintPass;
-use Doxport\JoinPass;
+use Doxport\Action\Delete;
 use Doxport\Schema;
+use Doxport\EntityGraph;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
+use Doxport\Pass\ConstraintPass;
+use Doxport\Pass\JoinPass;
 
 class DeleteCommand extends Command
 {
@@ -21,6 +23,7 @@ class DeleteCommand extends Command
 
         $this
             ->setName('delete')
+            ->addOption('data-dir', 'd', InputOption::VALUE_REQUIRED, 'The data directory to archive to', 'build/delete')
             ->addArgument('entity', InputArgument::REQUIRED, 'The entity to begin deleting from', null)
             ->addArgument('column', InputArgument::REQUIRED, 'A column to limit deleting', null)
             ->addArgument('value', InputArgument::REQUIRED, 'The value to limit by', null)
@@ -36,10 +39,24 @@ class DeleteCommand extends Command
     {
         parent::execute($input, $output);
 
-        $pass = new ConstraintPass();
-        $graph = $pass->run();
+        $dir = $input->getOption('data-dir');
 
-        $graph->export('constraints');
+        if (!is_dir($dir)) {
+            mkdir($dir, 0775, true);
+        }
+
+        $driver = $this->getMetadataDriver();
+
+        $graph = new EntityGraph();
+        $pass = new ConstraintPass($driver, $graph, $input->getArgument('entity'));
+        $vertices = $pass->run();
+
+        $graph->export($dir . '/constraints.png');
+
+        $pass = new JoinPass($vertices, $driver, new Delete($this->getEntityManager()));
+        $pass->run();
+
+        $output->writeln('All done.');
 
         //$schema = $this->prepareSchema($input, $output);
         //$this->writeSchemaToOutput($schema, $output);
