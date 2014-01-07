@@ -2,6 +2,7 @@
 
 namespace Doxport\Action;
 
+use Doctrine\ORM\Query;
 use Doctrine\ORM\QueryBuilder;
 use Doxport\Criteria;
 
@@ -14,8 +15,8 @@ trait JoiningAction
      */
     protected function apply(Criteria $criteria, QueryBuilder $builder)
     {
-        $builder->select($criteria->getQueryAlias());
-        $builder->from($criteria->getEntityName(), $criteria->getQueryAlias());
+        $builder->select($alias = $criteria->getQueryAlias());
+        $builder->from($entity = $criteria->getEntityName(), $criteria->getQueryAlias());
 
         $this->applyRecursive($criteria, $builder);
 
@@ -34,6 +35,10 @@ trait JoiningAction
 //        ));
     }
 
+    /**
+     * @param Criteria $criteria
+     * @return Query
+     */
     protected function getSelectQuery(Criteria $criteria)
     {
         $qb = $this->em->createQueryBuilder();

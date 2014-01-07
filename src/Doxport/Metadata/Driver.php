@@ -39,7 +39,25 @@ class Driver
      */
     public function getEntityNames()
     {
-        return $this->getDoctrineMetadataDriver()->getAllClassNames();
+        $reader = $this->getDoctrineMetadataDriver()->getReader();
+        $classes = $this->getDoctrineMetadataDriver()->getAllClassNames();
+
+        $entities = [];
+
+        foreach ($classes as $class) {
+            $annotations = $reader->getClassAnnotations(new \ReflectionClass($class));
+
+            foreach ($annotations as $annotation) {
+                // Exclude mapped superclasses
+                if (get_class($annotation) == 'Doctrine\ORM\Mapping\MappedSuperclass') {
+                    continue;
+                }
+
+                $entities[] = $class;
+            }
+        }
+
+        return $entities;
     }
 
     /**

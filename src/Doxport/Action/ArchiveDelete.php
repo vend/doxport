@@ -4,12 +4,14 @@ namespace Doxport\Action;
 
 use Doctrine\ORM\Query;
 use Doxport\Criteria;
-use Exception;
+use \Exception;
 use Doxport\Util\SimpleObjectSerializer;
 
 class ArchiveDelete extends FileAction
 {
     use JoiningAction;
+
+    const CHUNK_SIZE = 100;
 
     /**
      * @return integer
@@ -26,40 +28,56 @@ class ArchiveDelete extends FileAction
 
     protected function doProcess(Criteria $criteria)
     {
-        // Do initial query for entities to process
+        $this->output->writeln('Collecting criteria to produce SELECT for ' . $criteria->getEntityName());
         $query = $this->getSelectQuery($criteria);
+
+        $this->output->write('Executing...');
         $iterator = $query->iterate(null, Query::HYDRATE_SIMPLEOBJECT);
+        $this->output->writeln('done.');
 
-        // Start a transaction
-        $connection = $this->em->getConnection();
-        $connection->beginTransaction(); // Don't want transactional()
+        $i = 0;
 
-        try {
-            foreach ($iterator as $result) {
-                $entity = $result[0];
+        $this->output->write('Dumping a chunk to disk...');
 
-                $serialized = $this->serialize($entity);
+        foreach ($iterator as $result) {
+            $entity = $result[0];
 
-                $this->file->writeCsvRow($serialized);  // Write to file
-                $this->delete($criteria, $entity); // Send DELETE query, TODO return value
+            $this->file->writeCsvRow($this->serialize($entity));  // Write to file
+            $this->em->remove($entity);                           // Queue delete
 
-                $this->em->detach($entity); // Allow GC
+            if ($i > self::CHUNK_SIZE) {
+                $this->output->writeln('done.');
+
+                $this->flush(); // Actually apply changes
+                $i = 0;
             }
 
-            // Sync the results to the file
-            $this->file->flush();
-            $this->file->sync(function ($data, $result) {
-                if (!$result || true) { // TODO Debugging or branch
-                    throw new IOException('Could not write to result file, should skip transaction');
-                }
-            });
-            $this-            >file->close();
-
-            $connection->commit();   // db commit
-        } catch (Exception $e) {
-            $connection->rollBack(); // or rollback
-            throw $e;
+            $i++;
         }
+
+        $this->output->writeln('done.');
+
+        if ($i > 0) {
+            // Remaining in current chunk
+            $this->flush();
+        }
+
+        $this->file->close();
+    }
+
+    protected function flush()
+    {
+        $this->output->write('Flushing and commiting...');
+
+        $this->file->flush();
+        $this->file->sync();
+
+        $this->output->write('done with flush...');
+
+        $this->em->flush();
+        $this->em->clear();
+
+        $this->output->writeln('done with commit.');
     }
 
     /**
@@ -69,23 +87,23 @@ class ArchiveDelete extends FileAction
      * @param $entity
      * @return mixed
      */
-    protected function delete(Criteria $criteria, $entity)
-    {
-        $unit = $this->em->getUnitOfWork();
-
-        $qb = $this->em->createQueryBuilder()
-            ->delete()
-            ->from($criteria->getEntityName(), $criteria->getQueryAlias());
-
-        $data = $unit->getOriginalEntityData($entity);
-
-        foreach ($criteria->getMetadata()->getClassMetadata()->getIdentifierFieldNames() as $idField) {
-            $qb->andWhere($qb->expr()->eq($criteria->getQueryAlias() . '.' . $idField, ':' . $criteria->getQueryAlias() . $idField));
-            $qb->setParameter(':' . $criteria->getQueryAlias() . $idField, $data[$idField]);
-        }
-
-        return $qb->getQuery()->execute();
-    }
+//    protected function delete(Criteria $criteria, $entity)
+//    {
+//        $unit = $this->em->getUnitOfWork();
+//
+//        $qb = $this->em->createQueryBuilder()
+//            ->delete()
+//            ->from($criteria->getEntityName(), $criteria->getQueryAlias());
+//
+//        $data = $unit->getOriginalEntityData($entity);
+//
+//        foreach ($criteria->getMetadata()->getClassMetadata()->getIdentifierFieldNames() as $idField) {
+//            $qb->andWhere($qb->expr()->eq($criteria->getQueryAlias() . '.' . $idField, ':' . $criteria->getQueryAlias() . $idField));
+//            $qb->setParameter(':' . $criteria->getQueryAlias() . $idField, $data[$idField]);
+//        }
+//
+//        return $qb->getQuery()->execute();
+//    }
 
     protected function serialize($entity)
     {

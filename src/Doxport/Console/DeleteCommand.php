@@ -50,6 +50,7 @@ class DeleteCommand extends Command
         $output->write('Doing delete...');
 
         $delete = new ArchiveDelete($this->getEntityManager(), $schema, $output);
+        $delete->setOutputInterface($output);
         $delete->run();
 
         $output->writeln('done.');

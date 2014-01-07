@@ -2,7 +2,7 @@
 
 namespace Doxport\Util;
 
-use IOException;
+use Doxport\Exception\IOException;
 use LogicException;
 
 class AsyncFile
@@ -22,7 +22,8 @@ class AsyncFile
             mkdir($dir, 0644, true);
         }
 
-        $this->open($path, $mode);
+        $this->path = $path;
+        $this->open($mode);
     }
 
     /**
@@ -36,16 +37,16 @@ class AsyncFile
      * @throws \LogicException
      * @throws \IOException
      */
-    public function open($path, $mode)
+    public function open($mode)
     {
         if ($this->file) {
             throw new LogicException('File already open');
         }
 
-        $this->file = fopen($path, $mode);
+        $this->file = fopen($this->path, $mode);
 
         if (!$this->file) {
-            throw new IOException('Could not open file: ' . $path);
+            throw new IOException('Could not open file: ' . $this->path);
         }
     }
 
@@ -62,16 +63,25 @@ class AsyncFile
     /**
      * Doesn't do anything unless the eio extension is loaded
      *
-     * @param callable $callback
+     * Will block until the sync is complete
      */
-    public function sync(callable $callback)
+    public function sync()
     {
         if (extension_loaded('eio')) {
-            eio_fsync($this->file, null, $callback);
-            eio_event_loop();
-        }
+            $success = false;
 
-        call_user_func($callback);
+            eio_fsync($this->file, null, function ($data, $result) use (&$success) {
+                if ($result === 0) {
+                    $success = true;
+                }
+            });
+
+            eio_event_loop();
+
+            if (!$success) {
+                throw new IOException('Could not sync file to disk');
+            }
+        }
     }
 
     /**
@@ -115,5 +125,13 @@ class AsyncFile
     public function __destruct()
     {
         $this->close();
+    }
+
+    /**
+     * @return string
+     */
+    public function __toString()
+    {
+        return $this->path;
     }
 }
