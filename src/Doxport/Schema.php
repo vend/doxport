@@ -4,6 +4,9 @@ namespace Doxport;
 
 use Doxport\Metadata\Driver;
 
+/**
+ * @deprecated
+ */
 class Schema
 {
     /**
@@ -34,13 +37,19 @@ class Schema
     protected $driver;
 
     /**
+     * @var CriteriaFactory
+     */
+    protected $factory;
+
+    /**
      * Constructor
      *
      * @param Driver $driver
      */
-    public function __construct(Driver $driver)
+    public function __construct(Driver $driver, CriteriaFactory $factory)
     {
         $this->driver = $driver;
+        $this->factory = $factory;
 
         foreach ($this->driver->getEntityNames() as $name) {
             $this->unjoined[$name] = $name;
@@ -92,12 +101,9 @@ class Schema
     public function getCriteria($name)
     {
         if (!isset($this->criteria[$name])) {
-            $criteria = new Criteria();
-            $criteria->setEntity($this->driver->getEntityMetadata($name));
-
+            $criteria = $this->factory->get($this->driver->getEntityMetadata($name));
             $this->criteria[$name] = $criteria;
         }
-
         return $this->criteria[$name];
     }
 
@@ -144,7 +150,7 @@ class Schema
                 continue;
             }
 
-            if (!$this->isCoveredAssociation($association)) {
+            if (!$this->driver->isCoveredAssociation($association)) {
                 continue;
             }
 
@@ -154,28 +160,7 @@ class Schema
         return false;
     }
 
-    protected function isCoveredAssociation($association)
-    {
-        return $this->driver->isCovered($association['sourceEntity'], $association['joinColumnFieldNames']);
-    }
 
-    /**
-     * @param array $association
-     * @return boolean
-     */
-    protected function isOptionalAssociation(array $association)
-    {
-        if ($association['joinColumns']) {
-            foreach ($association['joinColumns'] as $joinColumn) {
-                if (isset($joinColumn['nullable']) && !$joinColumn['nullable']) {
-                    // nullable is true by default
-                    return false;
-                }
-            }
-        }
-
-        return true;  //$this->driver->isNullableColumn($association['sourceEntity'], $association['joinColumnFieldNames']);
-    }
 
     /**
      * @param string $criteria

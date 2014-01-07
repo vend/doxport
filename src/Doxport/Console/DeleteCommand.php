@@ -3,6 +3,7 @@
 namespace Doxport\Console;
 
 use Doxport\Action\ArchiveDelete;
+use Doxport\ConstraintPass;
 use Doxport\JoinPass;
 use Doxport\Schema;
 use Symfony\Component\Console\Input\InputArgument;
@@ -35,9 +36,14 @@ class DeleteCommand extends Command
     {
         parent::execute($input, $output);
 
-        $schema = $this->prepareSchema($input, $output);
-        $this->writeSchemaToOutput($schema, $output);
-        $this->performDelete($schema, $output);
+        $pass = new ConstraintPass();
+        $graph = $pass->run();
+
+        $graph->export('constraints');
+
+        //$schema = $this->prepareSchema($input, $output);
+        //$this->writeSchemaToOutput($schema, $output);
+        //$this->performDelete($schema, $output);
     }
 
     /**

@@ -3,8 +3,56 @@
         "This file locks the dependencies of your project to a known state",
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file"
     ],
-    "hash": "cb34dd00648b59d738390ce2e158c6b2",
+    "hash": "3fffcfdde86a7971ef1d1d0d489c2afd",
     "packages": [
+        {
+            "name": "clue/graph",
+            "version": "v0.7.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/clue/graph.git",
+                "reference": "d0d548a21b09099a266eacba8e4098aeae6409f8"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/clue/graph/zipball/d0d548a21b09099a266eacba8e4098aeae6409f8",
+                "reference": "d0d548a21b09099a266eacba8e4098aeae6409f8",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3.0"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "3.7.*"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "Fhaculty": "lib/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "description": "A mathematical graph/network library written in PHP",
+            "homepage": "https://github.com/clue/graph",
+            "keywords": [
+                "dijkstra",
+                "edge",
+                "graph",
+                "graphviz",
+                "kruskal",
+                "mathematical",
+                "minimum spanning tree",
+                "moore-bellman-ford",
+                "network",
+                "prim",
+                "shortest path",
+                "vertex"
+            ],
+            "time": "2013-09-11 22:52:40"
+        },
         {
             "name": "doctrine/annotations",
             "version": "v1.1.2",
@@ -296,16 +344,16 @@
         },
         {
             "name": "doctrine/dbal",
-            "version": "v2.4.1",
+            "version": "v2.4.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/doctrine/dbal.git",
-                "reference": "328357bd9eea9d671fe5fff0737f01953bfe66a0"
+                "reference": "fec965d330c958e175c39e61c3f6751955af32d0"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/doctrine/dbal/zipball/328357bd9eea9d671fe5fff0737f01953bfe66a0",
-                "reference": "328357bd9eea9d671fe5fff0737f01953bfe66a0",
+                "url": "https://api.github.com/repos/doctrine/dbal/zipball/fec965d330c958e175c39e61c3f6751955af32d0",
+                "reference": "fec965d330c958e175c39e61c3f6751955af32d0",
                 "shasum": ""
             },
             "require": {
@@ -358,7 +406,7 @@
                 "persistence",
                 "queryobject"
             ],
-            "time": "2013-11-12 12:38:28"
+            "time": "2014-01-01 16:43:57"
         },
         {
             "name": "doctrine/inflector",
@@ -554,17 +602,17 @@
         },
         {
             "name": "symfony/config",
-            "version": "v2.3.7",
+            "version": "v2.3.9",
             "target-dir": "Symfony/Component/Config",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/Config.git",
-                "reference": "1ced3d6c88b22df8cd1fe5209dbd6a89df362a29"
+                "reference": "07de913115aff40a3408cde77dc2b41bf2ce47e4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/Config/zipball/1ced3d6c88b22df8cd1fe5209dbd6a89df362a29",
-                "reference": "1ced3d6c88b22df8cd1fe5209dbd6a89df362a29",
+                "url": "https://api.github.com/repos/symfony/Config/zipball/07de913115aff40a3408cde77dc2b41bf2ce47e4",
+                "reference": "07de913115aff40a3408cde77dc2b41bf2ce47e4",
                 "shasum": ""
             },
             "require": {
@@ -598,21 +646,21 @@
             ],
             "description": "Symfony Config Component",
             "homepage": "http://symfony.com",
-            "time": "2013-09-19 09:45:20"
+            "time": "2014-01-01 07:52:14"
         },
         {
             "name": "symfony/console",
-            "version": "v2.4.0",
+            "version": "v2.4.1",
             "target-dir": "Symfony/Component/Console",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/Console.git",
-                "reference": "3c1496ae96d24ccc6c340fcc25f71d7a1ab4c12c"
+                "reference": "4c1ed2ff514bd85ee186eebb010ccbdeeab05af7"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/Console/zipball/3c1496ae96d24ccc6c340fcc25f71d7a1ab4c12c",
-                "reference": "3c1496ae96d24ccc6c340fcc25f71d7a1ab4c12c",
+                "url": "https://api.github.com/repos/symfony/Console/zipball/4c1ed2ff514bd85ee186eebb010ccbdeeab05af7",
+                "reference": "4c1ed2ff514bd85ee186eebb010ccbdeeab05af7",
                 "shasum": ""
             },
             "require": {
@@ -651,21 +699,21 @@
             ],
             "description": "Symfony Console Component",
             "homepage": "http://symfony.com",
-            "time": "2013-11-27 09:10:40"
+            "time": "2014-01-01 08:14:50"
         },
         {
             "name": "symfony/dependency-injection",
-            "version": "v2.3.7",
+            "version": "v2.3.9",
             "target-dir": "Symfony/Component/DependencyInjection",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/DependencyInjection.git",
-                "reference": "3ead0b87b455289864d648152e0930629df687d2"
+                "reference": "001bf15816c99da8e41a5d90aadd099e10420657"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/DependencyInjection/zipball/3ead0b87b455289864d648152e0930629df687d2",
-                "reference": "3ead0b87b455289864d648152e0930629df687d2",
+                "url": "https://api.github.com/repos/symfony/DependencyInjection/zipball/001bf15816c99da8e41a5d90aadd099e10420657",
+                "reference": "001bf15816c99da8e41a5d90aadd099e10420657",
                 "shasum": ""
             },
             "require": {
@@ -707,21 +755,21 @@
             ],
             "description": "Symfony DependencyInjection Component",
             "homepage": "http://symfony.com",
-            "time": "2013-11-09 15:43:20"
+            "time": "2014-01-01 07:52:14"
         },
         {
             "name": "symfony/filesystem",
-            "version": "v2.4.0",
+            "version": "v2.4.1",
             "target-dir": "Symfony/Component/Filesystem",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/Filesystem.git",
-                "reference": "79acd777762e81d0f3414ca25a602deeeb48240d"
+                "reference": "b3c3b5a8108b3e5d604dc23241b4ea84a067fc78"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/Filesystem/zipball/79acd777762e81d0f3414ca25a602deeeb48240d",
-                "reference": "79acd777762e81d0f3414ca25a602deeeb48240d",
+                "url": "https://api.github.com/repos/symfony/Filesystem/zipball/b3c3b5a8108b3e5d604dc23241b4ea84a067fc78",
+                "reference": "b3c3b5a8108b3e5d604dc23241b4ea84a067fc78",
                 "shasum": ""
             },
             "require": {
@@ -754,21 +802,21 @@
             ],
             "description": "Symfony Filesystem Component",
             "homepage": "http://symfony.com",
-            "time": "2013-11-16 15:13:54"
+            "time": "2013-12-31 13:43:26"
         },
         {
             "name": "symfony/yaml",
-            "version": "v2.3.7",
+            "version": "v2.3.9",
             "target-dir": "Symfony/Component/Yaml",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/Yaml.git",
-                "reference": "c1bda5b459d792cb253de12c65beba3040163b2b"
+                "reference": "490c1c47049aa3ffab9ed6295a7b3a0e809e8519"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/Yaml/zipball/c1bda5b459d792cb253de12c65beba3040163b2b",
-                "reference": "c1bda5b459d792cb253de12c65beba3040163b2b",
+                "url": "https://api.github.com/repos/symfony/Yaml/zipball/490c1c47049aa3ffab9ed6295a7b3a0e809e8519",
+                "reference": "490c1c47049aa3ffab9ed6295a7b3a0e809e8519",
                 "shasum": ""
             },
             "require": {
@@ -801,7 +849,7 @@
             ],
             "description": "Symfony Yaml Component",
             "homepage": "http://symfony.com",
-            "time": "2013-10-17 11:48:01"
+            "time": "2013-12-28 07:46:05"
         }
     ],
     "packages-dev": [
@@ -1174,16 +1222,16 @@
         },
         {
             "name": "squizlabs/php_codesniffer",
-            "version": "1.5.0",
+            "version": "1.5.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/squizlabs/PHP_CodeSniffer.git",
-                "reference": "0191c4f193a62915227ac7946b1600c82cc3c253"
+                "reference": "bd1e50b8c252c914881dba1dcef089219e430dbd"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/squizlabs/PHP_CodeSniffer/zipball/0191c4f193a62915227ac7946b1600c82cc3c253",
-                "reference": "0191c4f193a62915227ac7946b1600c82cc3c253",
+                "url": "https://api.github.com/repos/squizlabs/PHP_CodeSniffer/zipball/bd1e50b8c252c914881dba1dcef089219e430dbd",
+                "reference": "bd1e50b8c252c914881dba1dcef089219e430dbd",
                 "shasum": ""
             },
             "require": {
@@ -1240,7 +1288,7 @@
                 "phpcs",
                 "standards"
             ],
-            "time": "2013-11-27 22:22:42"
+            "time": "2013-12-12 03:08:49"
         }
     ],
     "aliases": [

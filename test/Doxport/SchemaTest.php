@@ -2,6 +2,8 @@
 
 namespace Doxport;
 
+use Doxport\Test\MockCriteriaFactory;
+
 class SchemaTest extends \PHPUnit_Framework_TestCase
 {
     public function testConstructor()
@@ -12,7 +14,7 @@ class SchemaTest extends \PHPUnit_Framework_TestCase
             ->method('getEntityNames')
             ->will($this->returnValue([]));
 
-        $instance = new Schema($driver);
+        $instance = new Schema($driver, new MockCriteriaFactory());
         $this->assertInstanceOf('Doxport\Schema', $instance);
     }
 

@@ -2,6 +2,7 @@
 
 namespace Doxport\Metadata;
 
+use Doctrine\Common\Persistence\Mapping\Driver\MappingDriver;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Mapping\Driver\AnnotationDriver;
 use Doctrine\DBAL\Driver\Statement;
@@ -27,6 +28,11 @@ class Driver
     protected $entities = [];
 
     /**
+     * @var MappingDriver
+     */
+    protected $doctrine;
+
+    /**
      * @param EntityManager $em
      */
     public function __construct(EntityManager $em)
@@ -35,44 +41,61 @@ class Driver
     }
 
     /**
+     * Entities as opposed to mapped superclasses
+     *
      * @return string[]
      */
     public function getEntityNames()
     {
-        $reader = $this->getDoctrineMetadataDriver()->getReader();
-        $classes = $this->getDoctrineMetadataDriver()->getAllClassNames();
+        $reader = $this->doctrine->getReader();
 
-        $entities = [];
-
-        foreach ($classes as $class) {
+        return array_filter($this->doctrine->getAllClassNames(), function ($class) use ($reader) {
             $annotations = $reader->getClassAnnotations(new \ReflectionClass($class));
 
             foreach ($annotations as $annotation) {
                 // Exclude mapped superclasses
                 if (get_class($annotation) == 'Doctrine\ORM\Mapping\MappedSuperclass') {
-                    continue;
+                    return false;
                 }
-
-                $entities[] = $class;
             }
-        }
 
-        return $entities;
+            return true;
+        });
     }
 
     /**
-     * @return \Doctrine\Common\Persistence\Mapping\Driver\MappingDriver|null
+     * @param array $association
+     * @return boolean
+     */
+    public function isOptionalAssociation(array $association)
+    {
+        if ($association['joinColumns']) {
+            foreach ($association['joinColumns'] as $joinColumn) {
+                if (isset($joinColumn['nullable']) && !$joinColumn['nullable']) {
+                    // nullable is true by default
+                    return false;
+                }
+            }
+        }
+
+        return true;  //$this->driver->isNullableColumn($association['sourceEntity'], $association['joinColumnFieldNames']);
+    }
+
+    /**
+     * @return MappingDriver
      * @throws LogicException
      */
     protected function getDoctrineMetadataDriver()
     {
-        $driver = $this->em->getConfiguration()->getMetadataDriverImpl();
+        if (!isset($this->doctrine)) {
+            $this->doctrine = $this->em->getConfiguration()->getMetadataDriverImpl();
 
-        if (!($driver instanceof AnnotationDriver)) {
-            throw new LogicException('Expects Doctrine2 to be using an annotation metadata driver');
+            if (!($this->doctrine instanceof AnnotationDriver)) {
+                throw new LogicException('Doxport expects Doctrine2 to be using an annotation metadata driver');
+            }
         }
 
-        return $driver;
+        return $this->doctrine;
     }
 
     /**
@@ -113,6 +136,14 @@ class Driver
         return $this->entities[$entity] = $meta;
     }
 
+    /**
+     * @param $sourceEntity
+     * @param $joinColumnFieldNames
+     * @return bool
+     * @throws \InvalidArgumentException
+     * @throws \Doxport\Exception\UnimplementedException
+     * @todo Multiple join columns
+     */
     public function isCovered($sourceEntity, $joinColumnFieldNames)
     {
         if (count($joinColumnFieldNames) > 1) {
@@ -133,5 +164,14 @@ class Driver
         $result = $this->em->getConnection()->executeQuery($sql, [$column]);
 
         return $result && $result->rowCount() > 0;
+    }
+
+    /**
+     * @param array $association
+     * @return bool
+     */
+    public function isCoveredAssociation(array $association)
+    {
+        return $this->isCovered($association['sourceEntity'], $association['joinColumnFieldNames']);
     }
 }
