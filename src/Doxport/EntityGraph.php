@@ -19,7 +19,7 @@ class EntityGraph
     /**
      * @param Driver $driver
      */
-    public function __construct(Driver $driver)
+    public function __construct($driver = null)
     {
         $this->driver = $driver;
         $this->graph  = new Graph();
@@ -40,23 +40,4 @@ class EntityGraph
             }
         }
     }
-
-    protected function addEntity($name)
-    {
-        $vertex = $this->graph->createVertex($name);
-
-        $entity = new Entity($this->driver->getEntityMetadata($name));
-
-        foreach ($entity->getClassMetadata()->getAssociationMappings() as $mapping) {
-
-
-        }
-
-        $vertex->createEdge
-    }
-
-
-
-
-
 }
