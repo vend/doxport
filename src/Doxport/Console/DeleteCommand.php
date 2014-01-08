@@ -2,6 +2,7 @@
 
 namespace Doxport\Console;
 
+use Doxport\Action\Action;
 use Doxport\Action\Delete;
 use Doxport\Schema;
 use Doxport\EntityGraph;
@@ -13,7 +14,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Doxport\Pass\ConstraintPass;
 use Doxport\Pass\JoinPass;
 
-class DeleteCommand extends Command
+class DeleteCommand extends ActionCommand
 {
     /**
      * @return void
@@ -24,7 +25,7 @@ class DeleteCommand extends Command
 
         $this
             ->setName('delete')
-            ->addOption('data-dir', 'd', InputOption::VALUE_REQUIRED, 'The data directory to archive to', 'build/delete')
+            ->addOption('data-dir', 'd', InputOption::VALUE_REQUIRED, 'The data directory to archive to (default build/<action>)', null)
             ->addArgument('entity', InputArgument::REQUIRED, 'The entity to begin deleting from', null)
             ->addArgument('column', InputArgument::REQUIRED, 'A column to limit deleting', null)
             ->addArgument('value', InputArgument::REQUIRED, 'The value to limit by', null)
@@ -40,28 +41,28 @@ class DeleteCommand extends Command
     {
         parent::execute($input, $output);
 
-        $dir = $input->getOption('data-dir');
-
-        if (!is_dir($dir)) {
-            mkdir($dir, 0775, true);
-        }
-
         $driver = $this->getMetadataDriver();
 
         $graph = new EntityGraph($input->getArgument('entity'));
+
         $pass = new ConstraintPass($driver, $graph);
         $vertices = $pass->run();
 
-        $graph->export($dir . '/constraints.png');
-
-        $action = new Delete($this->getEntityManager(), new QueryAliases());
-        $action->setLogger($this->logger);
-        $action->addRootCriteria($input->getArgument('column'), $input->getArgument('value'));
+        $graph->export($this->action->getFilePath() . '/constraints.png');
 
         $graph = new EntityGraph($input->getArgument('entity'));
-        $pass = new JoinPass($driver, $graph, $vertices, $action);
+
+        $pass = new JoinPass($driver, $graph, $vertices, $this->action);
         $pass->run();
 
         $this->logger->notice('All done.');
+    }
+
+    /**
+     * @return Action
+     */
+    protected function getAction()
+    {
+        return new Delete($this->getEntityManager());
     }
 }

@@ -2,7 +2,7 @@
 
 namespace Doxport\Pass;
 
-use Doxport\Action\Action;
+use Doxport\Action\Base\Action;
 use Doxport\EntityGraph;
 use Doxport\Metadata\Driver;
 use Fhaculty\Graph\Algorithm\ShortestPath\BreadthFirst;
@@ -59,7 +59,7 @@ class JoinPass extends Pass
             $shortestPath = new BreadthFirst($vertex);
             $walk = $shortestPath->getWalkTo($this->vertices->getVertexLast());
 
-            $this->action->process($vertex, $walk);
+            $this->action->process($walk);
         }
     }
 

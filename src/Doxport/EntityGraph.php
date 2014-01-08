@@ -4,10 +4,8 @@ namespace Doxport;
 
 use Doxport\Metadata\Driver;
 use Doxport\Metadata\Entity;
-use Fhaculty\Graph\Algorithm\ConnectedComponents;
 use Fhaculty\Graph\Algorithm\Search\BreadthFirst;
 use Fhaculty\Graph\Algorithm\TopologicalSort;
-use Fhaculty\Graph\Algorithm\Weight;
 use Fhaculty\Graph\Exporter\Image;
 use Fhaculty\Graph\Graph;
 
@@ -32,6 +30,11 @@ class EntityGraph
         $this->graph  = new Graph();
     }
 
+    /**
+     * @param Driver   $driver
+     * @param callable $associationFilter
+     * @return void
+     */
     public function from(Driver $driver, callable $associationFilter)
     {
         $entities = $driver->getEntityNames();
@@ -57,6 +60,13 @@ class EntityGraph
         }
     }
 
+    /**
+     * Filters the graph so that only entities connected to the root are left
+     *
+     * Should be run after you've added some set of associations with from()
+     *
+     * @return void
+     */
     public function filterConnected()
     {
         $alg = new BreadthFirst($this->graph->getVertex($this->root));
@@ -66,6 +76,12 @@ class EntityGraph
         $this->graph = $this->graph->createGraphCloneVertices($vertices);
     }
 
+    /**
+     * Exports an image of the graph to the given path
+     *
+     * @param string $path
+     * @return void
+     */
     public function export($path)
     {
         $exporter = new Image();
@@ -74,15 +90,24 @@ class EntityGraph
         file_put_contents($path, (string)$this->graph);
     }
 
+    /**
+     * Performs a topological sort
+     *
+     * @return \Fhaculty\Graph\Set\Vertices
+     */
     public function topologicalSort()
     {
         $sort = new TopologicalSort($this->graph);
         return $sort->getVertices();
     }
 
+    /**
+     * The root entity vertex ID
+     *
+     * @return string
+     */
     public function getRoot()
     {
         return $this->root;
     }
-
 }

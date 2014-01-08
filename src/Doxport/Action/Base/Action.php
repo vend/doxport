@@ -1,6 +1,6 @@
 <?php
 
-namespace Doxport\Action;
+namespace Doxport\Action\Base;
 
 use Doxport\Schema;
 use Doxport\Util\SimpleObjectSerializer;
@@ -14,11 +14,10 @@ abstract class Action implements LoggerAwareInterface
     use LoggerAwareTrait;
 
     /**
-     * @param Vertex $target
-     * @param Walk   $walkToRoot
+     * @param Walk   $fromTargetToRoot
      * @return void
      */
-    abstract public function process(Vertex $target, Walk $walkToRoot);
+    abstract public function process(Walk $fromTargetToRoot);
 
     /**
      * @param object $entity
@@ -33,5 +32,15 @@ abstract class Action implements LoggerAwareInterface
 
         $serializer = new SimpleObjectSerializer($this->em);
         return $serializer->serialize($entity);
+    }
+
+    /**
+     * @param string $class
+     * @return mixed
+     */
+    protected function getClassName($class)
+    {
+        $parts = explode('\\', $class);
+        return $parts[count($parts) - 1];
     }
 }

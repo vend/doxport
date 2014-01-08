@@ -42,4 +42,6 @@ abstract class Command extends CommandComponent implements LoggerAwareInterface
             $this->logger = new OutputLogger($output);
         }
     }
+
+
 }

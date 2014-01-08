@@ -1,8 +1,8 @@
 <?php
 
-namespace Doxport\Util;
+namespace Doxport\Doctrine;
 
-class QueryAliases
+class AliasGenerator
 {
     /**
      * Table alias map
@@ -10,15 +10,6 @@ class QueryAliases
      * @var array<string => string>
      */
     protected $aliases = [];
-
-    /**
-     * @return string
-     */
-    protected function getClass($name)
-    {
-        $parts = explode('\\', $name);
-        return $parts[count($parts) - 1];
-    }
 
     /**
      * @param string $name

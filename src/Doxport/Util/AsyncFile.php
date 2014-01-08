@@ -3,7 +3,7 @@
 namespace Doxport\Util;
 
 use Doxport\Exception\IOException;
-use LogicException;
+use \LogicException;
 
 class AsyncFile
 {
@@ -16,30 +16,30 @@ class AsyncFile
      * @param string $path
      * @param string $mode
      */
-    public function __construct($path, $mode = 'a')
+    public function __construct($path, $mode = null)
     {
         if (!is_dir($dir = dirname($path))) {
             mkdir($dir, 0644, true);
         }
 
         $this->path = $path;
-        $this->open($mode);
+
+        if ($mode) {
+            $this->open($mode);
+        }
     }
 
     /**
      * Opens the file
      *
-     * Usually only called directly when reopening a file, because the constructor
-     * will open the file to start with.
-     *
-     * @param string $path
      * @param string $mode
-     * @throws \LogicException
-     * @throws \IOException
+     * @throws LogicException If the file is already open
+     * @throws IOException    If the file could not be opened
+     * @return void
      */
     public function open($mode)
     {
-        if ($this->file) {
+        if ($this->isOpen()) {
             throw new LogicException('File already open');
         }
 
@@ -48,6 +48,14 @@ class AsyncFile
         if (!$this->file) {
             throw new IOException('Could not open file: ' . $this->path);
         }
+    }
+
+    /**
+     * @return bool
+     */
+    public function isOpen()
+    {
+        return (bool)$this->file;
     }
 
     /**
@@ -64,6 +72,9 @@ class AsyncFile
      * Doesn't do anything unless the eio extension is loaded
      *
      * Will block until the sync is complete
+     *
+     * @throws IOException If the sync fails
+     * @return void
      */
     public function sync()
     {
@@ -87,8 +98,9 @@ class AsyncFile
     /**
      * Writes to the file
      *
-     * @param $string
-     * @param null $length
+     * @param string $string
+     * @param int    $length
+     * @return void
      */
     public function write($string, $length = null)
     {
@@ -99,6 +111,7 @@ class AsyncFile
      * Writes a CSV row to the file
      *
      * @param array $values
+     * @return void
      */
     public function writeCsvRow(array $values)
     {
@@ -107,6 +120,8 @@ class AsyncFile
 
     /**
      * Closes the file
+     *
+     * @return void
      */
     public function close()
     {
@@ -131,6 +146,14 @@ class AsyncFile
      * @return string
      */
     public function __toString()
+    {
+        return $this->getPath();
+    }
+
+    /**
+     * @return string
+     */
+    public function getPath()
     {
         return $this->path;
     }
