@@ -14,11 +14,20 @@ class ConstraintPass extends Pass
     public function run()
     {
         $this->graph->from($this->driver, function (array $association) {
-            return
-                $this->driver->isSupportedAssociation($association)
-                && $this->driver->isCoveredAssociation($association)
-                && $this->driver->isConstraintAssociation($association)
-                && !$this->driver->isOptionalAssociation($association);
+            $allowed =
+                ($a = $this->driver->isSupportedAssociation($association))
+                && ($b = $this->driver->isCoveredAssociation($association))
+                && ($c = $this->driver->isConstraintAssociation($association))
+                && ($d = !$this->driver->isOptionalAssociation($association));
+
+            if (!$allowed) {
+                $a = $this->driver->isSupportedAssociation($association);
+                $b = $this->driver->isCoveredAssociation($association);
+                $c = $this->driver->isConstraintAssociation($association);
+                $d = !$this->driver->isOptionalAssociation($association);
+            }
+
+            return $allowed;
         });
 
         $this->graph->filterConnected();

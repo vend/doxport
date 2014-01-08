@@ -48,7 +48,9 @@ class DeleteCommand extends ActionCommand
         $pass = new ConstraintPass($driver, $graph);
         $vertices = $pass->run();
 
-        $graph->export($this->action->getFilePath() . '/constraints.png');
+        $constraints = $this->action->getFilePath() . '/constraints.png';
+        $this->logger->info('Outputting constraints to {constraints}', ['constraints' => $constraints]);
+        $graph->export($constraints);
 
         $graph = new EntityGraph($input->getArgument('entity'));
 

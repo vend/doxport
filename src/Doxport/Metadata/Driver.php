@@ -94,7 +94,7 @@ class Driver
             return false;
         }
 
-        if (!$association['isOwningSide']) {
+        if (empty($association['joinColumnFieldNames'])) {
             return false;
         }
 

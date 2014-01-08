@@ -27,24 +27,19 @@ class Delete extends QueryAction
         // Get query
         $this->logger->notice('Getting select query for {target}', ['target' => $walk->getTargetId()]);
         $query = $walk->getQuery();
+        $this->logger->info($query->getSQL());
 
         // Output join information
         $this->logger->info((string)$walk);
+
+        // Get iterator
+        $iterator = $query->iterate(null, Query::HYDRATE_SIMPLEOBJECT);
 
         // Output file information
         $file = $this->getFileInstance($this->getClassName($walk->getTargetId()) . '.csv');
         $this->logger->notice('Outputting to {file}', ['file' => (string)$file]);
 
         // Iterate through results
-
-        $iterator = $query->iterate(null, Query::HYDRATE_SIMPLEOBJECT);
-
-        if (!$iterator->valid()) {
-            $this->logger->notice('No results');
-            $file->close();
-            return;
-        }
-
         $this->logger->notice('Iterating through results...');
         $i = 0;
 
@@ -65,6 +60,8 @@ class Delete extends QueryAction
         if ($i > 0) {
             // Remaining in current chunk
             $this->flush($file);
+        } elseif ($i == 0) {
+            $this->logger->notice('No results.');
         }
 
         $this->logger->notice('Done with {target}', ['target' => $walk->getTargetId()]);
