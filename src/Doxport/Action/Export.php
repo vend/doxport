@@ -3,39 +3,53 @@
 namespace Doxport\Action;
 
 use Doctrine\ORM\Query;
-use Doxport\Criteria;
+use Doxport\Action\Base\FileActionTrait;
+use Doxport\Action\Base\QueryAction;
+use Doxport\Doctrine\JoinWalk;
 
-class Export extends FileAction
+class Export extends QueryAction
 {
-    use JoiningAction;
-
-    protected function getFilePath(Criteria $criteria)
-    {
-        return 'build/export/' . date('YmdHis') . '/' . strtolower($criteria->getEntityClassName()) . '.sql';
-    }
+    use FileActionTrait;
 
     /**
-     * @return integer
+     * @param JoinWalk $walk
+     * @return void
      */
-    protected function getType()
+    protected function processQuery(JoinWalk $walk)
     {
-        return Action::TYPE_DFS;
-    }
+        // Get query
+        $this->logger->notice('Getting select query for {target}', ['target' => $walk->getTargetId()]);
+        $query = $walk->getQuery();
 
-    protected function doProcess(Criteria $criteria)
-    {
-        $query = $this->getSelectQuery($criteria);
+        // Output join information
+        $this->logger->info((string)$walk);
+
+        // Output file information
+        $file = $this->getFileInstance($this->getClassName($walk->getTargetId()) . '.csv');
+        $this->logger->notice('Outputting to {file}', ['file' => (string)$file]);
+
+        // Iterate through results
         $iterator = $query->iterate(null, Query::HYDRATE_SIMPLEOBJECT);
+
+        if (!$iterator->valid()) {
+            $this->logger->notice('No results');
+            $file->close();
+            return;
+        }
+
+        $this->logger->notice('Iterating through results...');
 
         foreach ($iterator as $result) {
             $entity = $result[0];
-            $serialized = $this->serialize($entity);
 
-            $this->file->writeCsvRow($serialized);
-
-            $this->em->detach($entity); // Allow GC
+            $file->writeCsvRow($this->serialize($entity));  // Write to file
+            $this->em->detach($entity);
         }
 
-        $this->file->flush();
+        // Remaining in current chunk
+        $file->flush();
+        $file->close();
+
+        $this->logger->notice('Done with {target}', ['target' => $walk->getTargetId()]);
     }
 }
