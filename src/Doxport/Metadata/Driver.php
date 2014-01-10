@@ -76,16 +76,33 @@ class Driver
      */
     public function isOptionalAssociation(array $association)
     {
-        if ($association['joinColumns']) {
-            foreach ($association['joinColumns'] as $joinColumn) {
-                if (isset($joinColumn['nullable']) && !$joinColumn['nullable']) {
-                    // nullable is true by default
-                    return false;
-                }
+        $columns = [];
+
+        if ($association['type'] == ClassMetadata::MANY_TO_MANY) {
+            if (empty($association['joinTable'])) {
+                return true;
+            }
+
+            $forward = $association['joinTable']['joinColumns'];
+            $inverse = $association['joinTable']['inverseJoinColumns'];
+
+            $columns = array_merge($forward, $inverse);
+        } else {
+            if (empty($association['joinColumns'])) {
+                return true; // Assume optional
+            }
+
+            $columns = $association['joinColumns'];
+        }
+
+        foreach ($columns as $joinColumn) {
+            if (isset($joinColumn['nullable']) && !$joinColumn['nullable']) {
+                // nullable is true by default
+                return false;
             }
         }
 
-        return true;  //$this->driver->isNullableColumn($association['sourceEntity'], $association['joinColumnFieldNames']);
+        return true;
     }
 
     public function isSupportedAssociation(array $association)
@@ -94,8 +111,12 @@ class Driver
             return false;
         }
 
-        if (empty($association['joinColumnFieldNames'])) {
-            return false;
+        $entity = $this->getEntityMetadata($association['sourceEntity']);
+
+        if (($property = $entity->getProperty($association['fieldName']))) {
+            if ($property->hasAnnotation('Doxport\Annotation\Exclude')) {
+                return false;
+            }
         }
 
         return true;
@@ -142,7 +163,7 @@ class Driver
                 continue;
             }
 
-            $property = new Property($name, true, $meta->getClassMetadata()->getAssociationMapping($property->name));
+            $property = new Property($name, $relevant, $meta->getClassMetadata()->getAssociationMapping($property->name));
             $meta->addProperty($property);
         }
 
@@ -186,7 +207,7 @@ class Driver
     public function isCoveredAssociation(array $association)
     {
         if (!isset($association['joinColumnFieldNames'])) {
-            $b = 2;
+            return false;
         }
 
         return $this->isCovered($association['sourceEntity'], $association['joinColumnFieldNames']);

@@ -6,6 +6,7 @@ use Doxport\Metadata\Driver;
 use Doxport\Metadata\Entity;
 use Fhaculty\Graph\Algorithm\Search\BreadthFirst;
 use Fhaculty\Graph\Algorithm\TopologicalSort;
+use Fhaculty\Graph\Exporter\Dot;
 use Fhaculty\Graph\Exporter\Image;
 use Fhaculty\Graph\Graph;
 
@@ -22,12 +23,25 @@ class EntityGraph
     protected $root;
 
     /**
+     * @var Graph
+     */
+    protected $graph;
+
+    /**
      * @param string $root
      */
     public function __construct($root)
     {
         $this->root   = $root;
         $this->graph  = new Graph();
+    }
+
+    /**
+     * @return Graph
+     */
+    public function getGraph()
+    {
+        return $this->graph;
     }
 
     /**
@@ -88,6 +102,16 @@ class EntityGraph
         $this->graph->setExporter($exporter);
 
         file_put_contents($path, (string)$this->graph);
+    }
+
+    /**
+     * @return string
+     */
+    public function __toString()
+    {
+        $exporter = new Dot();
+        $this->graph->setExporter($exporter);
+        return (string)$this->graph;
     }
 
     /**

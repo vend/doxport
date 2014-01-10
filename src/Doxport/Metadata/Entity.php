@@ -33,4 +33,9 @@ class Entity
     {
         return $this->class;
     }
+
+    public function getProperty($fieldName)
+    {
+        return isset($this->properties[$fieldName]) ? $this->properties[$fieldName] : null;
+    }
 }

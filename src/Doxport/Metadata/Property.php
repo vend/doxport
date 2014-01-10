@@ -23,4 +23,17 @@ class Property
         }
         return $this->association['targetEntity'];
     }
+
+    /**
+     * @param string $class
+     * @return boolean
+     */
+    public function hasAnnotation($class)
+    {
+        foreach ($this->annotations as $annotation) {
+            if ($annotation instanceof $class) {
+                return true;
+            }
+        }
+    }
 }

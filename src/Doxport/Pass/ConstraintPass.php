@@ -5,6 +5,8 @@ namespace Doxport\Pass;
 use Doctrine\ORM\EntityManager;
 use Doxport\Metadata\Driver;
 use Doxport\EntityGraph;
+use Fhaculty\Graph\Exception\UnexpectedValueException;
+use Fhaculty\Graph\Graph;
 
 class ConstraintPass extends Pass
 {
@@ -14,17 +16,19 @@ class ConstraintPass extends Pass
     public function run()
     {
         $this->graph->from($this->driver, function (array $association) {
+            if ($association['fieldName'] == 'priceBook') {
+                $a = 1;
+            }
+
             $allowed =
                 ($a = $this->driver->isSupportedAssociation($association))
                 && ($b = $this->driver->isCoveredAssociation($association))
-                && ($c = $this->driver->isConstraintAssociation($association))
-                && ($d = !$this->driver->isOptionalAssociation($association));
+                && ($c = $this->driver->isConstraintAssociation($association));
 
             if (!$allowed) {
                 $a = $this->driver->isSupportedAssociation($association);
                 $b = $this->driver->isCoveredAssociation($association);
                 $c = $this->driver->isConstraintAssociation($association);
-                $d = !$this->driver->isOptionalAssociation($association);
             }
 
             return $allowed;
@@ -32,6 +36,23 @@ class ConstraintPass extends Pass
 
         $this->graph->filterConnected();
 
-        return $this->graph->topologicalSort();
+        // Debugging
+        $this->graph->export('build/c.png');
+        echo (string)$this->graph . "\n";
+
+        $sort = [];
+
+        try {
+            $sort = $this->graph->topologicalSort();
+        } catch (UnexpectedValueException $e) {
+
+            throw $e;
+        }
+
+        foreach ($sort as $vertex) {
+            echo $vertex->getId() . " -> \n";
+        }
+
+        return $sort;
     }
 }
