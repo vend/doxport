@@ -41,6 +41,7 @@ class JoinPass extends Pass
     public function run()
     {
         $this->graph->from($this->driver, function (array $association) {
+            // Ignore self-joins
             return
                 $this->driver->isSupportedAssociation($association)
                 && $this->driver->isCoveredAssociation($association)
@@ -56,9 +57,18 @@ class JoinPass extends Pass
                 continue;
             }
 
-            $shortestPath = new BreadthFirst($vertex);
-            $walk = $shortestPath->getWalkTo($this->vertices->getVertexLast());
+            $shortestPath = new BreadthFirst($target = $vertex);
+            $walk = $shortestPath->getWalkTo($root = $this->vertices->getVertexLast());
 
+            // Process self-joins on the target first
+            $selfJoins = $this->driver->getEntityMetadata($target->getId())
+                ->getClassMetadata()->getAssociationsByTargetClass($target->getId());
+
+            foreach ($selfJoins as $association) {
+                $this->action->processSelfJoin($walk, $association);
+            }
+
+            // Then the actual target
             $this->action->process($walk);
         }
     }

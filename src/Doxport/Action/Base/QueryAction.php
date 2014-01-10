@@ -47,6 +47,28 @@ abstract class QueryAction extends Action
      */
     public function process(Walk $path)
     {
+        $walk = $this->getJoinWalk($path);
+        $this->processQuery($walk);
+    }
+
+    public function processSelfJoin(Walk $path, array $association)
+    {
+        $walk = $this->getJoinWalk($path);
+
+        // nope
+      //  foreach ($association['joinColumns'] as $column) {
+      //      $walk->whereTargetFieldNull($column['name']);
+      //  }
+
+        // @todo do an actual self-join
+
+        $walk->whereTargetFieldNull($association['fieldName']); // Do an actual self-join
+
+        $this->processQuery($walk);
+    }
+
+    protected function getJoinWalk(Walk $path)
+    {
         $walk = new JoinWalk(
             $path,
             $this->em->createQueryBuilder(),
@@ -54,10 +76,10 @@ abstract class QueryAction extends Action
         );
 
         foreach ($this->rootCriteria as $criteria) {
-            $walk->applyRootCriteria($criteria['column'], $criteria['value']);
+            $walk->whereRootFieldEq($criteria['column'], $criteria['value']);
         }
 
-        $this->processQuery($walk);
+        return $walk;
     }
 
     /**

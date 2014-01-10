@@ -2,6 +2,7 @@
 
 namespace Doxport\Action;
 
+use Doctrine\DBAL\DBALException;
 use Doctrine\ORM\Query;
 use Doxport\Action\Base\FileActionTrait;
 use Doxport\Action\Base\QueryAction;
@@ -65,7 +66,6 @@ class Delete extends QueryAction
         }
 
         $this->logger->notice('Done with {target}', ['target' => $walk->getTargetId()]);
-
         $file->close();
     }
 

@@ -105,15 +105,22 @@ class Driver
         return true;
     }
 
+    /**
+     * @param array $association
+     * @return boolean
+     */
     public function isSupportedAssociation(array $association)
     {
         if ($association['type'] == ClassMetadata::MANY_TO_MANY) {
             return false;
         }
 
-        $entity = $this->getEntityMetadata($association['sourceEntity']);
+        // Ignore self-joins
+        if ($association['sourceEntity'] == $association['targetEntity']) {
+            return false;
+        }
 
-        if (($property = $entity->getProperty($association['fieldName']))) {
+        if (($property = $this->getEntityMetadata($association['sourceEntity'])->getProperty($association['fieldName']))) {
             if ($property->hasAnnotation('Doxport\Annotation\Exclude')) {
                 return false;
             }

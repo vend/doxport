@@ -16,8 +16,9 @@ class ConstraintPass extends Pass
     public function run()
     {
         $this->graph->from($this->driver, function (array $association) {
-            if ($association['fieldName'] == 'priceBook') {
-                $a = 1;
+            // Ignore self-joins
+            if ($association['sourceEntity'] == $association['targetEntity']) {
+                return false;
             }
 
             $allowed =
@@ -45,7 +46,6 @@ class ConstraintPass extends Pass
         try {
             $sort = $this->graph->topologicalSort();
         } catch (UnexpectedValueException $e) {
-
             throw $e;
         }
 

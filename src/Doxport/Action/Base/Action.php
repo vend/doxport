@@ -4,7 +4,6 @@ namespace Doxport\Action\Base;
 
 use Doxport\Schema;
 use Doxport\Util\SimpleObjectSerializer;
-use Fhaculty\Graph\Vertex;
 use Fhaculty\Graph\Walk;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
@@ -18,6 +17,13 @@ abstract class Action implements LoggerAwareInterface
      * @return void
      */
     abstract public function process(Walk $fromTargetToRoot);
+
+    /**
+     * @param Walk  $fromTargetToRoot
+     * @param array $associationToAndFromTarget
+     * @return void
+     */
+    abstract public function processSelfJoin(Walk $fromTargetToRoot, array $associationToAndFromTarget);
 
     /**
      * @param object $entity

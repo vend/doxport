@@ -11,6 +11,8 @@ class AliasGenerator
      */
     protected $aliases = [];
 
+    protected $counts = [];
+
     /**
      * @param string $name
      * @return string
@@ -27,8 +29,18 @@ class AliasGenerator
             }
 
             $this->aliases[$name] = $simple;
+            $this->counts[$name] = 0;
         }
 
         return $this->aliases[$name];
+    }
+
+    /**
+     * @param string $name
+     * @return string
+     */
+    public function getAnother($name)
+    {
+        return $this->get($name) . $this->counts[$name]++;
     }
 }

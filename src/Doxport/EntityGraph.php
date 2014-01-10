@@ -13,11 +13,6 @@ use Fhaculty\Graph\Graph;
 class EntityGraph
 {
     /**
-     * @var Entity[]
-     */
-    protected $entities = [];
-
-    /**
      * @var string
      */
     protected $root;
@@ -54,22 +49,19 @@ class EntityGraph
         $entities = $driver->getEntityNames();
 
         foreach ($entities as $entity) {
-            $this->entities[$entity] = $driver->getEntityMetadata($entity);
             $this->graph->createVertex($entity);
         }
 
-        foreach ($this->entities as $entity) {
-            foreach ($entity->getClassMetadata()->getAssociationMappings() as $association) {
+        foreach ($entities as $entity) {
+            foreach ($driver->getEntityMetadata($entity)->getClassMetadata()->getAssociationMappings() as $association) {
                 if (!$associationFilter($association)) {
                     continue;
                 }
 
-                $source = $this->graph->getVertex($association['sourceEntity']);
-                $target = $this->graph->getVertex($association['targetEntity']);
-                $via    = $association['fieldName'];
-
-                $edge = $source->createEdgeTo($target);
-                $edge->setLayoutAttribute('label', $via);
+                $edge = $this->graph->getVertex($association['sourceEntity'])->createEdgeTo(
+                    $this->graph->getVertex($association['targetEntity'])
+                );
+                $edge->setLayoutAttribute('label', $association['fieldName']);
             }
         }
     }

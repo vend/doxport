@@ -96,7 +96,7 @@ class JoinWalk
      * @param mixed  $value
      * @return void
      */
-    public function applyRootCriteria($column, $value)
+    public function whereRootFieldEq($column, $value)
     {
         $qualified = $this->aliases->get($this->getRootId()) . '.' . $column;
         $param     = ':' . $this->aliases->get($this->getRootId()) . $column;
@@ -111,6 +111,28 @@ class JoinWalk
         $this->builder->setParameter(
             $param,
             $value
+        );
+    }
+
+    /**
+     * @param string $column
+     * @param mixed  $value
+     * @return void
+     */
+    public function addSelfJoinNull($associationFieldName, $associationTargetField)
+    {
+        $original  = $this->aliases->get($this->getTargetId());
+        $afterJoin = $this->aliases->getAnother($this->getTargetId());
+
+        $this->builder->leftJoin(
+            $original . '.' . $associationFieldName,
+            $afterJoin
+        );
+
+        $this->builder->andWhere(
+            $this->builder->expr()->isNull(
+                $afterJoin . '.' . $associationTargetField
+            )
         );
     }
 
