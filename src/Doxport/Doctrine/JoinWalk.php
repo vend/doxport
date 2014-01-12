@@ -140,9 +140,6 @@ class JoinWalk
         $this->builder->getQuery()->setHint(Query\SqlWalker::HINT_DISTINCT, true);
         $this->builder->groupBy($original);
         $this->builder->distinct(true);
-
-        $sql2 = $this->builder->getQuery()->getSQL();
-        echo $sql2;
     }
 
     /**

@@ -54,6 +54,11 @@ class EntityGraph
 
         foreach ($entities as $entity) {
             foreach ($driver->getEntityMetadata($entity)->getClassMetadata()->getAssociationMappings() as $association) {
+                if (!in_array($association['sourceEntity'], $entities)
+                    || !in_array($association['targetEntity'], $entities)) {
+                    continue;
+                }
+
                 if (!$associationFilter($association)) {
                     continue;
                 }

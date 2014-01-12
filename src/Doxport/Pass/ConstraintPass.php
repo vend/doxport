@@ -21,40 +21,13 @@ class ConstraintPass extends Pass
                 return false;
             }
 
-            $allowed =
-                ($a = $this->driver->isSupportedAssociation($association))
-                && ($b = $this->driver->isCoveredAssociation($association))
-                && ($c = $this->driver->isConstraintAssociation($association));
-
-            if (!$allowed) {
-                $a = $this->driver->isSupportedAssociation($association);
-                $b = $this->driver->isCoveredAssociation($association);
-                $c = $this->driver->isConstraintAssociation($association);
-            }
-
-            return $allowed;
+            return ($this->driver->isSupportedAssociation($association))
+                && ($this->driver->isCoveredAssociation($association))
+                && ($this->driver->isConstraintAssociation($association));
         });
 
         $this->graph->filterConnected();
 
-        // Debugging
-        $this->graph->export('build/c.png');
-        echo (string)$this->graph . "\n";
-
-        file_put_contents('build/c.dot', (string)$this->graph);
-
-        $sort = [];
-
-        try {
-            $sort = $this->graph->topologicalSort();
-        } catch (UnexpectedValueException $e) {
-            throw $e;
-        }
-
-        foreach ($sort as $vertex) {
-            echo $vertex->getId() . " -> \n";
-        }
-
-        return $sort;
+        return $this->graph->topologicalSort();
     }
 }

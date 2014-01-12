@@ -58,10 +58,15 @@ class Driver
 
         return array_filter($this->doctrine->getAllClassNames(), function ($class) use ($reader) {
             $annotations = $reader->getClassAnnotations(new \ReflectionClass($class));
+            $meta  = $this->getEntityMetadata($class);
 
             foreach ($annotations as $annotation) {
                 // Exclude mapped superclasses
                 if (get_class($annotation) == 'Doctrine\ORM\Mapping\MappedSuperclass') {
+                    return false;
+                }
+
+                if (get_class($annotation) == 'Doxport\Annotation\Shared') {
                     return false;
                 }
             }
