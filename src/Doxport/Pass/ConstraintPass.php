@@ -41,6 +41,8 @@ class ConstraintPass extends Pass
         $this->graph->export('build/c.png');
         echo (string)$this->graph . "\n";
 
+        file_put_contents('build/c.dot', (string)$this->graph);
+
         $sort = [];
 
         try {

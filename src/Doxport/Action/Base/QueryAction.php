@@ -3,6 +3,7 @@
 namespace Doxport\Action\Base;
 
 use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\Mapping\ClassMetadata;
 use Doctrine\ORM\Query;
 use Doxport\Doctrine\AliasGenerator;
 use Doxport\Doctrine\JoinWalk;
@@ -19,6 +20,11 @@ abstract class QueryAction extends Action
      * @var array
      */
     protected $rootCriteria = [];
+
+    /**
+     * @var array
+     */
+    protected $processedSelfJoins = [];
 
     /**
      * @param EntityManager $em
@@ -55,15 +61,17 @@ abstract class QueryAction extends Action
     {
         $walk = $this->getJoinWalk($path);
 
-        // nope
-      //  foreach ($association['joinColumns'] as $column) {
-      //      $walk->whereTargetFieldNull($column['name']);
-      //  }
+        if ($association['type'] == ClassMetadata::ONE_TO_MANY) {
+            // Skipping because inverse of one that's already processed
+            return;
+        }
 
-        // @todo do an actual self-join
+        $walk->addSelfJoinNull($association['inversedBy'], $association['sourceToTargetKeyColumns']);
 
-        $walk->whereTargetFieldNull($association['fieldName']); // Do an actual self-join
+        // One level of self-join
+        $this->processQuery($walk);
 
+        // Two levels of self-join
         $this->processQuery($walk);
     }
 
