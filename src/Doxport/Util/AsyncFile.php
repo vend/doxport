@@ -108,6 +108,19 @@ class AsyncFile
     }
 
     /**
+     * Writes a line to the file
+     *
+     * @param string $string
+     * @param int    $length
+     * @return void
+     */
+    public function writeln($string, $length = null)
+    {
+        fwrite($this->file, $string . "\n", $length);
+    }
+
+
+    /**
      * Writes a CSV row to the file
      *
      * @param array $values
@@ -126,6 +139,7 @@ class AsyncFile
     public function close()
     {
         if ($this->file) {
+            $this->flush();
             fclose($this->file);
         }
 

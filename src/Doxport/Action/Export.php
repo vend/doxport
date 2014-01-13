@@ -3,14 +3,11 @@
 namespace Doxport\Action;
 
 use Doctrine\ORM\Query;
-use Doxport\Action\Base\FileActionTrait;
 use Doxport\Action\Base\QueryAction;
 use Doxport\Doctrine\JoinWalk;
 
 class Export extends QueryAction
 {
-    use FileActionTrait;
-
     /**
      * @param JoinWalk $walk
      * @return void

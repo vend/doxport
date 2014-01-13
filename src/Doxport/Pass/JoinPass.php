@@ -29,10 +29,9 @@ class JoinPass extends Pass
      */
     public function __construct(Driver $driver, EntityGraph $graph, Vertices $vertices, Action $action)
     {
-        parent::__construct($driver, $graph);
+        parent::__construct($driver, $graph, $action);
 
         $this->vertices = $vertices;
-        $this->action = $action;
     }
 
     /**

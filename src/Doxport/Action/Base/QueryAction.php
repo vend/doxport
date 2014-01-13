@@ -7,6 +7,7 @@ use Doctrine\ORM\Mapping\ClassMetadata;
 use Doctrine\ORM\Query;
 use Doxport\Doctrine\AliasGenerator;
 use Doxport\Doctrine\JoinWalk;
+use Doxport\Util\SimpleObjectSerializer;
 use Fhaculty\Graph\Walk;
 
 abstract class QueryAction extends Action
@@ -57,6 +58,10 @@ abstract class QueryAction extends Action
         $this->processQuery($walk);
     }
 
+    /**
+     * @param Walk $path
+     * @param array $association
+     */
     public function processSelfJoin(Walk $path, array $association)
     {
         $walk = $this->getJoinWalk($path);
@@ -75,6 +80,10 @@ abstract class QueryAction extends Action
         $this->processQuery($walk);
     }
 
+    /**
+     * @param Walk $path
+     * @return JoinWalk
+     */
     protected function getJoinWalk(Walk $path)
     {
         $walk = new JoinWalk(
@@ -88,6 +97,21 @@ abstract class QueryAction extends Action
         }
 
         return $walk;
+    }
+
+    /**
+     * @param object $entity
+     * @todo better name, not really serialization
+     * @return array
+     */
+    protected function serialize($entity)
+    {
+        if (method_exists($entity, '__sleep')) {
+            return $entity->__sleep();
+        }
+
+        $serializer = new SimpleObjectSerializer($this->em);
+        return $serializer->serialize($entity);
     }
 
     /**

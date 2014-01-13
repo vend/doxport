@@ -2,21 +2,16 @@
 
 namespace Doxport\Action;
 
-use Doctrine\DBAL\DBALException;
 use Doctrine\ORM\Query;
-use Doxport\Action\Base\FileActionTrait;
 use Doxport\Action\Base\QueryAction;
 use Doxport\Doctrine\JoinWalk;
 use Doxport\Util\AsyncFile;
-use Fhaculty\Graph\Edge\Directed;
 
 /**
  * Delete action
  */
 class Delete extends QueryAction
 {
-    use FileActionTrait;
-
     const CHUNK_SIZE = 100;
 
     /**

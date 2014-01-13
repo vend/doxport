@@ -24,11 +24,16 @@ abstract class ActionCommand extends Command
      * Configures the action
      *
      * @param Action $action
+     * @param InputInterface $input
      * @return void
      */
     protected function configureAction(Action $action, InputInterface $input)
     {
         $action->setLogger($this->logger);
+
+        if ($input->getOption('data-dir')) {
+            $action->setFilePath($input->getOption('data-dir'));
+        }
 
         if ($action instanceof QueryAction
             && $input->hasArgument('column')
@@ -38,15 +43,17 @@ abstract class ActionCommand extends Command
                 $input->getArgument('column'),
                 $input->getArgument('value')
             );
+
+            $action->setFilePath(
+                $action->getFilePath()
+                . \DIRECTORY_SEPARATOR
+                . $input->getArgument('column')
+                . '_'
+                . $input->getArgument('value')
+            );
         }
 
-        if ($action instanceof FileActionTrait) {
-            if ($input->hasOption('data-dir')) {
-                $action->setFilePath($input->getOption('data-dir'));
-            }
-
-            $action->createFilePath();
-        }
+        $action->createFilePath();
     }
 
     /**

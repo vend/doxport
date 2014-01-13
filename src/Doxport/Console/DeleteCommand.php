@@ -2,7 +2,7 @@
 
 namespace Doxport\Console;
 
-use Doxport\Action\Action;
+use Doxport\Action\Base\Action;
 use Doxport\Action\Delete;
 use Doxport\Schema;
 use Doxport\EntityGraph;
@@ -25,7 +25,7 @@ class DeleteCommand extends ActionCommand
 
         $this
             ->setName('delete')
-            ->addOption('data-dir', 'd', InputOption::VALUE_REQUIRED, 'The data directory to archive to (default build/<action>)', null)
+            ->addOption('data-dir', 'd', InputOption::VALUE_REQUIRED, 'The data directory to archive to (default build/{action})', null)
             ->addArgument('entity', InputArgument::REQUIRED, 'The entity to begin deleting from', null)
             ->addArgument('column', InputArgument::REQUIRED, 'A column to limit deleting', null)
             ->addArgument('value', InputArgument::REQUIRED, 'The value to limit by', null)
@@ -45,16 +45,14 @@ class DeleteCommand extends ActionCommand
 
         $graph = new EntityGraph($input->getArgument('entity'));
 
-        $pass = new ConstraintPass($driver, $graph);
+        $pass = new ConstraintPass($driver, $graph, $this->action);
+        $pass->setLogger($this->logger);
         $vertices = $pass->run();
-
-        $constraints = $this->action->getFilePath() . '/constraints.png';
-        $this->logger->info('Outputting constraints to {constraints}', ['constraints' => $constraints]);
-        $graph->export($constraints);
 
         $graph = new EntityGraph($input->getArgument('entity'));
 
         $pass = new JoinPass($driver, $graph, $vertices, $this->action);
+        $pass->setLogger($this->logger);
         $pass->run();
 
         $this->logger->notice('All done.');
