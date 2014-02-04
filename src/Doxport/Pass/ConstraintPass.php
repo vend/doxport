@@ -9,6 +9,7 @@ use Fhaculty\Graph\Exception\UnexpectedValueException;
 use Fhaculty\Graph\Graph;
 use Fhaculty\Graph\Set\Vertices;
 use Fhaculty\Graph\Walk;
+use Psr\Log\LogLevel;
 
 class ConstraintPass extends Pass
 {
@@ -17,6 +18,7 @@ class ConstraintPass extends Pass
      */
     public function run()
     {
+        $this->logger->log(LogLevel::INFO, 'Filtering for covered, supported associations');
         $this->graph->from($this->driver, function (array $association) {
             // Ignore self-joins
             if ($association['sourceEntity'] == $association['targetEntity']) {
@@ -28,8 +30,10 @@ class ConstraintPass extends Pass
                 && ($this->driver->isConstraintAssociation($association));
         });
 
+        $this->logger->log(LogLevel::INFO, 'Filtering for connected entities');
         $this->graph->filterConnected();
 
+        $this->logger->log(LogLevel::INFO, 'Producing topological sort for dependency order');
         $vertices = $this->graph->topologicalSort();
 
         $this->outputVertices($vertices);

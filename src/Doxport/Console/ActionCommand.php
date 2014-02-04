@@ -5,6 +5,7 @@ namespace Doxport\Console;
 use Doxport\Action\Base\Action;
 use Doxport\Action\Base\FileActionTrait;
 use Doxport\Action\Base\QueryAction;
+use Psr\Log\LogLevel;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -66,5 +67,7 @@ abstract class ActionCommand extends Command
 
         $this->action = $this->getAction();
         $this->configureAction($this->action, $input);
+
+        $this->logger->log(LogLevel::DEBUG, 'Configured action: {action_class}', ['action_class' => get_class($this->action)]);
     }
 }

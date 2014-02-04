@@ -2,11 +2,13 @@
 
 namespace Doxport\Console;
 
+use Doctrine\ORM\Mapping\MappingException;
 use Doxport\Action\Base\Action;
 use Doxport\Action\Delete;
 use Doxport\Schema;
 use Doxport\EntityGraph;
 use Doxport\Util\QueryAliases;
+use Psr\Log\LogLevel;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -41,21 +43,34 @@ class DeleteCommand extends ActionCommand
     {
         parent::execute($input, $output);
 
+        $this->validateInput($input);
+
         $driver = $this->getMetadataDriver();
+        $entity = $input->getArgument('entity');
 
-        $graph = new EntityGraph($input->getArgument('entity'));
+        $this->logger->log(LogLevel::NOTICE, 'Creating entity graph for {entity}', ['entity' => $entity]);
+        $graph = new EntityGraph($entity);
 
+        $this->logger->log(LogLevel::NOTICE, 'Doing constraint pass');
         $pass = new ConstraintPass($driver, $graph, $this->action);
         $pass->setLogger($this->logger);
         $vertices = $pass->run();
 
-        $graph = new EntityGraph($input->getArgument('entity'));
+        $this->logger->log(LogLevel::NOTICE, 'Creating another entity graph for {entity}', ['entity' => $entity]);
+        $graph = new EntityGraph($entity);
 
+        $this->logger->log(LogLevel::NOTICE, 'Doing join pass');
         $pass = new JoinPass($driver, $graph, $vertices, $this->action);
         $pass->setLogger($this->logger);
         $pass->run();
 
         $this->logger->notice('All done.');
+    }
+
+    protected function validateInput(InputInterface $input)
+    {
+        $entity = $input->getArgument('entity');
+        $this->getMetadataDriver()->getEntityMetadata($entity);
     }
 
     /**
