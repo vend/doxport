@@ -5,6 +5,11 @@ namespace Doxport\Util;
 use Doxport\Exception\IOException;
 use \LogicException;
 
+/**
+ * File helper class
+ *
+ * Provides fsync support via eio extension
+ */
 class AsyncFile
 {
     /**
@@ -27,6 +32,27 @@ class AsyncFile
         if ($mode) {
             $this->open($mode);
         }
+    }
+
+    /**
+     * Reads from the current position to the end of the file into a string
+     * and returns it
+     *
+     * @return string
+     */
+    public function readAll()
+    {
+        if (!$this->isOpen()) {
+            return file_get_contents($this->path);
+        }
+
+        $contents = '';
+
+        while (!feof($this->file)) {
+            $contents .= fread($this->file, 8192);
+        }
+
+        return $contents;
     }
 
     /**
@@ -99,24 +125,22 @@ class AsyncFile
      * Writes to the file
      *
      * @param string $string
-     * @param int    $length
-     * @return void
+     * @return int
      */
-    public function write($string, $length = null)
+    public function write($string)
     {
-        fwrite($this->file, $string, $length);
+        return fwrite($this->file, $string);
     }
 
     /**
      * Writes a line to the file
      *
      * @param string $string
-     * @param int    $length
-     * @return void
+     * @return int
      */
-    public function writeln($string, $length = null)
+    public function writeln($string)
     {
-        fwrite($this->file, $string . "\n", $length);
+        return fwrite($this->file, $string . "\n");
     }
 
 
@@ -124,11 +148,11 @@ class AsyncFile
      * Writes a CSV row to the file
      *
      * @param array $values
-     * @return void
+     * @return int
      */
     public function writeCsvRow(array $values)
     {
-        fputcsv($this->file, $values);
+        return fputcsv($this->file, $values);
     }
 
     /**
