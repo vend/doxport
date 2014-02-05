@@ -33,11 +33,12 @@ class ConstraintPass extends Pass
         $this->logger->log(LogLevel::INFO, 'Filtering for connected entities');
         $this->graph->filterConnected();
 
+        $this->outputGraph();
+
         $this->logger->log(LogLevel::INFO, 'Producing topological sort for dependency order');
         $vertices = $this->graph->topologicalSort();
 
         $this->outputVertices($vertices);
-        $this->outputGraph();
 
         return $vertices;
     }
