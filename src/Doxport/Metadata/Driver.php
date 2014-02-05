@@ -218,10 +218,23 @@ class Driver
      */
     public function isCoveredAssociation(array $association)
     {
-        if (!isset($association['joinColumnFieldNames'])) {
+        if (!$this->isColumnOwnerAssociation($association)) {
             return false;
         }
 
         return $this->isCovered($association['sourceEntity'], $association['joinColumnFieldNames']);
+    }
+
+    /**
+     * @param array $association
+     * @return bool
+     */
+    public function isColumnOwnerAssociation(array $association)
+    {
+        if (!isset($association['joinColumnFieldNames'])) {
+            return false;
+        }
+
+        return true;
     }
 }

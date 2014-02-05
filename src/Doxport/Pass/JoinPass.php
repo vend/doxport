@@ -44,6 +44,7 @@ class JoinPass extends Pass
             return
                 $this->driver->isSupportedAssociation($association)
                 && $this->driver->isCoveredAssociation($association)
+                && $this->driver->isColumnOwnerAssociation($association)
                 && $this->driver->isConstraintAssociation($association)
                 && !$this->driver->isOptionalAssociation($association);
         });

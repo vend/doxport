@@ -25,9 +25,9 @@ class ConstraintPass extends Pass
                 return false;
             }
 
-            return ($this->driver->isSupportedAssociation($association))
-                && ($this->driver->isCoveredAssociation($association))
-                && ($this->driver->isConstraintAssociation($association));
+            return $this->driver->isSupportedAssociation($association)
+                && $this->driver->isColumnOwnerAssociation($association)
+                && $this->driver->isConstraintAssociation($association);
         });
 
         $this->logger->log(LogLevel::INFO, 'Filtering for connected entities');
