@@ -35,61 +35,7 @@ class ExportCommand extends Command
     {
         parent::execute($input, $output);
 
-        $schema = $this->prepareSchema($input, $output);
-        $this->writeSchemaToOutput($schema, $output);
-        $this->performExport($schema, $output);
+
     }
 
-    /**
-     * @param Schema          $schema
-     * @param OutputInterface $output
-     * @return void
-     */
-    protected function performExport(Schema $schema, OutputInterface $output)
-    {
-        $output->write('Doing export...');
-
-        $export = new Export($this->getEntityManager(), $schema, $output);
-        $export->run();
-
-        $output->writeln('done.');
-    }
-
-    /**
-     * @param Schema          $schema
-     * @param OutputInterface $output
-     * @return void
-     */
-    protected function writeSchemaToOutput(Schema $schema, OutputInterface $output)
-    {
-        if ($output->getVerbosity() > OutputInterface::VERBOSITY_NORMAL) {
-            $output->write((string)$schema);
-        }
-    }
-
-    /**
-     * @param InputInterface  $input
-     * @param OutputInterface $output
-     * @return Schema
-     */
-    protected function prepareSchema(InputInterface $input, OutputInterface $output)
-    {
-        $output->write('Preparing schema for export...');
-
-        $schema = new Schema($this->getMetadataDriver());
-
-        $schema->getCriteria($input->getArgument('entity'))
-            ->addWhereEq($input->getArgument('column'), $input->getArgument('value'));
-        $schema->setRoot($input->getArgument('entity'));
-
-        $output->writeln('done.');
-        $output->write('Choosing path through tables...');
-
-        $pass = new JoinPass($this->getMetadataDriver(), $schema);
-        $pass->reduce();
-
-        $output->writeln('done.');
-
-        return $schema;
-    }
 }

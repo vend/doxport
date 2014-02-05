@@ -45,19 +45,14 @@ class ConstraintPass extends Pass
 
     protected function outputVertices(Vertices $vertices)
     {
-        $file = $this->action->getFileInstance('constraints.txt');
-        $this->logger->info('Outputting constraint text to {path}', ['path' => $file->getPath()]);
-
-        foreach ($vertices as $vertex) {
-            $file->writeln($vertex->getId());
-        }
-
-        $file->close();
+        $path = $this->fileFactory->getPathForFile('constraints', 'txt');
+        $this->logger->info('Outputting constraint text to {path}', ['path' => $path]);
+        file_put_contents($path, implode("\n", $vertices->getIds()));
     }
 
     protected function outputGraph()
     {
-        $path = $this->action->getFilePath() . '/constraints.png';
+        $path = $this->fileFactory->getPathForFile('constraints', 'png');
         $this->logger->info('Outputting constraint image to {path}', ['path' => $path]);
 
         $this->graph->export($path);

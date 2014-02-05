@@ -2,6 +2,7 @@
 
 namespace Doxport\Action\Base;
 
+use Doxport\File\Factory;
 use Doxport\Schema;
 use Doxport\Util\AsyncFile;
 use Fhaculty\Graph\Walk;
@@ -17,6 +18,11 @@ abstract class Action implements LoggerAwareInterface
      * @var string
      */
     protected $path;
+
+    /**
+     * @var Factory
+     */
+    protected $fileFactory;
 
     /**
      * @param Walk   $fromTargetToRoot
@@ -44,84 +50,16 @@ abstract class Action implements LoggerAwareInterface
     /**
      * @return string
      */
-    protected function getFileMode()
+    public function getName()
     {
-        return 'a';
+        return $this->getClassName(get_class($this));
     }
 
     /**
-     * @param string $name    File name
-     * @param string $subpath Optional
-     * @throws InvalidArgumentException If path not writable
-     * @return AsyncFile
+     * @param Factory $fileFactory
      */
-    public function getFileInstance($name, $subpath = '' , $mode = null)
+    public function setFileFactory(Factory $fileFactory)
     {
-        $path = $this->getFilePath();
-
-        if ($subpath) {
-            $path .= \DIRECTORY_SEPARATOR . $subpath;
-
-            if (!is_dir($path)) {
-                mkdir($path, 0775, true);
-            }
-
-            if (!\is_writable($path)) {
-                throw new InvalidArgumentException('Path not writable: ' . $path);
-            }
-        }
-
-        $path .= \DIRECTORY_SEPARATOR . $name;
-
-        return new AsyncFile(
-            $path,
-            $mode ?: $this->getFileMode()
-        );
-    }
-
-    /**
-     * @return string
-     */
-    public function getFilePath()
-    {
-        if (!$this->path) {
-            $this->path = 'build' . DIRECTORY_SEPARATOR . $this->getFileActionName();
-        }
-
-        return $this->path;
-    }
-
-    /**
-     * @param string $path
-     * @return void
-     */
-    public function setFilePath($path)
-    {
-        $this->path = $path;
-    }
-
-    /**
-     * @throws InvalidArgumentException If file path cannot be written
-     * @return void
-     */
-    public function createFilePath()
-    {
-        if (!is_dir($this->getFilePath())) {
-            mkdir($this->getFilePath(), 0775, true);
-        }
-
-        if (!is_writable($this->getFilePath())) {
-            throw new InvalidArgumentException('Cannot write to file path: ' . $this->getFilePath());
-        }
-    }
-
-    /**
-     * @return string
-     */
-    protected function getFileActionName()
-    {
-        $class = $this->getClassName(get_class($this));
-        $class = preg_replace('/([a-z])([A-Z])/', '\1-\2', $class);
-        return strtolower($class);
+        $this->fileFactory = $fileFactory;
     }
 }

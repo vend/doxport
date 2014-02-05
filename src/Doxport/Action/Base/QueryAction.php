@@ -7,6 +7,7 @@ use Doctrine\ORM\Mapping\ClassMetadata;
 use Doctrine\ORM\Query;
 use Doxport\Doctrine\AliasGenerator;
 use Doxport\Doctrine\JoinWalk;
+use Doxport\Util\EntityArrayHelper;
 use Doxport\Util\SimpleObjectSerializer;
 use Fhaculty\Graph\Walk;
 
@@ -101,17 +102,16 @@ abstract class QueryAction extends Action
 
     /**
      * @param object $entity
-     * @todo better name, not really serialization
      * @return array
      */
-    protected function serialize($entity)
+    protected function entityToArray($entity)
     {
         if (method_exists($entity, '__sleep')) {
             return $entity->__sleep();
         }
 
-        $serializer = new SimpleObjectSerializer($this->em);
-        return $serializer->serialize($entity);
+        $helper = new EntityArrayHelper($this->em);
+        return $helper->toArray($entity);
     }
 
     /**

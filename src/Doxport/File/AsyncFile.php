@@ -1,6 +1,6 @@
 <?php
 
-namespace Doxport\Util;
+namespace Doxport\File;
 
 use Doxport\Exception\IOException;
 use \LogicException;
@@ -10,12 +10,20 @@ use \LogicException;
  *
  * Provides fsync support via eio extension
  */
-class AsyncFile
+abstract class AsyncFile
 {
     /**
      * @var resource
      */
     protected $file;
+
+    /**
+     * Writes the given object to the file
+     *
+     * @param \stdClass|array $object
+     * @return void
+     */
+    abstract public function writeObject($object);
 
     /**
      * @param string $path
@@ -141,18 +149,6 @@ class AsyncFile
     public function writeln($string)
     {
         return fwrite($this->file, $string . "\n");
-    }
-
-
-    /**
-     * Writes a CSV row to the file
-     *
-     * @param array $values
-     * @return int
-     */
-    public function writeCsvRow(array $values)
-    {
-        return fputcsv($this->file, $values);
     }
 
     /**

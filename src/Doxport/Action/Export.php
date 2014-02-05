@@ -22,7 +22,7 @@ class Export extends QueryAction
         $this->logger->info((string)$walk);
 
         // Output file information
-        $file = $this->getFileInstance($this->getClassName($walk->getTargetId()) . '.csv');
+        $file = $this->fileFactory->getFile($this->getClassName($walk->getTargetId()));
         $this->logger->notice('Outputting to {file}', ['file' => (string)$file]);
 
         // Iterate through results
@@ -39,7 +39,7 @@ class Export extends QueryAction
         foreach ($iterator as $result) {
             $entity = $result[0];
 
-            $file->writeCsvRow($this->serialize($entity));  // Write to file
+            $file->writeObject($this->entityToArray($entity));
             $this->em->detach($entity);
         }
 

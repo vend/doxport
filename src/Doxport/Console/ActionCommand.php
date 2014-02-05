@@ -5,6 +5,7 @@ namespace Doxport\Console;
 use Doxport\Action\Base\Action;
 use Doxport\Action\Base\FileActionTrait;
 use Doxport\Action\Base\QueryAction;
+use Doxport\File\Factory;
 use Psr\Log\LogLevel;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -17,57 +18,70 @@ abstract class ActionCommand extends Command
     protected $action;
 
     /**
+     * @var Factory
+     */
+    protected $fileFactory;
+
+    /**
      * @return Action
      */
     abstract protected function getAction();
 
     /**
-     * Configures the action
-     *
-     * @param Action $action
-     * @param InputInterface $input
-     * @return void
+     * @return Factory
      */
-    protected function configureAction(Action $action, InputInterface $input)
+    protected function getFileFactory()
     {
-        $action->setLogger($this->logger);
-
-        if ($input->getOption('data-dir')) {
-            $action->setFilePath($input->getOption('data-dir'));
-        }
-
-        if ($action instanceof QueryAction
-            && $input->hasArgument('column')
-            && $input->hasArgument('value')
-        ) {
-            $action->addRootCriteria(
-                $input->getArgument('column'),
-                $input->getArgument('value')
-            );
-
-            $action->setFilePath(
-                $action->getFilePath()
-                . \DIRECTORY_SEPARATOR
-                . $input->getArgument('column')
-                . '_'
-                . $input->getArgument('value')
-            );
-        }
-
-        $action->createFilePath();
+        return new Factory();
     }
 
     /**
+     * Configures the file factory
+     *
      * @param InputInterface $input
+     */
+    protected function configureFileFactory(InputInterface $input)
+    {
+        if ($input->getOption('data-dir')) {
+            $this->fileFactory->setPath($input->getOption('data-dir'));
+        }
+
+        if ($input->hasOption('format') && $input->getOption('format')) {
+            $this->fileFactory->setFormat($input->getOption('format'));
+        }
+
+        $this->fileFactory->join($this->action->getName());
+    }
+
+    /**
+     * Configures the action
+     *
+     * @param InputInterface $input
+     * @return void
+     */
+    protected function configureAction(InputInterface $input)
+    {
+        $this->action->setLogger($this->logger);
+        $this->action->setFileFactory($this->fileFactory);
+    }
+
+    /**
+     * @param InputInterface  $input
      * @param OutputInterface $output
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         parent::execute($input, $output);
 
-        $this->action = $this->getAction();
-        $this->configureAction($this->action, $input);
+        $this->action      = $this->getAction();
+        $this->fileFactory = $this->getFileFactory();
 
+        $this->configureFileFactory($input);
+        $this->configureAction($input);
+
+        $this->fileFactory->createPath();
+
+        $this->logger->log(LogLevel::NOTICE, 'Output directory: {dir}', ['dir' => $this->fileFactory->getPath()]);
         $this->logger->log(LogLevel::DEBUG, 'Configured action: {action_class}', ['action_class' => get_class($this->action)]);
     }
 }

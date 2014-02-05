@@ -32,7 +32,7 @@ class Delete extends QueryAction
         $iterator = $query->iterate(null, Query::HYDRATE_SIMPLEOBJECT);
 
         // Output file information
-        $file = $this->getFileInstance($this->getClassName($walk->getTargetId()) . '.csv');
+        $file = $this->fileFactory->getFile($this->getClassName($walk->getTargetId()));
         $this->logger->notice('Outputting to {file}', ['file' => (string)$file]);
 
         // Iterate through results
@@ -42,7 +42,7 @@ class Delete extends QueryAction
         foreach ($iterator as $result) {
             $entity = $result[0];
 
-            $file->writeCsvRow($this->serialize($entity));  // Write to file
+            $file->writeObject($this->entityToArray($entity));  // Write to file
             $this->em->remove($entity);                     // Queue delete
 
             if ($i > self::CHUNK_SIZE) {

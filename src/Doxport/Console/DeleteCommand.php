@@ -16,7 +16,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Doxport\Pass\ConstraintPass;
 use Doxport\Pass\JoinPass;
 
-class DeleteCommand extends ActionCommand
+class DeleteCommand extends QueryActionCommand
 {
     /**
      * @return void
@@ -43,35 +43,15 @@ class DeleteCommand extends ActionCommand
     {
         parent::execute($input, $output);
 
-        $this->validateInput($input);
-
-        $driver = $this->getMetadataDriver();
-        $entity = $input->getArgument('entity');
-
-        $this->logger->log(LogLevel::NOTICE, 'Creating entity graph for {entity}', ['entity' => $entity]);
-        $graph = new EntityGraph($entity);
-
-        $this->logger->log(LogLevel::NOTICE, 'Doing constraint pass');
-        $pass = new ConstraintPass($driver, $graph, $this->action);
-        $pass->setLogger($this->logger);
+        $pass = $this->getConstraintPass();
         $vertices = $pass->run();
 
-        $this->logger->log(LogLevel::NOTICE, 'Creating another entity graph for {entity}', ['entity' => $entity]);
-        $graph = new EntityGraph($entity);
-
-        $this->logger->log(LogLevel::NOTICE, 'Doing join pass');
-        $pass = new JoinPass($driver, $graph, $vertices, $this->action);
-        $pass->setLogger($this->logger);
+        $pass = $this->getJoinPass($vertices);
         $pass->run();
 
         $this->logger->notice('All done.');
     }
 
-    protected function validateInput(InputInterface $input)
-    {
-        $entity = $input->getArgument('entity');
-        $this->getMetadataDriver()->getEntityMetadata($entity);
-    }
 
     /**
      * @return Action

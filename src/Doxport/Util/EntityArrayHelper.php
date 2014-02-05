@@ -2,14 +2,13 @@
 
 namespace Doxport\Util;
 
-use DateTime;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\ORM\EntityManager;
 
 /**
  * @todo Not actually a serializer, more a toArray helper
  */
-class SimpleObjectSerializer
+class EntityArrayHelper
 {
     /**
      * @var EntityManager
@@ -25,10 +24,10 @@ class SimpleObjectSerializer
     }
 
     /**
-     * @param stdClass $entity
+     * @param \stdClass $entity
      * @return array
      */
-    public function serialize($entity)
+    public function toArray($entity)
     {
         $metadata = $this->em->getClassMetadata(get_class($entity));
         $unit     = $this->em->getUnitOfWork();
