@@ -3,10 +3,7 @@
 namespace Doxport\Action\Base;
 
 use Doxport\File\Factory;
-use Doxport\Schema;
-use Doxport\Util\AsyncFile;
 use Fhaculty\Graph\Walk;
-use \InvalidArgumentException;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
 
@@ -52,7 +49,7 @@ abstract class Action implements LoggerAwareInterface
      */
     public function getName()
     {
-        return $this->getClassName(get_class($this));
+        return lcfirst($this->getClassName(get_class($this)));
     }
 
     /**

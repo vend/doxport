@@ -8,7 +8,7 @@ class CsvFile extends AsyncFile
      * Writes the given object to the file
      *
      * @param \stdClass $object
-     * @return void
+     * @return int
      */
     public function writeObject($object)
     {

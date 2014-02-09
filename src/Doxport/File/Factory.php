@@ -2,9 +2,11 @@
 
 namespace Doxport\File;
 
-use Doxport\Util\AsyncFile;
 use \InvalidArgumentException;
 
+/**
+ * File factory
+ */
 class Factory
 {
     /**

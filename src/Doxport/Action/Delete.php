@@ -5,7 +5,7 @@ namespace Doxport\Action;
 use Doctrine\ORM\Query;
 use Doxport\Action\Base\QueryAction;
 use Doxport\Doctrine\JoinWalk;
-use Doxport\Util\AsyncFile;
+use Doxport\File\AsyncFile;
 
 /**
  * Delete action
