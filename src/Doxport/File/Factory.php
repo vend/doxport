@@ -104,7 +104,7 @@ class Factory
      * @param string $mode
      * @return AsyncFile
      */
-    public function getFile($name, $mode = 'a')
+    public function getFile($name, $mode = 'a+')
     {
         $class = $this->getClass();
         return new $class($this->getPathForFile($name), $mode);

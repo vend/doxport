@@ -160,6 +160,7 @@ abstract class AsyncFile
     {
         if ($this->file) {
             $this->flush();
+            $this->sync();
             fclose($this->file);
         }
 
