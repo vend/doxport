@@ -13,10 +13,7 @@ use Fhaculty\Graph\Walk;
 
 abstract class QueryAction extends Action
 {
-    /**
-     * @var EntityManager
-     */
-    protected $em;
+
 
     /**
      * @var array
@@ -28,13 +25,7 @@ abstract class QueryAction extends Action
      */
     protected $processedSelfJoins = [];
 
-    /**
-     * @param EntityManager $em
-     */
-    public function __construct(EntityManager $em)
-    {
-        $this->em = $em;
-    }
+
 
     /**
      * @param string $column

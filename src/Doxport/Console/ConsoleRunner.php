@@ -27,6 +27,7 @@ class ConsoleRunner
 
         $application->add(new ExportCommand());
         $application->add(new DeleteCommand());
+        $application->add(new ImportCommand());
 
         return $application->run();
     }

@@ -3,13 +3,11 @@
 namespace Doxport\Console;
 
 use Doxport\Action\Export;
-use Doxport\JoinPass;
-use Doxport\Schema;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class ExportCommand extends Command
+class ExportCommand extends QueryActionCommand
 {
     /**
      * @return void
@@ -35,7 +33,21 @@ class ExportCommand extends Command
     {
         parent::execute($input, $output);
 
+        $pass = $this->getConstraintPass();
+        $vertices = $pass->run();
 
+        $pass = $this->getJoinPass($vertices);
+        $pass->run();
+
+        $this->logger->notice('All done.');
     }
 
+
+    /**
+     * @return Action
+     */
+    protected function getAction()
+    {
+        return new Export($this->getEntityManager());
+    }
 }

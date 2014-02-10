@@ -2,14 +2,19 @@
 
 namespace Doxport\Action\Base;
 
+use Doctrine\ORM\EntityManager;
 use Doxport\File\Factory;
-use Fhaculty\Graph\Walk;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
 
 abstract class Action implements LoggerAwareInterface
 {
     use LoggerAwareTrait;
+
+    /**
+     * @var EntityManager
+     */
+    protected $em;
 
     /**
      * @var string
@@ -22,17 +27,12 @@ abstract class Action implements LoggerAwareInterface
     protected $fileFactory;
 
     /**
-     * @param Walk   $fromTargetToRoot
-     * @return void
+     * @param EntityManager $em
      */
-    abstract public function process(Walk $fromTargetToRoot);
-
-    /**
-     * @param Walk  $fromTargetToRoot
-     * @param array $associationToAndFromTarget
-     * @return void
-     */
-    abstract public function processSelfJoin(Walk $fromTargetToRoot, array $associationToAndFromTarget);
+    public function __construct(EntityManager $em)
+    {
+        $this->em = $em;
+    }
 
     /**
      * @param string $class
