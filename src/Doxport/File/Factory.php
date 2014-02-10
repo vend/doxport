@@ -101,12 +101,11 @@ class Factory
 
     /**
      * @param string $name
-     * @param string $mode
      * @return AsyncFile
      */
-    public function getFile($name, $mode = 'a+')
+    public function getFile($name)
     {
         $class = $this->getClass();
-        return new $class($this->getPathForFile($name), $mode);
+        return new $class($this->getPathForFile($name));
     }
 }

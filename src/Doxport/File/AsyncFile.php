@@ -3,7 +3,6 @@
 namespace Doxport\File;
 
 use Doxport\Exception\IOException;
-use \LogicException;
 
 /**
  * File helper class
@@ -27,69 +26,40 @@ abstract class AsyncFile
 
     /**
      * @param string $path
-     * @param string $mode
+     * @throws \Doxport\Exception\IOException
      */
-    public function __construct($path, $mode = null)
+    public function __construct($path)
     {
         if (!is_dir($dir = dirname($path))) {
-            mkdir($dir, 0644, true);
+            mkdir($dir, 0755, true);
         }
 
         $this->path = $path;
+        $this->file = fopen($this->path, 'c+');
 
-        if ($mode) {
-            $this->open($mode);
+        if (!$this->file) {
+            throw new IOException('Could not open file: ' . $this->path);
         }
+
+        // Seek to end of file (can't use 'a+' mode to do so, won't allow seek for writes)
+        fseek($this->file, 0, SEEK_END);
     }
 
     /**
-     * Reads from the current position to the end of the file into a string
-     * and returns it
+     * Reads the whole of the file into a string and returns it
      *
      * @return string
      */
     public function readAll()
     {
-        if (!$this->isOpen()) {
-            return file_get_contents($this->path);
-        }
+        rewind($this->file);
 
         $contents = '';
-
         while (!feof($this->file)) {
             $contents .= fread($this->file, 8192);
         }
 
         return $contents;
-    }
-
-    /**
-     * Opens the file
-     *
-     * @param string $mode
-     * @throws LogicException If the file is already open
-     * @throws IOException    If the file could not be opened
-     * @return void
-     */
-    public function open($mode)
-    {
-        if ($this->isOpen()) {
-            throw new LogicException('File already open');
-        }
-
-        $this->file = fopen($this->path, $mode);
-
-        if (!$this->file) {
-            throw new IOException('Could not open file: ' . $this->path);
-        }
-    }
-
-    /**
-     * @return bool
-     */
-    public function isOpen()
-    {
-        return (bool)$this->file;
     }
 
     /**
@@ -135,8 +105,9 @@ abstract class AsyncFile
      * @param string $string
      * @return int
      */
-    public function write($string)
+    protected function write($string)
     {
+        fseek($this->file, 0, SEEK_END);
         return fwrite($this->file, $string);
     }
 
@@ -146,8 +117,9 @@ abstract class AsyncFile
      * @param string $string
      * @return int
      */
-    public function writeln($string)
+    protected function writeln($string)
     {
+        fseek($this->file, 0, SEEK_END);
         return fwrite($this->file, $string . "\n");
     }
 

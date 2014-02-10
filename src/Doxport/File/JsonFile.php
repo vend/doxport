@@ -7,29 +7,31 @@ use LogicException;
 class JsonFile extends AsyncFile
 {
     /**
+     * Whether the file is ready to receive writes
+     *
+     * @var boolean
+     */
+    protected $prepared = false;
+
+    /**
      * Extra behaviour for JSON:
      *  - Only support readable streams
      *  - On open, check the first character is an open bracket of a JSON array
      *  - If not, truncate the file to the first character
      *  - If it is, check the end of the file, and remove the close bracket, add a comma
      *  - Leave the file pointer position at the correct place to start writing
-     *
-     * @inheritDoc
-     * @throws LogicException
      */
-    public function open($mode)
+    protected function prepare()
     {
-        parent::open($mode);
-
-        if (!in_array($mode, ['r+', 'w+', 'a+', 'x+'])) {
-            throw new LogicException('File mode ' . $mode . ' not supported for ' . __CLASS__);
+        if ($this->prepared) {
+            return;
         }
 
-        if (($a = $this->getFirstCharacter()) != '[') {
+        if ($this->getFirstCharacter() != '[') {
             fwrite($this->file, '[');
             ftruncate($this->file, 1);
         } else {
-            if (($b = $this->getLastCharacter()) != ']') {
+            if ($this->getLastCharacter() != ']') {
                 throw new LogicException('Invalid JSON file: mismatched wrapping array brackets');
             }
 
@@ -37,6 +39,8 @@ class JsonFile extends AsyncFile
                 $this->writeToLastCharacter(',');
             }
         }
+
+        $this->prepared = true;
     }
 
     /**
@@ -47,6 +51,11 @@ class JsonFile extends AsyncFile
      */
     public function writeObject($object)
     {
+        if (!$this->prepared) {
+            $this->prepare();
+            $this->prepared = true;
+        }
+
         $this->write(json_encode($object) . ',');
     }
 
@@ -60,16 +69,18 @@ class JsonFile extends AsyncFile
      */
     public function close()
     {
-        if ($this->file) {
+        if ($this->prepared) {
             $last = $this->getLastCharacter();
 
             if ($last == ',') {
                 $this->writeToLastCharacter(']');
             } elseif ($last == '[') {
-                $this->write(']');
+                fwrite($this->file, ']');
             } elseif ($last != ']') {
                 throw new LogicException('Unexpected character at end of file');
             }
+
+            $this->prepared = false;
         }
 
         parent::close();
@@ -86,7 +97,7 @@ class JsonFile extends AsyncFile
     protected function writeToLastCharacter($char)
     {
         fseek($this->file, -1, SEEK_END);
-        $this->write($char);
+        fwrite($this->file, $char);
     }
 
     /**
