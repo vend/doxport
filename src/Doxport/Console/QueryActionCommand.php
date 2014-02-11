@@ -28,6 +28,8 @@ abstract class QueryActionCommand extends ActionCommand
     {
         parent::execute($input, $output);
 
+        $this->fileFactory->createPath();
+
         $this->validateInput($input);
         $this->entity = $input->getArgument('entity');
     }
@@ -59,6 +61,8 @@ abstract class QueryActionCommand extends ActionCommand
     protected function configureFileFactory(InputInterface $input)
     {
         parent::configureFileFactory($input);
+
+        $this->fileFactory->join($this->action->getName());
 
         if ($input->hasArgument('column') && $input->hasArgument('value')) {
             $this->fileFactory->join(sprintf(

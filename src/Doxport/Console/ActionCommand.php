@@ -42,15 +42,15 @@ abstract class ActionCommand extends Command
      */
     protected function configureFileFactory(InputInterface $input)
     {
-        if ($input->getOption('data-dir')) {
+        if ($input->hasArgument('data-dir') && $input->getArgument('data-dir')) {
+            $this->fileFactory->setPath($input->getArgument('data-dir'));
+        } elseif ($input->hasOption('data-dir') && $input->getOption('data-dir')) {
             $this->fileFactory->setPath($input->getOption('data-dir'));
         }
 
         if ($input->hasOption('format') && $input->getOption('format')) {
             $this->fileFactory->setFormat($input->getOption('format'));
         }
-
-        $this->fileFactory->join($this->action->getName());
     }
 
     /**
@@ -79,9 +79,7 @@ abstract class ActionCommand extends Command
         $this->configureFileFactory($input);
         $this->configureAction($input);
 
-        $this->fileFactory->createPath();
-
-        $this->logger->log(LogLevel::NOTICE, 'Output directory: {dir}', ['dir' => $this->fileFactory->getPath()]);
         $this->logger->log(LogLevel::DEBUG, 'Configured action: {action_class}', ['action_class' => get_class($this->action)]);
+        $this->logger->log(LogLevel::NOTICE, 'Output directory: {dir}', ['dir' => $this->fileFactory->getPath()]);
     }
 }

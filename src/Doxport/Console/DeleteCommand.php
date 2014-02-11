@@ -28,6 +28,7 @@ class DeleteCommand extends QueryActionCommand
         $this
             ->setName('delete')
             ->addOption('data-dir', 'd', InputOption::VALUE_REQUIRED, 'The data directory to archive to (default build/{action})', null)
+            ->addOption('format', 'f', InputOption::VALUE_REQUIRED, 'The format to export to (default json)', null)
             ->addArgument('entity', InputArgument::REQUIRED, 'The entity to begin deleting from', null)
             ->addArgument('column', InputArgument::REQUIRED, 'A column to limit deleting', null)
             ->addArgument('value', InputArgument::REQUIRED, 'The value to limit by', null)

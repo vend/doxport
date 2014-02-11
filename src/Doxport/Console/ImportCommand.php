@@ -32,14 +32,13 @@ class ImportCommand extends ActionCommand
     {
         parent::execute($input, $output);
 
-        $this->action->setDataDirectory($input->getArgument('data-dir'));
         $this->action->run();
 
         $this->logger->notice('All done.');
     }
 
     /**
-     * @return Action
+     * @return Import
      */
     protected function getAction()
     {

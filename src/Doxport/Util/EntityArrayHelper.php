@@ -55,4 +55,11 @@ class EntityArrayHelper
 
         return $result;
     }
+
+    public function toEntity($entityName, $values)
+    {
+        $unit = $this->em->getUnitOfWork();
+        $entity = $unit->createEntity($entityName, $values);
+        return $entity;
+    }
 }

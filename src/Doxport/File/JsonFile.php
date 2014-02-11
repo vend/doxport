@@ -60,6 +60,21 @@ class JsonFile extends AsyncFile
     }
 
     /**
+     * @inheritDoc
+     * @return array
+     */
+    public function readObjects()
+    {
+        $content = trim($this->readAll());
+
+        if (!$content) {
+            return [];
+        }
+
+        return json_decode($content, true);
+    }
+
+    /**
      * Extra behaviour for JSON:
      *  - Check the last character of the file is a comma (or open bracket if file otherwise empty)
      *  - Remove the

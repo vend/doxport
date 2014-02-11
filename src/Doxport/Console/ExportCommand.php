@@ -5,6 +5,7 @@ namespace Doxport\Console;
 use Doxport\Action\Export;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class ExportCommand extends QueryActionCommand
@@ -18,6 +19,8 @@ class ExportCommand extends QueryActionCommand
 
         $this
             ->setName('export')
+            ->addOption('data-dir', 'd', InputOption::VALUE_REQUIRED, 'The data directory to archive to (default build/{action})', null)
+            ->addOption('format', 'f', InputOption::VALUE_REQUIRED, 'The format to export to (default json)', null)
             ->addArgument('entity', InputArgument::REQUIRED, 'The entity to begin exporting from', null)
             ->addArgument('column', InputArgument::REQUIRED, 'A column to limit exporting', null)
             ->addArgument('value', InputArgument::REQUIRED, 'The value to limit by', null)

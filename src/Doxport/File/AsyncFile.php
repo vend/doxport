@@ -25,6 +25,13 @@ abstract class AsyncFile
     abstract public function writeObject($object);
 
     /**
+     * Reads all objects in the file
+     *
+     * @return array
+     */
+    abstract public function readObjects();
+
+    /**
      * @param string $path
      * @throws \Doxport\Exception\IOException
      */
