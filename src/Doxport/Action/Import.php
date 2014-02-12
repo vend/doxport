@@ -39,14 +39,16 @@ class Import extends Action
 
         $helper = new EntityArrayHelper($this->em);
 
-        foreach ($entities as $values) {
-            $entity = $helper->toEntity($entityName, $values);
+        if ($entities) {
+            foreach ($entities as $values) {
+                $entity = $helper->toEntity($entityName, $values);
 
-            // Save entity
-            $this->em->merge($entity);
+                // Save entity
+                $this->em->merge($entity);
+            }
+
+            $this->em->flush();
         }
-
-        $this->em->close();
     }
 
     /**
