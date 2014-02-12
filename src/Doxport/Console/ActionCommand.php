@@ -8,6 +8,7 @@ use Doxport\Action\Base\QueryAction;
 use Doxport\File\Factory;
 use Psr\Log\LogLevel;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 abstract class ActionCommand extends Command
@@ -63,6 +64,16 @@ abstract class ActionCommand extends Command
     {
         $this->action->setLogger($this->logger);
         $this->action->setFileFactory($this->fileFactory);
+    }
+
+    /**
+     * @return void
+     */
+    protected function configure()
+    {
+        parent::configure();
+
+        $this->addOption('format', 'f', InputOption::VALUE_REQUIRED, 'The file format to use (default json)', null);
     }
 
     /**
