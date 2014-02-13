@@ -2,6 +2,7 @@
 
 namespace Doxport\File;
 
+use InvalidArgumentException;
 use LogicException;
 
 class JsonFile extends AsyncFile
@@ -20,6 +21,8 @@ class JsonFile extends AsyncFile
      *  - If not, truncate the file to the first character
      *  - If it is, check the end of the file, and remove the close bracket, add a comma
      *  - Leave the file pointer position at the correct place to start writing
+     *
+     * @throws LogicException
      */
     protected function prepare()
     {
@@ -48,6 +51,7 @@ class JsonFile extends AsyncFile
      *
      * @param \stdClass $object
      * @return void
+     * @throws InvalidArgumentException
      */
     public function writeObject($object)
     {
@@ -56,7 +60,34 @@ class JsonFile extends AsyncFile
             $this->prepared = true;
         }
 
-        $this->write(json_encode($object) . ',');
+        foreach ($object as &$value) {
+            if (is_resource($value)) {
+                $value = stream_get_contents($value);
+            }
+        }
+
+        $encoded = json_encode($object);
+
+        if ($last = json_last_error()) {
+            switch ($last) {
+                case JSON_ERROR_DEPTH:
+                    throw new InvalidArgumentException('Maximum stack depth exceeded');
+                case JSON_ERROR_STATE_MISMATCH:
+                    throw new InvalidArgumentException('Underflow or the modes mismatch');
+                case JSON_ERROR_CTRL_CHAR:
+                    throw new InvalidArgumentException('Unexpected control character found');
+                case JSON_ERROR_SYNTAX:
+                    throw new InvalidArgumentException('Syntax error, malformed JSON');
+                case JSON_ERROR_UTF8:
+                    throw new InvalidArgumentException('Malformed UTF-8 characters, possibly incorrectly encoded');
+                case JSON_ERROR_NONE:
+                    break;
+                default:
+                    throw new InvalidArgumentException('Unknown error in JSON encode');
+            }
+        }
+
+        $this->write($encoded . ',');
     }
 
     /**
