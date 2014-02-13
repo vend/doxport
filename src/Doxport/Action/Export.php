@@ -5,6 +5,7 @@ namespace Doxport\Action;
 use Doctrine\ORM\Query;
 use Doxport\Action\Base\QueryAction;
 use Doxport\Doctrine\JoinWalk;
+use Doxport\File\AsyncFile;
 
 class Export extends QueryAction
 {
@@ -21,6 +22,9 @@ class Export extends QueryAction
         // Output join information
         $this->logger->info((string)$walk);
 
+        // Get iterator
+        $iterator = $query->iterate(null, Query::HYDRATE_SIMPLEOBJECT);
+
         // Output file information
         $file = $this->fileFactory->getFile($this->getClassName($walk->getTargetId()));
         $this->logger->notice('Outputting to {file}', ['file' => (string)$file]);
@@ -28,25 +32,40 @@ class Export extends QueryAction
         // Iterate through results
         $iterator = $query->iterate(null, Query::HYDRATE_SIMPLEOBJECT);
 
-        if (!$iterator->valid()) {
-            $this->logger->notice('No results');
-            $file->close();
-            return;
-        }
-
         $this->logger->notice('Iterating through results...');
+        $i = 0;
 
         foreach ($iterator as $result) {
             $entity = $result[0];
 
-            $file->writeObject($this->entityToArray($entity));
+            $file->writeObject($this->entityToArray($entity));  // Write to file
             $this->em->detach($entity);
+
+            $i++;
         }
 
-        // Remaining in current chunk
-        $file->flush();
-        $file->close();
+        if ($i > 0) {
+            // Remaining in current chunk
+            $this->flush($file);
+        } elseif ($i == 0) {
+            $this->logger->notice('No results.');
+        }
 
         $this->logger->notice('Done with {target}', ['target' => $walk->getTargetId()]);
+        $file->close();
+    }
+
+    /**
+     * @param AsyncFile $file
+     * @return void
+     */
+    protected function flush(AsyncFile $file)
+    {
+        $this->logger->notice('  Flushing and syncing...');
+
+        $file->flush();
+        $file->sync();
+
+        $this->logger->notice('  done.');
     }
 }

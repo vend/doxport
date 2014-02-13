@@ -70,16 +70,16 @@ class Delete extends QueryAction
      */
     protected function flush(AsyncFile $file)
     {
-        $this->logger->notice('  Flushing and committing...');
+        $this->logger->notice('  Flushing and syncing...');
 
         $file->flush();
         $file->sync();
 
-        $this->logger->notice('    done with flush...');
+        $this->logger->notice('  done. Committing deletes...');
 
         $this->em->flush();
         $this->em->clear();
 
-        $this->logger->notice('    done with commit.');
+        $this->logger->notice('  done.');
     }
 }
