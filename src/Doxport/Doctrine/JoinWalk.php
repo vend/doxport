@@ -55,7 +55,9 @@ class JoinWalk
      */
     protected function selectTarget()
     {
-        $this->builder->select($alias = $this->aliases->get($this->getTargetId()));
+        $alias = $this->aliases->get($this->getTargetId());
+
+        $this->builder->select($alias);
         $this->builder->from($this->getTargetId(), $alias);
     }
 

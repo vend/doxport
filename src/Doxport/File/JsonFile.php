@@ -8,6 +8,16 @@ use LogicException;
 class JsonFile extends AsyncFile
 {
     /**
+     * JSON does not support UTF-8
+     *
+     * Where we're trying to encode an object into the JSON file, and that object
+     * has invalid UTF-8 binary data, we further encode the value with base64. This
+     * key tracks which keys have been encoded, so that we can decode the correct
+     * binary value back out when we read the file.
+     */
+    const ENCODED_KEY = '__encoded';
+
+    /**
      * Whether the file is ready to receive writes
      *
      * @var boolean
@@ -66,7 +76,19 @@ class JsonFile extends AsyncFile
             }
         }
 
-        $encoded = json_encode($object);
+        $this->write($this->encode($object) . ',');
+    }
+
+
+    /**
+     * @param object $object
+     * @param bool $allowBinary
+     * @return string
+     * @throws \InvalidArgumentException
+     */
+    protected function encode($object, $allowBinary = true)
+    {
+        $json = json_encode($object);
 
         if ($last = json_last_error()) {
             switch ($last) {
@@ -78,16 +100,62 @@ class JsonFile extends AsyncFile
                     throw new InvalidArgumentException('Unexpected control character found');
                 case JSON_ERROR_SYNTAX:
                     throw new InvalidArgumentException('Syntax error, malformed JSON');
-                case JSON_ERROR_UTF8:
-                    throw new InvalidArgumentException('Malformed UTF-8 characters, possibly incorrectly encoded');
                 case JSON_ERROR_NONE:
                     break;
                 default:
                     throw new InvalidArgumentException('Unknown error in JSON encode');
+                case JSON_ERROR_UTF8:
+                    if (!$allowBinary) {
+                        throw new InvalidArgumentException('Invalid binary string in object to encode; JSON strings must be UTF-8');
+                    } else {
+                        $object = $this->encodeBinary($object);
+                        $json = $this->encode($object, false);
+                    }
             }
         }
 
-        $this->write($encoded . ',');
+        return $json;
+    }
+
+    protected function encodeBinary($object)
+    {
+        $object[self::ENCODED_KEY] = [];
+
+        foreach ($object as $key => &$value) {
+            if ($key == self::ENCODED_KEY) {
+                continue;
+            }
+
+            if (!is_scalar($value)) {
+                $b = 2;
+            }
+
+            if (!mb_check_encoding($value, 'utf-8')) {
+                $value = base64_encode($value);
+                $object[self::ENCODED_KEY][] = $key;
+            }
+        }
+
+        return $object;
+    }
+
+    protected function decode($content)
+    {
+        $object = json_decode($content, true);
+
+        if (isset($object[self::ENCODED_KEY])) {
+            foreach ($object[self::ENCODED_KEY] as $encoded) {
+                if (!isset($object[$encoded])) {
+                    continue;
+                }
+
+                $object[$encoded] = base64_decode($object[$encoded]);
+            }
+
+            unset($object[self::ENCODED_KEY]);
+        }
+
+        return $object;
     }
 
     /**
@@ -102,7 +170,7 @@ class JsonFile extends AsyncFile
             return [];
         }
 
-        return json_decode($content, true);
+        return $this->decode($content);
     }
 
     /**

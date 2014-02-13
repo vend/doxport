@@ -28,8 +28,15 @@ class Import extends Action
 
         foreach ($this->constraints as $constraint) {
             $class = $this->getClassName($constraint);
+
             $file = $this->fileFactory->getFile($class);
-            $this->process($constraint, $file->readObjects());
+            $objects = $file->readObjects();
+
+            if ($objects) {
+                $this->process($constraint, $objects);
+            } else {
+                $this->logger->notice('No entities to process for {class}', ['class' => $class]);
+            }
         }
     }
 
@@ -37,18 +44,20 @@ class Import extends Action
     {
         $this->logger->notice('Processing import of {entityName}', ['entityName' => $entityName]);
 
+        if ($entityName == 'Vend\Entity\Outlet') {
+            $b = 2;
+        }
+
         $helper = new EntityArrayHelper($this->em);
 
-        if ($entities) {
-            foreach ($entities as $values) {
-                $entity = $helper->toEntity($entityName, $values);
+        foreach ($entities as $values) {
+            $entity = $helper->toEntity($entityName, $values);
 
-                // Save entity
-                $this->em->merge($entity);
-            }
-
-            $this->em->flush();
+            // Save entity
+            $this->em->merge($entity);
         }
+
+        $this->em->flush();
     }
 
     /**

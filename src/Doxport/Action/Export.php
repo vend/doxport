@@ -23,22 +23,23 @@ class Export extends QueryAction
         $this->logger->info((string)$walk);
 
         // Get iterator
-        $iterator = $query->iterate(null, Query::HYDRATE_SIMPLEOBJECT);
+        $iterator = $query->iterate(null);
 
         // Output file information
         $file = $this->fileFactory->getFile($this->getClassName($walk->getTargetId()));
         $this->logger->notice('Outputting to {file}', ['file' => (string)$file]);
 
         // Iterate through results
-        $iterator = $query->iterate(null, Query::HYDRATE_SIMPLEOBJECT);
+        $iterator = $query->iterate(null);
 
         $this->logger->notice('Iterating through results...');
         $i = 0;
 
         foreach ($iterator as $result) {
             $entity = $result[0];
+            $array  = $this->entityToArray($entity);
 
-            $file->writeObject($this->entityToArray($entity));  // Write to file
+            $file->writeObject($array);  // Write to file
             $this->em->detach($entity);
 
             $i++;

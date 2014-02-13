@@ -2,12 +2,12 @@
 
 namespace Doxport\Util;
 
+use Doctrine\Common\Collections\Collection;
+use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\Proxy\Proxy;
 
-/**
- * @todo Not actually a serializer, more a toArray helper
- */
 class EntityArrayHelper
 {
     /**
@@ -30,36 +30,42 @@ class EntityArrayHelper
     public function toArray($entity)
     {
         $metadata = $this->em->getClassMetadata(get_class($entity));
-        $unit     = $this->em->getUnitOfWork();
+        $data     = $this->em->getUnitOfWork()->getOriginalEntityData($entity);
+        $platform = $this->em->getConnection()->getDatabasePlatform();
 
         $result = [];
-        foreach ($unit->getOriginalEntityData($entity) as $field => $value) {
-            if (!$metadata->hasField($field)) {
-                continue;
-            }
-
-            if ($metadata->hasAssociation($field)) {
+        foreach ($data as $field => $value) {
+            if ($value instanceof Proxy || $value instanceof Collection) {
                 continue;
             }
 
             if (is_object($value)) {
-                $type  = Type::getType($metadata->getTypeOfField($field));
-                $value = $type->convertToDatabaseValue(
-                    $value,
-                    $this->em->getConnection()->getDatabasePlatform()
-                );
+                try {
+                    $field_type = $metadata->getTypeOfField($field);
+                    $type = Type::getType($field_type);
+                } catch (DBALException $e) {
+                    throw $e;
+                }
+
+                $value = $type->convertToDatabaseValue($value, $platform);
             }
 
-            $result[$metadata->getColumnName($field)] = $value;
+            $result[$field] = $value;
         }
 
         return $result;
     }
 
+    /**
+     * @param string $entityName
+     * @param array $values
+     * @return object Detached Doctrine2 entity instance
+     */
     public function toEntity($entityName, $values)
     {
         $unit = $this->em->getUnitOfWork();
         $entity = $unit->createEntity($entityName, $values);
+        $this->em->detach($entity);
         return $entity;
     }
 }
