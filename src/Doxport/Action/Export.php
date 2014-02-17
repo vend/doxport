@@ -22,9 +22,6 @@ class Export extends QueryAction
         // Output join information
         $this->logger->info((string)$walk);
 
-        // Get iterator
-        $iterator = $query->iterate(null);
-
         // Output file information
         $file = $this->fileFactory->getFile($this->getClassName($walk->getTargetId()));
         $this->logger->notice('Outputting to {file}', ['file' => (string)$file]);

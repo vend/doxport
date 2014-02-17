@@ -29,7 +29,7 @@ class Delete extends QueryAction
         $this->logger->info((string)$walk);
 
         // Get iterator
-        $iterator = $query->iterate(null, Query::HYDRATE_SIMPLEOBJECT);
+        $iterator = $query->iterate(null);
 
         // Output file information
         $file = $this->fileFactory->getFile($this->getClassName($walk->getTargetId()));
@@ -42,7 +42,9 @@ class Delete extends QueryAction
         foreach ($iterator as $result) {
             $entity = $result[0];
 
-            $file->writeObject($this->entityToArray($entity));  // Write to file
+            $array = $this->entityToArray($entity);
+            $file->writeObject($array);  // Write to file
+
             $this->em->remove($entity);                     // Queue delete
 
             if ($i > self::CHUNK_SIZE) {
