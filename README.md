@@ -9,27 +9,33 @@ Symfony components. It's PHP 5.4+, and at this stage, probably a bit MySQL-only 
 the guts should be solid.
 
 Given a relational schema, usually via class annotations, Doxport should let you
-safely archive partial data from related tables, in the correct order.
+safely archive, delete or import partial data from related tables, in the correct order.
 
-## Mechanism
+## Algorithm
 
-You nominate a root entity, and some set of criteria to query against its table. Doxport sets about finding the best way to export or archive related data.
+### Graph Theory
 
-1. We consider a directed graph, where the vertices are the entities involved
-in the operation, and every relation between them is an edge. 
-2. The edge goes
-from the table with the foreign key to the table with the referenced key in each relation,
-and represents a dependency; the foreign-key table will need to be cleared before
-the row in the referenced table. 
-3. We don't add edges for relations already covered
-by an onDelete clause. Those should be taken care of by your database. (TODO)
-4. We verify this graph is a DAG.
-5. We take a topological ordering of this graph, which gives us a valid order to
-process the tables in.
-6. For each entity, we find the shortest path between the target table and the root entity you nominated, only considering relations covered by an index. (At some point, this should follow the minimum spanning tree of the cardinality of the covering indexes - TODO)
-7. We produce an SQL query that inner joins the target table to the root, apply your original criteria, and iterate through the results
+Doxport uses a bit of graph theory, so you might want to read up on these:
 
-What happens next to the resulting entities varies.
+* [Directed acyclic graphs](http://en.wikipedia.org/wiki/Directed_acyclic_graph): DAGs for short
+* [Topological sorting](http://en.wikipedia.org/wiki/Topological_sorting): basically, produces a dependency-safe order to walk the nodes of a DAG
+
+### Outline
+
+To start with, you tell Doxport the *root entity type*, and give it some criteria to apply to this type. For example, you might say the root entity is `My\Namespace\User`, and the criteria is `id = <some uuid>`.
+
+Then, Doxport will:
+
+1. Create a DAG with all tables in the database as the nodes, and all associations between them as the edges
+2. Filter the edges to only consider 'constraining associations'
+   * Usually this means only associations that actually own the foreign key, and have a foreign key constraint
+3. Filter the nodes to only consider tables still associated with the root entity after the edge filtering
+   * This step removes irrelevant tables. For example, if your root entity is the retailer, the admin user tables would be filtered out.
+4. Produce a topological sort of this DAG
+5. For each node, in the order of the topological sort, find the shortest path back to the root entity, using a slightly different filtered DAG
+   * The filtering is slightly different for this DAG because we additionally only consider edges that are 'covered' by an index
+
+Each time step 5 occurs, an action is invoked on the resulting query. This might be `export` or `delete`, for example.
 
 ## Configuration
 
@@ -46,9 +52,19 @@ See [Doctrine2's configuration and installation](http://docs.doctrine-project.or
 
 Once you've done that, Doxport runs as a Composer bin script.
 
-## Actions
+## Output
 
-* Export
-  * Currently writes serialised entities to CSV. Some obvious problems with that. Migrations not least of all. (TODO)
-* Delete
-  * Writes the entities to a file, then queues up their deletion. Once a suitable chunk has been processed, the file is flushed and sync'd, then the deletions are committed.
+### Directory
+
+The delete and export commands produce output to a directory. By default, this is `build/<action>/<criteria>_<value>`. So, for example, you might end up with an output directory like: `build/delete/id_5eb62e62-473b-11e3-a766-080027f3add4`. You can change the location of the output with the `--data-dir` option.
+
+### Files
+
+Within the output directory, you'll find a file for each entity type. There are also a few additional files:
+
+* constraints.png: A graphviz image of the constraint graph, useful for debugging the produced DAG
+* constraints.txt: The topological order the entities were dumped in (on entity per line). Used (in reverse) to decide the order to import.
+
+### Format
+
+By default, Doxport will output to JSON format. This can be changing using the `--format` option. The JSON format is an array of objects.

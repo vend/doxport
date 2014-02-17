@@ -5,6 +5,17 @@ namespace Doxport\File;
 use InvalidArgumentException;
 use LogicException;
 
+/**
+ * JSON file output
+ *
+ * Two things JSON doesn't quite support that we need here:
+ *  - We need a file with a streaming format, so we can just append new entries
+ *     to the end. So, this class ensures there's a wrapping array, and adds objects
+ *     to it ([]).
+ *  - We need to support arbitrary binary strings (JSON only supports valid UTF-8
+ *     strings). This class encodes such values with base64, and decodes when the
+ *     objects are read.
+ */
 class JsonFile extends AsyncFile
 {
     /**
@@ -26,7 +37,6 @@ class JsonFile extends AsyncFile
 
     /**
      * Extra behaviour for JSON:
-     *  - Only support readable streams
      *  - On open, check the first character is an open bracket of a JSON array
      *  - If not, truncate the file to the first character
      *  - If it is, check the end of the file, and remove the close bracket, add a comma
@@ -76,7 +86,8 @@ class JsonFile extends AsyncFile
             }
         }
 
-        $this->write($this->encode($object) . ',');
+        $encoded = $this->encode($object);
+        $this->write($encoded . ',');
     }
 
 
@@ -84,7 +95,7 @@ class JsonFile extends AsyncFile
      * @param object $object
      * @param bool $allowBinary
      * @return string
-     * @throws \InvalidArgumentException
+     * @throws InvalidArgumentException
      */
     protected function encode($object, $allowBinary = true)
     {
