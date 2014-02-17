@@ -2,19 +2,15 @@
 
 namespace Doxport\Action\Base;
 
-use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Mapping\ClassMetadata;
 use Doctrine\ORM\Query;
 use Doxport\Doctrine\AliasGenerator;
 use Doxport\Doctrine\JoinWalk;
 use Doxport\Util\EntityArrayHelper;
-use Doxport\Util\SimpleObjectSerializer;
 use Fhaculty\Graph\Walk;
 
 abstract class QueryAction extends Action
 {
-
-
     /**
      * @var array
      */
@@ -24,8 +20,6 @@ abstract class QueryAction extends Action
      * @var array
      */
     protected $processedSelfJoins = [];
-
-
 
     /**
      * @param string $column
@@ -97,16 +91,14 @@ abstract class QueryAction extends Action
      */
     protected function entityToArray($entity)
     {
-        if (method_exists($entity, '__sleep')) {
-            return $entity->__sleep();
-        }
-
         $helper = new EntityArrayHelper($this->em);
-        return $helper->toArray($entity);
+        $array = $helper->toArray($entity);
+
+        return $array;
     }
 
     /**
-     * @param \Doxport\Doctrine\JoinWalk|\Fhaculty\Graph\Walk $walk
+     * @param \Doxport\Doctrine\JoinWalk
      * @return mixed
      */
     abstract protected function processQuery(JoinWalk $walk);
