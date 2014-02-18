@@ -137,10 +137,6 @@ class JsonFile extends AsyncFile
                 continue;
             }
 
-            if (!is_scalar($value)) {
-                $b = 2;
-            }
-
             if (!mb_check_encoding($value, 'utf-8')) {
                 $value = base64_encode($value);
                 $object[self::ENCODED_KEY][] = $key;
@@ -150,11 +146,13 @@ class JsonFile extends AsyncFile
         return $object;
     }
 
-    protected function decode($content)
+    /**
+     * @param object $object
+     * @return object
+     */
+    protected function decode($object)
     {
-        $object = json_decode($content, true);
-
-        if (isset($object[self::ENCODED_KEY])) {
+        if (!empty($object[self::ENCODED_KEY])) {
             foreach ($object[self::ENCODED_KEY] as $encoded) {
                 if (!isset($object[$encoded])) {
                     continue;
@@ -172,6 +170,7 @@ class JsonFile extends AsyncFile
     /**
      * @inheritDoc
      * @return array
+     * @throws LogicException
      */
     public function readObjects()
     {
@@ -181,7 +180,17 @@ class JsonFile extends AsyncFile
             return [];
         }
 
-        return $this->decode($content);
+        $decoded = json_decode($content, true);
+
+        if (!is_array($decoded)) {
+            throw new LogicException('Expected wrapping array within JSON content');
+        }
+
+        foreach ($decoded as &$object) {
+            $object = $this->decode($object);
+        }
+
+        return $decoded;
     }
 
     /**
