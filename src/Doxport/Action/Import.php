@@ -32,31 +32,31 @@ class Import extends Action
             $file = $this->fileFactory->getFile($class);
             $objects = $file->readObjects();
 
-            if ($objects) {
-                $this->process($constraint, $objects);
-            } else {
-                $this->logger->notice('No entities to process for {class}', ['class' => $class]);
-            }
+            $this->process($constraint, $objects);
         }
     }
 
-    protected function process($entityName, $entities)
+    protected function process($entityName, array $entities)
     {
         $this->logger->notice('Processing import of {entityName}', ['entityName' => $entityName]);
 
-        if ($entityName == 'Vend\Entity\Outlet') {
-            $b = 2;
+        if (!$entities) {
+            $this->logger->notice('  No entities to process');
+            return;
         }
 
         $helper = new EntityArrayHelper($this->em);
 
+        $i = 0;
         foreach ($entities as $values) {
             $entity = $helper->toEntity($entityName, $values);
 
             // Save entity
-            $this->em->merge($entity);
+            $this->em->persist($entity);
+            $i++;
         }
 
+        $this->logger->notice('  {i} entities processed', ['i' => $i]);
         $this->em->flush();
     }
 
