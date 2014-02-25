@@ -34,17 +34,23 @@ abstract class Pass implements LoggerAwareInterface
     protected $fileFactory;
 
     /**
+     * @var boolean
+     */
+    protected $includeRoot = false;
+
+    /**
      * Constructor
      *
      * @param Driver      $driver
      * @param EntityGraph $graph
      * @param Action      $action
+     * @param array       $options
      */
     public function __construct(Driver $driver, EntityGraph $graph, Action $action)
     {
-        $this->driver = $driver;
-        $this->graph  = $graph;
-        $this->action = $action;
+        $this->driver  = $driver;
+        $this->graph   = $graph;
+        $this->action  = $action;
     }
 
     /**
@@ -58,5 +64,13 @@ abstract class Pass implements LoggerAwareInterface
     public function setFileFactory(Factory $fileFactory)
     {
         $this->fileFactory = $fileFactory;
+    }
+
+    /**
+     * @param boolean $include
+     */
+    public function setIncludeRoot($include)
+    {
+        $this->includeRoot = $include;
     }
 }

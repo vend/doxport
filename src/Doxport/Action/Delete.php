@@ -45,7 +45,7 @@ class Delete extends QueryAction
             $array = $this->entityToArray($entity);
             $file->writeObject($array);  // Write to file
 
-            $this->em->remove($entity);                     // Queue delete
+            $this->em->remove($entity);  // Queue delete
 
             if ($i > self::CHUNK_SIZE) {
                 $this->flush($file); // Actually apply changes

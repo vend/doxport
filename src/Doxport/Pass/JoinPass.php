@@ -8,18 +8,24 @@ use Doxport\Metadata\Driver;
 use Fhaculty\Graph\Algorithm\ShortestPath\BreadthFirst;
 use Fhaculty\Graph\Set\Vertices;
 use Fhaculty\Graph\Vertex;
+use Fhaculty\Graph\Walk;
 
 class JoinPass extends Pass
 {
     /**
-     * @var \Fhaculty\Graph\Set\Vertices
+     * @var Vertices
      */
     protected $vertices;
 
     /**
-     * @var \Doxport\Action\Action
+     * @var Action
      */
     protected $action;
+
+    /**
+     * @var boolean
+     */
+    protected $includeRoot = true;
 
     /**
      * @param Driver      $driver
@@ -54,15 +60,19 @@ class JoinPass extends Pass
         foreach ($this->vertices as $vertex) {
             /* @var $vertex Vertex */
             if ($vertex->getId() == $this->graph->getRoot()) {
-                continue;
+                if (!$this->includeRoot) {
+                    continue;
+                } else {
+                    $walk = Walk::factoryFromEdges([], $vertex);
+                }
+            } else {
+                $shortestPath = new BreadthFirst($vertex);
+                $walk = $shortestPath->getWalkTo($this->vertices->getVertexLast());
             }
 
-            $shortestPath = new BreadthFirst($target = $vertex);
-            $walk = $shortestPath->getWalkTo($root = $this->vertices->getVertexLast());
-
             // Process self-joins on the target first
-            $selfJoins = $this->driver->getEntityMetadata($target->getId())
-                ->getClassMetadata()->getAssociationsByTargetClass($target->getId());
+            $selfJoins = $this->driver->getEntityMetadata($vertex->getId())
+                ->getClassMetadata()->getAssociationsByTargetClass($vertex->getId());
 
             foreach ($selfJoins as $association) {
                 $this->action->processSelfJoin($walk, $association);

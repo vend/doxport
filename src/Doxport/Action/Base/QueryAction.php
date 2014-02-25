@@ -98,7 +98,7 @@ abstract class QueryAction extends Action
     }
 
     /**
-     * @param \Doxport\Doctrine\JoinWalk
+     * @param JoinWalk $walk
      * @return mixed
      */
     abstract protected function processQuery(JoinWalk $walk);

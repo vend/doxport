@@ -117,8 +117,8 @@ class JoinWalk
     }
 
     /**
-     * @param string $column
-     * @param mixed  $value
+     * @param string $associationFieldName
+     * @param array  $associationTargetFields
      * @return void
      */
     public function addSelfJoinNull($associationFieldName, array $associationTargetFields)
@@ -176,7 +176,7 @@ class JoinWalk
     }
 
     /**
-     * @param $class
+     * @param string $class
      * @return string
      */
     protected function getEntityClassName($class)
