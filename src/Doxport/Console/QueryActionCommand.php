@@ -4,6 +4,7 @@ namespace Doxport\Console;
 
 use Doxport\Action\Base\QueryAction;
 use Doxport\EntityGraph;
+use Doxport\Pass\ClearPass;
 use Doxport\Pass\ConstraintPass;
 use Doxport\Pass\JoinPass;
 use Fhaculty\Graph\Set\Vertices;
@@ -133,6 +134,28 @@ abstract class QueryActionCommand extends ActionCommand
         $this->logger->log(LogLevel::NOTICE, 'Creating join pass');
 
         $pass = new JoinPass(
+            $this->getMetadataDriver(),
+            $this->getEntityGraph(),
+            $vertices,
+            $this->action
+        );
+
+        $pass->setIncludeRoot($this->includeRoot);
+        $pass->setLogger($this->logger);
+        $pass->setFileFactory($this->fileFactory);
+
+        return $pass;
+    }
+
+    /**
+     * @param Vertices $vertices
+     * @return ClearPass
+     */
+    public function getClearPass(Vertices $vertices)
+    {
+        $this->logger->log(LogLevel::NOTICE, 'Creating join pass');
+
+        $pass = new ClearPass(
             $this->getMetadataDriver(),
             $this->getEntityGraph(),
             $vertices,

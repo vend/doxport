@@ -47,6 +47,9 @@ class DeleteCommand extends QueryActionCommand
         $pass = $this->getConstraintPass();
         $vertices = $pass->run();
 
+        $pass = $this->getClearPass($vertices);
+        $pass->run();
+
         $pass = $this->getJoinPass($vertices);
         $pass->run();
 
