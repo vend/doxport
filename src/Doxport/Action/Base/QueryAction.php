@@ -13,11 +13,6 @@ use Fhaculty\Graph\Walk;
 abstract class QueryAction extends Action
 {
     /**
-     * @var Driver
-     */
-    protected $driver;
-
-    /**
      * @var array
      */
     protected $rootCriteria = [];
@@ -89,14 +84,6 @@ abstract class QueryAction extends Action
         }
 
         return $walk;
-    }
-
-    /**
-     * @param Driver $driver
-     */
-    public function setMetadataDriver(Driver $driver)
-    {
-        $this->driver = $driver;
     }
 
     /**

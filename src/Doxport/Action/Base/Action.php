@@ -4,6 +4,7 @@ namespace Doxport\Action\Base;
 
 use Doctrine\ORM\EntityManager;
 use Doxport\File\Factory;
+use Doxport\Metadata\Driver;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
 
@@ -15,6 +16,11 @@ abstract class Action implements LoggerAwareInterface
      * @var EntityManager
      */
     protected $em;
+
+    /**
+     * @var Driver
+     */
+    protected $driver;
 
     /**
      * @var string
@@ -58,5 +64,13 @@ abstract class Action implements LoggerAwareInterface
     public function setFileFactory(Factory $fileFactory)
     {
         $this->fileFactory = $fileFactory;
+    }
+
+    /**
+     * @param Driver $driver
+     */
+    public function setMetadataDriver(Driver $driver)
+    {
+        $this->driver = $driver;
     }
 }
