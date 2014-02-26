@@ -69,13 +69,21 @@ class Factory
      */
     public function createPath()
     {
-        if (!is_dir($this->path)) {
+        if (!$this->pathExists()) {
             mkdir($this->path, 0775, true);
         }
 
         if (!is_writable($this->path)) {
             throw new InvalidArgumentException('Cannot write to file path: ' . $this->path);
         }
+    }
+
+    /**
+     * @return boolean
+     */
+    public function pathExists()
+    {
+        return is_dir($this->path);
     }
 
     /**
@@ -94,6 +102,9 @@ class Factory
         return $this->path . \DIRECTORY_SEPARATOR . $name;
     }
 
+    /**
+     * @return string
+     */
     protected function getClass()
     {
         return $this->formats[$this->format];

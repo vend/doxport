@@ -55,7 +55,7 @@ class JsonFile extends AsyncFile
             ftruncate($this->file, 1);
         } else {
             if ($this->getLastCharacter() != ']') {
-                throw new LogicException('Invalid JSON file: mismatched wrapping array brackets');
+                throw new LogicException('Invalid JSON file ' . $this->getPath() . ': mismatched wrapping array brackets');
             }
 
             if (ftell($this->file) != 2) {
