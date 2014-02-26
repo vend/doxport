@@ -13,10 +13,7 @@ use Psr\Log\LogLevel;
 
 class ConstraintPass extends Pass
 {
-    /**
-     * @return \Fhaculty\Graph\Set\Vertices In work order to respect constraints
-     */
-    public function run()
+    protected function configureGraph()
     {
         $this->logger->log(LogLevel::INFO, 'Filtering for covered, supported associations');
         $this->graph->from($this->driver, function (array $association) {
@@ -26,12 +23,20 @@ class ConstraintPass extends Pass
             }
 
             return $this->driver->isSupportedAssociation($association)
-                && $this->driver->isColumnOwnerAssociation($association)
-                && $this->driver->isConstraintAssociation($association);
+            && $this->driver->isColumnOwnerAssociation($association)
+            && $this->driver->isConstraintAssociation($association);
         });
 
         $this->logger->log(LogLevel::INFO, 'Filtering for connected entities');
         $this->graph->filterConnected();
+    }
+
+    /**
+     * @return \Fhaculty\Graph\Set\Vertices In work order to respect constraints
+     */
+    public function run()
+    {
+        parent::run();
 
         $this->outputGraph();
 

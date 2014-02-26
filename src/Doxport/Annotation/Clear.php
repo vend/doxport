@@ -1,6 +1,6 @@
 <?php
 
-namespace Doxport\Annotation\Delete;
+namespace Doxport\Annotation;
 
 /**
  * Indication that an association mapped field should have its value cleared

@@ -76,6 +76,8 @@ abstract class QueryActionCommand extends ActionCommand
                 $input->getArgument('value')
             );
         }
+
+        $this->action->setMetadataDriver($this->getMetadataDriver());
     }
 
     /**

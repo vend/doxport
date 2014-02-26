@@ -86,5 +86,4 @@ class Import extends Action
         $contents = explode(PHP_EOL, $contents);
         $this->constraints = array_reverse($contents);
     }
-
 }

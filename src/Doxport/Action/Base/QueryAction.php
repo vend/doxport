@@ -6,11 +6,17 @@ use Doctrine\ORM\Mapping\ClassMetadata;
 use Doctrine\ORM\Query;
 use Doxport\Doctrine\AliasGenerator;
 use Doxport\Doctrine\JoinWalk;
+use Doxport\Metadata\Driver;
 use Doxport\Util\EntityArrayHelper;
 use Fhaculty\Graph\Walk;
 
 abstract class QueryAction extends Action
 {
+    /**
+     * @var Driver
+     */
+    protected $driver;
+
     /**
      * @var array
      */
@@ -86,13 +92,22 @@ abstract class QueryAction extends Action
     }
 
     /**
+     * @param Driver $driver
+     */
+    public function setMetadataDriver(Driver $driver)
+    {
+        $this->driver = $driver;
+    }
+
+    /**
      * @param object $entity
+     * @param array  $fields
      * @return array
      */
-    protected function entityToArray($entity)
+    protected function entityToArray($entity, array $fields = [])
     {
         $helper = new EntityArrayHelper($this->em);
-        $array = $helper->toArray($entity);
+        $array = $helper->toArray($entity, $fields);
 
         return $array;
     }
@@ -102,4 +117,11 @@ abstract class QueryAction extends Action
      * @return mixed
      */
     abstract protected function processQuery(JoinWalk $walk);
+
+    /**
+     * @param \Fhaculty\Graph\Walk $walk
+     * @param array $properties
+     * @return mixed
+     */
+    abstract public function processClear(Walk $walk, array $properties);
 }

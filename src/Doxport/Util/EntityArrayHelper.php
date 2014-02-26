@@ -24,18 +24,20 @@ class EntityArrayHelper
     }
 
     /**
-     * @param \stdClass $entity
+     * @param object $entity The entity to convert
+     * @param array  $fields Optional filtering by field names
      * @return array
      */
-    public function toArray($entity)
+    public function toArray($entity, array $fields = [])
     {
-        //$metadata = $this->em->getClassMetadata(get_class($entity));
         $data     = $this->em->getUnitOfWork()->getOriginalEntityData($entity);
-        //$platform = $this->em->getConnection()->getDatabasePlatform();
-
         $result = [];
 
         foreach ($data as $field => $value) {
+            if ($fields && !in_array($field, $fields)) {
+                continue;
+            }
+
             if ($value instanceof Proxy || $value instanceof Collection) {
                 continue;
             }
@@ -49,17 +51,6 @@ class EntityArrayHelper
                 $value = serialize($value);
             }
 
-//            if (is_object($value)) {
-//                try {
-//                    $field_type = $metadata->getTypeOfField($field);
-//                    $type = Type::getType($field_type);
-//                } catch (DBALException $e) {
-//                    throw $e;
-//                }
-//
-//                $value = $type->convertToDatabaseValue($value, $platform);
-//            }
-
             $result[$field] = $value;
         }
 
@@ -68,7 +59,7 @@ class EntityArrayHelper
 
     /**
      * @param string $entityName
-     * @param array $values
+     * @param array  $values
      * @return object Detached Doctrine2 entity instance
      */
     public function toEntity($entityName, $values)

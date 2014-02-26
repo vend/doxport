@@ -7,6 +7,7 @@ use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Mapping\ClassMetadata;
 use Doctrine\ORM\Mapping\Driver\AnnotationDriver;
 use Doctrine\DBAL\Driver\Statement;
+use InvalidArgumentException;
 use \LogicException;
 use Doxport\Exception\UnimplementedException;
 use PDO;
@@ -35,6 +36,7 @@ class Driver
 
     /**
      * @param EntityManager $em
+     * @throws LogicException
      */
     public function __construct(EntityManager $em)
     {
@@ -136,6 +138,7 @@ class Driver
 
     /**
      * @param array $association
+     * @return bool
      * @todo Whether the association is covered by a relational constraint preventing deletion
      *       (not including onDelete={cascade, set_null, ...?}
      */
@@ -183,11 +186,11 @@ class Driver
     }
 
     /**
-     * @param $sourceEntity
-     * @param $joinColumnFieldNames
+     * @param string $sourceEntity
+     * @param array $joinColumnFieldNames
      * @return bool
-     * @throws \InvalidArgumentException
-     * @throws \Doxport\Exception\UnimplementedException
+     * @throws InvalidArgumentException
+     * @throws UnimplementedException
      * @todo Multiple join columns
      */
     public function isCovered($sourceEntity, $joinColumnFieldNames)
@@ -199,7 +202,7 @@ class Driver
         $table = $this->getEntityMetadata($sourceEntity)->getClassMetadata()->getTableName();
 
         if (strpbrk($table, '\\` ') !== false) {
-            throw new \InvalidArgumentException('Cannot handle character in table name');
+            throw new InvalidArgumentException('Cannot handle character in table name');
         }
 
         $column = array_pop($joinColumnFieldNames);

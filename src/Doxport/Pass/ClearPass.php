@@ -2,47 +2,17 @@
 
 namespace Doxport\Pass;
 
-use Doxport\Action\Base\Action;
-use Doxport\EntityGraph;
-use Doxport\Metadata\Driver;
-use Fhaculty\Graph\Set\Vertices;
 use Fhaculty\Graph\Vertex;
 
-class ClearPass extends Pass
+class ClearPass extends JoinPass
 {
-    /**
-     * @var Vertices
-     */
-    protected $vertices;
-
-    /**
-     * @var Action
-     */
-    protected $action;
-
-    /**
-     * @var boolean
-     */
-    protected $includeRoot = true;
-
-    /**
-     * @param Driver      $driver
-     * @param EntityGraph $graph
-     * @param Vertices    $vertices
-     * @param Action      $action
-     */
-    public function __construct(Driver $driver, EntityGraph $graph, Vertices $vertices, Action $action)
-    {
-        parent::__construct($driver, $graph, $action);
-
-        $this->vertices = $vertices;
-    }
-
     /**
      * @return void
      */
     public function run()
     {
+        parent::configureGraph();
+
         foreach ($this->vertices as $vertex) {
             /* @var $vertex Vertex */
             if ($vertex->getId() == $this->graph->getRoot()) {
@@ -51,15 +21,19 @@ class ClearPass extends Pass
                 }
             }
 
-            $entity = $vertex->getId();
-            $metadata = $this->driver->getEntityMetadata($entity);
+            $entity     = $vertex->getId();
+            $metadata   = $this->driver->getEntityMetadata($entity);
+            $properties = [];
 
             foreach ($metadata->getProperties() as $property) {
-                $b = 2;
+                if ($property->hasAnnotation('Doxport\Annotation\Clear')) {
+                    $properties[] = $property->getName();
+                }
             }
 
-            // Find clear annotations on $entity
-            // Collect them all, call action
+            if ($properties) {
+                $this->action->processClear($this->getWalkForVertex($vertex), $properties);
+            }
         }
     }
 

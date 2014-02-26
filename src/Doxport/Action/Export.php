@@ -7,6 +7,9 @@ use Doxport\Action\Base\QueryAction;
 use Doxport\Doctrine\JoinWalk;
 use Doxport\File\AsyncFile;
 
+/**
+ * Writes the data to files, doesn't modify the data in the database
+ */
 class Export extends QueryAction
 {
     /**
@@ -65,5 +68,18 @@ class Export extends QueryAction
         $file->sync();
 
         $this->logger->notice('  done.');
+    }
+
+    /**
+     * We don't clear properties when just doing an export, because its not
+     * necessary.
+     *
+     * @param \Doxport\Doctrine\JoinWalk $walk
+     * @param array $properties
+     * @return mixed
+     */
+    public function processClear(JoinWalk $walk, array $properties)
+    {
+        // Nothing to do
     }
 }

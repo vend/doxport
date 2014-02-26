@@ -41,10 +41,9 @@ abstract class Pass implements LoggerAwareInterface
     /**
      * Constructor
      *
-     * @param Driver      $driver
+     * @param Driver       $driver
      * @param EntityGraph $graph
-     * @param Action      $action
-     * @param array       $options
+     * @param Action $action
      */
     public function __construct(Driver $driver, EntityGraph $graph, Action $action)
     {
@@ -56,7 +55,17 @@ abstract class Pass implements LoggerAwareInterface
     /**
      * @return mixed
      */
-    abstract public function run();
+    public function run()
+    {
+        $this->configureGraph();
+    }
+
+    /**
+     * Configures the graph object
+     *
+     * @return void
+     */
+    abstract protected function configureGraph();
 
     /**
      * @param Factory $fileFactory

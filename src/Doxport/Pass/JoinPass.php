@@ -41,9 +41,9 @@ class JoinPass extends Pass
     }
 
     /**
-     * @return void
+     * @inheritDoc
      */
-    public function run()
+    protected function configureGraph()
     {
         $this->graph->from($this->driver, function (array $association) {
             // Ignore self-joins
@@ -56,19 +56,24 @@ class JoinPass extends Pass
         });
 
         $this->graph->filterConnected();
+    }
+
+    /**
+     * @return void
+     */
+    public function run()
+    {
+        parent::run();
 
         foreach ($this->vertices as $vertex) {
             /* @var $vertex Vertex */
             if ($vertex->getId() == $this->graph->getRoot()) {
                 if (!$this->includeRoot) {
                     continue;
-                } else {
-                    $walk = Walk::factoryFromEdges([], $vertex);
                 }
-            } else {
-                $shortestPath = new BreadthFirst($vertex);
-                $walk = $shortestPath->getWalkTo($this->vertices->getVertexLast());
             }
+
+            $walk = $this->getWalkForVertex($vertex);
 
             // Process self-joins on the target first
             $selfJoins = $this->driver->getEntityMetadata($vertex->getId())
@@ -83,4 +88,17 @@ class JoinPass extends Pass
         }
     }
 
+    /**
+     * @param Vertex $vertex
+     * @return Walk
+     */
+    protected function getWalkForVertex(Vertex $vertex)
+    {
+        if ($vertex->getId() == $this->graph->getRoot()) {
+            return Walk::factoryFromEdges([], $vertex);
+        } else {
+            $shortestPath = new BreadthFirst($vertex);
+            return $shortestPath->getWalkTo($this->vertices->getVertexLast());
+        }
+    }
 }
