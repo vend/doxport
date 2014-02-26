@@ -4,8 +4,13 @@ namespace Doxport\Pass;
 
 use Fhaculty\Graph\Vertex;
 
+/**
+ * Pass to clear properties with update, ahead of main action
+ */
 class ClearPass extends JoinPass
 {
+    const FILE_SUFFIX = '.clear';
+
     /**
      * @return void
      */
@@ -26,8 +31,14 @@ class ClearPass extends JoinPass
             $properties = [];
 
             foreach ($metadata->getProperties() as $property) {
-                if ($property->hasAnnotation('Doxport\Annotation\Clear')) {
-                    $properties[] = $property->getName();
+                if (!$property->hasAnnotation('Doxport\Annotation\Clear')) {
+                    continue;
+                }
+
+                $properties[] = $property->getName();
+
+                foreach ($property->getJoinColumnFieldNames() as $field) {
+                    $properties[] = $field;
                 }
             }
 

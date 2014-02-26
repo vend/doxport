@@ -64,6 +64,7 @@ abstract class ActionCommand extends Command
     {
         $this->action->setLogger($this->logger);
         $this->action->setFileFactory($this->fileFactory);
+        $this->action->setMetadataDriver($this->getMetadataDriver());
     }
 
     /**

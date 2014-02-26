@@ -33,11 +33,11 @@ class EntityArrayHelper
         $data     = $this->em->getUnitOfWork()->getOriginalEntityData($entity);
         $result = [];
 
-        foreach ($data as $field => $value) {
-            if ($fields && !in_array($field, $fields)) {
-                continue;
-            }
+        if ($fields) {
+            $data = array_intersect_key($data, array_flip($fields));
+        }
 
+        foreach ($data as $field => $value) {
             if ($value instanceof Proxy || $value instanceof Collection) {
                 continue;
             }

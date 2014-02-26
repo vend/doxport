@@ -49,6 +49,14 @@ abstract class QueryActionCommand extends ActionCommand
     {
         parent::execute($input, $output);
 
+        $path   = $this->fileFactory->getPath();
+        $suffix = 2;
+
+        while ($this->fileFactory->pathExists()) {
+            $this->fileFactory->setPath($path . '_' . $suffix);
+            $suffix++;
+        }
+
         $this->fileFactory->createPath();
 
         $this->validateInput($input);
@@ -76,8 +84,6 @@ abstract class QueryActionCommand extends ActionCommand
                 $input->getArgument('value')
             );
         }
-
-        $this->action->setMetadataDriver($this->getMetadataDriver());
     }
 
     /**

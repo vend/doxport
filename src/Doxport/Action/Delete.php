@@ -6,6 +6,7 @@ use Doctrine\ORM\Query;
 use Doxport\Action\Base\QueryAction;
 use Doxport\Doctrine\JoinWalk;
 use Doxport\File\AsyncFile;
+use Doxport\Pass\ClearPass;
 use Fhaculty\Graph\Walk;
 
 /**
@@ -100,7 +101,6 @@ class Delete extends QueryAction
         // Prep work
         $walk = $this->getJoinWalk($path);
         $class = $this->driver->getEntityMetadata($walk->getTargetId())->getClassMetadata();
-        $export = array_merge($properties, $class->getIdentifierFieldNames());
 
         // Get query
         $this->logger->notice('Getting select query for {target}', ['target' => $walk->getTargetId()]);
@@ -114,7 +114,7 @@ class Delete extends QueryAction
         $iterator = $query->iterate(null);
 
         // Output file information
-        $file = $this->fileFactory->getFile($this->getClassName($walk->getTargetId()) . '.clear');
+        $file = $this->fileFactory->getFile($this->getClassName($walk->getTargetId()) . ClearPass::FILE_SUFFIX);
         $this->logger->notice('Outputting to {file}', ['file' => (string)$file]);
 
         // Iterate through results
@@ -124,19 +124,17 @@ class Delete extends QueryAction
         foreach ($iterator as $result) {
             $entity = $result[0];
 
-            $array = $this->entityToArray($entity, $export);
-            $file->writeObject($array);  // Write to file
+            $file->writeObject([
+                'identifiers' => $this->entityToArray($entity, $class->getIdentifierFieldNames()),
+                'cleared'     => $this->entityToArray($entity, $properties)
+            ]);
 
             foreach ($properties as $property) {
-                if ($class->hasAssociation($property)) {
-                    $association = $class->getAssociationMapping($property);
-                    $class->setFieldValue($entity, $association['fieldName'], null);
-
-                    foreach ($association['joinColumnFieldNames'] as $name) {
-                        $class->setFieldValue($entity, $name, null);
-                    }
-                } else {
+                if ($class->hasField($property) || $class->hasAssociation($property)) {
                     $class->setFieldValue($entity, $property, null);
+                } else {
+                    // Usually because of join columns without corresponding fields; fine
+                    $this->logger->debug('Skipping clear of {property}; no such field', ['property' => $property]);
                 }
             }
 
