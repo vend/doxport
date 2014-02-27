@@ -14,6 +14,8 @@ class JsonFileTest extends AsyncFileTest
         return 'Doxport\File\JsonFile';
     }
 
+
+
     /**
      * @return void
      */

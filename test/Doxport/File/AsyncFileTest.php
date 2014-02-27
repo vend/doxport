@@ -50,4 +50,21 @@ abstract class AsyncFileTest extends Test
 
         return new $class($file);
     }
+
+    public function testNoPathDir()
+    {
+        $file = $this->getInstance(
+            $this->root . DIRECTORY_SEPARATOR
+            . uniqid(time(), true) . DIRECTORY_SEPARATOR
+            . 'testFile'
+        );
+
+        $this->assertTrue(
+            is_dir(dirname($file->getPath())),
+            'Non-existent initial directory is created'
+        );
+
+        unlink($file->getPath());
+        rmdir(dirname($file->getPath()));
+    }
 }

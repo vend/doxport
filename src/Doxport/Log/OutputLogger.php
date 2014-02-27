@@ -37,7 +37,7 @@ class OutputLogger extends Logger
         }
 
         if (($verbosity >= OutputInterface::VERBOSITY_NORMAL && $level >= LogLevel::NOTICE)
-            || ($verbosity >= OutputInterface::VERBOSITY_VERBOSE && $level >= LogLevel::DEBUG)
+            || ($verbosity >= OutputInterface::VERBOSITY_VERBOSE && $level >= LogLevel::INFO)
             || ($verbosity >= OutputInterface::VERBOSITY_VERY_VERBOSE)
         ) {
             $this->doLog($message, $context);
