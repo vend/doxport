@@ -8,3 +8,9 @@ install:
   - yes '' | pecl install eio
   - echo "extension = eio.so" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
   - composer install
+
+script: phpunit --coverage-clover=coverage.clover
+
+after_script:
+  - wget https://scrutinizer-ci.com/ocular.phar
+  - php ocular.phar code-coverage:upload --format=php-clover coverage.clover
