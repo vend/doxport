@@ -6,7 +6,6 @@ use Doxport\Test;
 
 abstract class AsyncFileTest extends Test
 {
-    protected $root = 'build/tmp';
     protected $file;
 
     /**
