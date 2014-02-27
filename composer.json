@@ -37,6 +37,10 @@
         "phpunit/phpunit":           "3.7.*"
     },
 
+    "suggest": {
+        "ext-eio": "Allows the output files to be sync'd"
+    },
+
     "config": {
         "bin-dir": "bin"
     }
