@@ -6,6 +6,7 @@ use Doctrine\ORM\Query;
 use Doxport\Action\Base\QueryAction;
 use Doxport\Doctrine\JoinWalk;
 use Doxport\File\AsyncFile;
+use Fhaculty\Graph\Walk;
 
 /**
  * Writes the data to files, doesn't modify the data in the database
@@ -74,11 +75,11 @@ class Export extends QueryAction
      * We don't clear properties when just doing an export, because its not
      * necessary.
      *
-     * @param \Doxport\Doctrine\JoinWalk $walk
+     * @param \Fhaculty\Graph\Walk $walk
      * @param array $properties
      * @return mixed
      */
-    public function processClear(JoinWalk $walk, array $properties)
+    public function processClear(Walk $walk, array $properties)
     {
         // Nothing to do
     }
