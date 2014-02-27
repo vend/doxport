@@ -30,7 +30,7 @@ class Driver
     protected $entities = [];
 
     /**
-     * @var MappingDriver
+     * @var AnnotationDriver
      */
     protected $doctrine;
 
@@ -60,7 +60,6 @@ class Driver
 
         return array_filter($this->doctrine->getAllClassNames(), function ($class) use ($reader) {
             $annotations = $reader->getClassAnnotations(new \ReflectionClass($class));
-            $meta  = $this->getEntityMetadata($class);
 
             foreach ($annotations as $annotation) {
                 // Exclude mapped superclasses
@@ -83,8 +82,6 @@ class Driver
      */
     public function isOptionalAssociation(array $association)
     {
-        $columns = [];
-
         if ($association['type'] == ClassMetadata::MANY_TO_MANY) {
             if (empty($association['joinTable'])) {
                 return true;
@@ -157,7 +154,7 @@ class Driver
     }
 
     /**
-     * @param $entity
+     * @param string $entity
      * @return Entity
      */
     public function getEntityMetadata($entity)
@@ -207,7 +204,7 @@ class Driver
 
         $column = array_pop($joinColumnFieldNames);
 
-        // No escaping of table name possible, no support in DBAL
+        // No escaping of table name possible, no support in DBAL :-(
         $sql = 'SHOW INDEXES FROM `' . $table . '` WHERE Column_name = ? AND Seq_in_index = 1';
 
         $result = $this->em->getConnection()->executeQuery($sql, [$column]);

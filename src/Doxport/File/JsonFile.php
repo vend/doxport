@@ -128,6 +128,10 @@ class JsonFile extends AsyncFile
         return $json;
     }
 
+    /**
+     * @param array $object
+     * @return array
+     */
     protected function encodeBinary($object)
     {
         $object[self::ENCODED_KEY] = [];
