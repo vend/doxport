@@ -5,7 +5,7 @@
     "type":        "library",
     "description": "Doctrine relational walk export/delete tool",
     "keywords":    ["doctrine2", "export"],
-    "license":     "proprietary",
+    "license":     "GPL3",
 
     "authors": [
         {
