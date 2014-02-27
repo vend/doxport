@@ -4,9 +4,7 @@ php:
   - 5.5
   - 5.4
 
-
-
 install:
-  - pecl install eio
+  - yes '' | pecl install eio
   - echo "extension = eio.so" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
   - composer install
