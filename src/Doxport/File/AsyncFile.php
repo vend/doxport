@@ -17,6 +17,11 @@ abstract class AsyncFile
     protected $file;
 
     /**
+     * @var string
+     */
+    protected $path;
+
+    /**
      * Writes the given object to the file
      *
      * @param \stdClass|array $object
@@ -33,7 +38,7 @@ abstract class AsyncFile
 
     /**
      * @param string $path
-     * @throws \Doxport\Exception\IOException
+     * @throws IOException
      */
     public function __construct($path)
     {
