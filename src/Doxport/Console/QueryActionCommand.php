@@ -31,6 +31,11 @@ abstract class QueryActionCommand extends ActionCommand
     protected $includeRoot = false;
 
     /**
+     * @var boolean
+     */
+    protected $constraintGraph = false;
+
+    /**
      * @return void
      */
     protected function configure()
@@ -38,6 +43,7 @@ abstract class QueryActionCommand extends ActionCommand
         parent::configure();
 
         $this->addOption('include-root', 'r', InputOption::VALUE_NONE, 'Whether to include the root entity in the action');
+        $this->addOption('graph', 'g', InputOption::VALUE_NONE, 'Whether to output the constraints graph that was used');
     }
 
     /**
@@ -64,6 +70,7 @@ abstract class QueryActionCommand extends ActionCommand
 
         $this->entity      = $input->getArgument('entity');
         $this->includeRoot = $input->getOption('include-root');
+        $this->constraintGraph = $input->getOption('graph');
     }
 
     protected function validateInput(InputInterface $input)
@@ -127,6 +134,7 @@ abstract class QueryActionCommand extends ActionCommand
             $this->action
         );
 
+        $pass->setExportGraph($this->constraintGraph);
         $pass->setIncludeRoot($this->includeRoot);
         $pass->setLogger($this->logger);
         $pass->setFileFactory($this->fileFactory);
