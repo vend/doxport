@@ -141,7 +141,7 @@ class JsonFile extends AsyncFile
                 continue;
             }
 
-            if (!mb_check_encoding($value, 'utf-8')) {
+            if (is_scalar($value) && !mb_check_encoding($value, 'utf-8')) {
                 $value = base64_encode($value);
                 $object[self::ENCODED_KEY][] = $key;
             }
