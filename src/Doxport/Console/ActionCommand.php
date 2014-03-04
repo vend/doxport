@@ -92,6 +92,6 @@ abstract class ActionCommand extends Command
         $this->configureAction($input);
 
         $this->logger->log(LogLevel::DEBUG, 'Configured action: {action_class}', ['action_class' => get_class($this->action)]);
-        $this->logger->log(LogLevel::NOTICE, 'Output directory: {dir}', ['dir' => $this->fileFactory->getPath()]);
+
     }
 }

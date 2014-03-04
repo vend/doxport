@@ -90,6 +90,16 @@ class Delete extends QueryAction
     }
 
     /**
+     * Process the clear pass immediately
+     *
+     * For the delete to work, foreign key constraints that can't be cleared
+     * as part of the main delete processing will be cleared in the database
+     * first. This is usually things like relational cycles.
+     *
+     * Here, we make the same select the main processing is going to. Then we
+     * store the cleared properties in the file and clear the properties from
+     * the database. (Actually making an update.)
+     *
      * @param Walk $path
      * @param array $properties
      * @return mixed
@@ -114,7 +124,7 @@ class Delete extends QueryAction
         $iterator = $query->iterate(null);
 
         // Output file information
-        $file = $this->fileFactory->getFile($this->getClassName($walk->getTargetId()) . ClearPass::FILE_SUFFIX);
+        $file = $this->getClearFile($walk);
         $this->logger->notice('Outputting to {file}', ['file' => (string)$file]);
 
         // Iterate through results
@@ -124,19 +134,8 @@ class Delete extends QueryAction
         foreach ($iterator as $result) {
             $entity = $result[0];
 
-            $file->writeObject([
-                'identifiers' => $this->entityToArray($entity, $class->getIdentifierFieldNames()),
-                'cleared'     => $this->entityToArray($entity, $properties)
-            ]);
-
-            foreach ($properties as $property) {
-                if ($class->hasField($property) || $class->hasAssociation($property)) {
-                    $class->setFieldValue($entity, $property, null);
-                } else {
-                    // Usually because of join columns without corresponding fields; fine
-                    $this->logger->debug('Skipping clear of {property}; no such field', ['property' => $property]);
-                }
-            }
+            $this->writeClearedProperties($file, $class, $entity, $properties);
+            $this->clearProperties($class, $entity, $properties);
 
             $this->em->persist($entity);
 

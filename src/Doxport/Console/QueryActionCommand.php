@@ -58,6 +58,7 @@ abstract class QueryActionCommand extends ActionCommand
         }
 
         $this->fileFactory->createPath();
+        $this->logger->log(LogLevel::NOTICE, 'Output directory: {dir}', ['dir' => $this->fileFactory->getPath()]);
 
         $this->validateInput($input);
 

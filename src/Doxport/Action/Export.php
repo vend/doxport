@@ -14,11 +14,26 @@ use Fhaculty\Graph\Walk;
 class Export extends QueryAction
 {
     /**
+     * Properties to be cleared during export
+     *
+     * @var array
+     */
+    protected $clear = [];
+
+    /**
      * @param JoinWalk $walk
      * @return void
      */
     protected function processQuery(JoinWalk $walk)
     {
+        if (!empty($this->clear[$walk->getTargetId()])) {
+            $clearFile = $this->getClearFile($walk);
+        } else {
+            $clearFile = null;
+        }
+
+        $class = $this->driver->getEntityMetadata($walk->getTargetId())->getClassMetadata();
+
         // Get query
         $this->logger->notice('Getting select query for {target}', ['target' => $walk->getTargetId()]);
         $query = $walk->getQuery();
@@ -38,7 +53,12 @@ class Export extends QueryAction
 
         foreach ($iterator as $result) {
             $entity = $result[0];
-            $array  = $this->entityToArray($entity);
+            $array = $this->entityToArray($entity);
+
+            if ($clearFile && ($properties = $this->clear[$walk->getTargetId()])) {
+                $this->writeClearedProperties($clearFile, $class, $entity, $properties);
+                $this->clearProperties($class, $array, $properties);
+            }
 
             $file->writeObject($array);  // Write to file
             $this->em->detach($entity);
@@ -72,8 +92,11 @@ class Export extends QueryAction
     }
 
     /**
-     * We don't clear properties when just doing an export, because its not
-     * necessary.
+     * Store properties to be cleared
+     *
+     * Because we're only exporting data, we don't need to actually update
+     * the data at all for the clear to be respected. We just need to modify
+     * what we write to the exported files.
      *
      * @param \Fhaculty\Graph\Walk $walk
      * @param array $properties
@@ -81,6 +104,6 @@ class Export extends QueryAction
      */
     public function processClear(Walk $walk, array $properties)
     {
-        // Nothing to do
+        $this->clear[$walk->getVertexSource()->getId()] = $properties;
     }
 }

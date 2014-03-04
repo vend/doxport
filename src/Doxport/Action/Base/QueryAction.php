@@ -6,7 +6,9 @@ use Doctrine\ORM\Mapping\ClassMetadata;
 use Doctrine\ORM\Query;
 use Doxport\Doctrine\AliasGenerator;
 use Doxport\Doctrine\JoinWalk;
+use Doxport\File\AsyncFile;
 use Doxport\Metadata\Driver;
+use Doxport\Pass\ClearPass;
 use Doxport\Util\EntityArrayHelper;
 use Fhaculty\Graph\Walk;
 
@@ -84,6 +86,54 @@ abstract class QueryAction extends Action
         }
 
         return $walk;
+    }
+
+    /**
+     * @param JoinWalk $walk
+     * @return AsyncFile
+     */
+    protected function getClearFile(JoinWalk $walk)
+    {
+        return $this->fileFactory->getFile(
+            $this->getClassName($walk->getTargetId()) . ClearPass::FILE_SUFFIX
+        );
+    }
+
+    /**
+     * @param AsyncFile     $file
+     * @param ClassMetadata $metadata
+     * @param object        $entity
+     * @param array         $properties
+     */
+    protected function writeClearedProperties(AsyncFile $file, ClassMetadata $metadata, $entity, array $properties)
+    {
+        $file->writeObject([
+            'identifiers' => $this->entityToArray($entity, $metadata->getIdentifierFieldNames()),
+            'cleared'     => $this->entityToArray($entity, $properties)
+        ]);
+    }
+
+    /**
+     * @param ClassMetadata $metadata
+     * @param object|array  $entity
+     * @param array         $properties
+     */
+    protected function clearProperties(ClassMetadata $metadata, &$entity, array $properties)
+    {
+        if (is_array($entity)) {
+            foreach ($properties as $property) {
+                $entity[$property] = null;
+            }
+        } else {
+            foreach ($properties as $property) {
+                if ($metadata->hasField($property) || $metadata->hasAssociation($property)) {
+                    $metadata->setFieldValue($entity, $property, null);
+                } else {
+                    // Usually because of join columns without corresponding fields; fine
+                    $this->logger->debug('Skipping clear of {property}; no such field', ['property' => $property]);
+                }
+            }
+        }
     }
 
     /**
