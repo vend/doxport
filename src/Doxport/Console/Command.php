@@ -3,10 +3,12 @@
 namespace Doxport\Console;
 
 use Doctrine\ORM\EntityManager;
+use Doxport\Doxport;
 use Doxport\Log\OutputLogger;
 use Doxport\Metadata\Driver;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
+use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
 use Symfony\Component\Console\Command\Command as CommandComponent;
 use Symfony\Component\Console\Input\InputInterface;
@@ -17,20 +19,9 @@ abstract class Command extends CommandComponent implements LoggerAwareInterface
     use LoggerAwareTrait;
 
     /**
-     * @return EntityManager
+     * @var Doxport
      */
-    public function getEntityManager()
-    {
-        return $this->getHelper('em')->getEntityManager();
-    }
-
-    /**
-     * @return Driver
-     */
-    public function getMetadataDriver()
-    {
-        return new Driver($this->getEntityManager());
-    }
+    protected $doxport;
 
     /**
      * @param InputInterface  $input
@@ -42,5 +33,15 @@ abstract class Command extends CommandComponent implements LoggerAwareInterface
         if (!$this->logger) {
             $this->logger = new OutputLogger($output);
         }
+
+        $this->configureDoxport($input);
+    }
+
+    protected function configureDoxport(InputInterface $input)
+    {
+        $this->doxport = new Doxport($this->getHelper('em')->getEntityManager());
+        $this->doxport->setLogger($this->logger);
+
+        return $this->doxport;
     }
 }

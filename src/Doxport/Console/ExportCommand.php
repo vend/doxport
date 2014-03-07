@@ -19,12 +19,7 @@ class ExportCommand extends QueryActionCommand
 
         $this
             ->setName('export')
-            ->addOption('data-dir', 'd', InputOption::VALUE_REQUIRED, 'The data directory to archive to (default build/{action})', null)
-            ->addOption('format', 'f', InputOption::VALUE_REQUIRED, 'The format to export to (default json)', null)
-            ->addArgument('entity', InputArgument::REQUIRED, 'The entity to begin exporting from', null)
-            ->addArgument('column', InputArgument::REQUIRED, 'A column to limit exporting', null)
-            ->addArgument('value', InputArgument::REQUIRED, 'The value to limit by', null)
-            ->setDescription('Exports a set of data from the database, beginning with a specified type, in the ' . \VendApplicationConfiguration::getActive()->getEnvironment() . ' env');
+            ->setDescription('Exports a set of data from the database, beginning with a specified type');
     }
 
     /**
@@ -36,13 +31,13 @@ class ExportCommand extends QueryActionCommand
     {
         parent::execute($input, $output);
 
-        $pass = $this->getConstraintPass();
+        $pass = $this->doxport->getConstraintPass();
         $vertices = $pass->run();
 
-        $pass = $this->getClearPass($vertices);
+        $pass = $this->doxport->getClearPass($vertices);
         $pass->run();
 
-        $pass = $this->getJoinPass($vertices);
+        $pass = $this->doxport->getJoinPass($vertices);
         $pass->run();
 
         $this->logger->notice('All done.');
@@ -54,6 +49,6 @@ class ExportCommand extends QueryActionCommand
      */
     protected function getAction()
     {
-        return new Export($this->getEntityManager());
+        return new Export($this->doxport->getEntityManager());
     }
 }

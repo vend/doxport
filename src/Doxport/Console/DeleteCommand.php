@@ -27,11 +27,6 @@ class DeleteCommand extends QueryActionCommand
 
         $this
             ->setName('delete')
-            ->addOption('data-dir', 'd', InputOption::VALUE_REQUIRED, 'The data directory to archive to (default build/{action})', null)
-
-            ->addArgument('entity', InputArgument::REQUIRED, 'The entity to begin deleting from', null)
-            ->addArgument('column', InputArgument::REQUIRED, 'A column to limit deleting', null)
-            ->addArgument('value', InputArgument::REQUIRED, 'The value to limit by', null)
             ->setDescription('Deletes a set of data from the database, beginning with a specified type, but not including it');
     }
 
@@ -44,24 +39,23 @@ class DeleteCommand extends QueryActionCommand
     {
         parent::execute($input, $output);
 
-        $pass = $this->getConstraintPass();
+        $pass = $this->doxport->getConstraintPass();
         $vertices = $pass->run();
 
-        $pass = $this->getClearPass($vertices);
+        $pass = $this->doxport->getClearPass($vertices);
         $pass->run();
 
-        $pass = $this->getJoinPass($vertices);
+        $pass = $this->doxport->getJoinPass($vertices);
         $pass->run();
 
         $this->logger->notice('All done.');
     }
-
 
     /**
      * @return Action
      */
     protected function getAction()
     {
-        return new Delete($this->getEntityManager());
+        return new Delete($this->doxport->getEntityManager());
     }
 }

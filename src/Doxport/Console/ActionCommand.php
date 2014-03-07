@@ -4,7 +4,6 @@ namespace Doxport\Console;
 
 use Doxport\Action\Base\Action;
 use Doxport\Action\Base\FileActionTrait;
-use Doxport\Action\Base\QueryAction;
 use Doxport\File\Factory;
 use Psr\Log\LogLevel;
 use Symfony\Component\Console\Input\InputInterface;
@@ -14,14 +13,16 @@ use Symfony\Component\Console\Output\OutputInterface;
 abstract class ActionCommand extends Command
 {
     /**
-     * @var Action
+     * @return void
      */
-    protected $action;
+    protected function configure()
+    {
+        parent::configure();
 
-    /**
-     * @var Factory
-     */
-    protected $fileFactory;
+        $this
+            ->addOption('data-dir', 'd', InputOption::VALUE_REQUIRED, 'The data directory to use (default build/{action})', null)
+            ->addOption('format', 'f', InputOption::VALUE_REQUIRED, 'The file format to use (default json)', null);
+    }
 
     /**
      * @return Action
@@ -29,52 +30,56 @@ abstract class ActionCommand extends Command
     abstract protected function getAction();
 
     /**
-     * @return Factory
+     * @inheritDoc
      */
-    protected function getFileFactory()
+    protected function configureDoxport(InputInterface $input)
     {
-        return new Factory();
+        parent::configureDoxport($input);
+
+        $this->configureFileFactory($input);
+        $this->configureAction($input);
+
+        return $this->doxport;
     }
 
     /**
-     * Configures the file factory
-     *
      * @param InputInterface $input
+     * @return Factory
      */
     protected function configureFileFactory(InputInterface $input)
     {
+        $factory = $this->doxport->getFileFactory();
+
         if ($input->hasArgument('data-dir') && $input->getArgument('data-dir')) {
-            $this->fileFactory->setPath($input->getArgument('data-dir'));
+            $factory->setPath($input->getArgument('data-dir'));
         } elseif ($input->hasOption('data-dir') && $input->getOption('data-dir')) {
-            $this->fileFactory->setPath($input->getOption('data-dir'));
+            $factory->setPath($input->getOption('data-dir'));
         }
 
         if ($input->hasOption('format') && $input->getOption('format')) {
-            $this->fileFactory->setFormat($input->getOption('format'));
+            $factory->setFormat($input->getOption('format'));
         }
+
+        return $factory;
     }
 
     /**
      * Configures the action
      *
      * @param InputInterface $input
-     * @return void
+     * @return Action
      */
     protected function configureAction(InputInterface $input)
     {
-        $this->action->setLogger($this->logger);
-        $this->action->setFileFactory($this->fileFactory);
-        $this->action->setMetadataDriver($this->getMetadataDriver());
-    }
+        $action = $this->getAction();
 
-    /**
-     * @return void
-     */
-    protected function configure()
-    {
-        parent::configure();
+        $action->setLogger($this->doxport->getLogger());
+        $action->setFileFactory($this->doxport->getFileFactory());
+        $action->setMetadataDriver($this->doxport->getMetadataDriver());
 
-        $this->addOption('format', 'f', InputOption::VALUE_REQUIRED, 'The file format to use (default json)', null);
+        $this->doxport->setAction($action);
+
+        return $action;
     }
 
     /**
@@ -85,13 +90,6 @@ abstract class ActionCommand extends Command
     {
         parent::execute($input, $output);
 
-        $this->action      = $this->getAction();
-        $this->fileFactory = $this->getFileFactory();
-
-        $this->configureFileFactory($input);
-        $this->configureAction($input);
-
-        $this->logger->log(LogLevel::DEBUG, 'Configured action: {action_class}', ['action_class' => get_class($this->action)]);
-
+        $this->logger->log(LogLevel::NOTICE, 'Configured action: {action_class}', ['action_class' => get_class($this->doxport->getAction())]);
     }
 }

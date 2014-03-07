@@ -99,8 +99,9 @@ class Import extends Action
             $i++;
         }
 
-        $this->logger->notice('  {i} entities processed', ['i' => $i]);
+        $this->logger->notice('  {i} entities processed. Flushing entity manager...', ['i' => $i]);
         $this->em->flush();
+        $this->logger->notice('  Changes flushed');
     }
 
     /**
