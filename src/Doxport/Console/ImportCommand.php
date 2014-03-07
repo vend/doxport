@@ -32,7 +32,7 @@ class ImportCommand extends ActionCommand
     {
         parent::execute($input, $output);
 
-        $this->action->run();
+        $this->doxport->getAction()->run();
 
         $this->logger->notice('All done.');
     }
@@ -42,6 +42,6 @@ class ImportCommand extends ActionCommand
      */
     protected function getAction()
     {
-        return new Import($this->getEntityManager());
+        return new Import($this->doxport->getEntityManager());
     }
 }
