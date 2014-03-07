@@ -55,7 +55,7 @@ abstract class QueryActionCommand extends ActionCommand
     {
         $factory = parent::configureFileFactory($input);
 
-        $factory->join($this->action->getName());
+        $factory->join($this->doxport->getAction()->getName());
 
         if ($input->hasArgument('column') && $input->hasArgument('value')) {
             $factory->join(sprintf(

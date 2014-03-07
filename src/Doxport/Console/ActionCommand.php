@@ -36,8 +36,8 @@ abstract class ActionCommand extends Command
     {
         parent::configureDoxport($input);
 
-        $this->configureFileFactory($input);
         $this->configureAction($input);
+        $this->configureFileFactory($input);
 
         return $this->doxport;
     }
