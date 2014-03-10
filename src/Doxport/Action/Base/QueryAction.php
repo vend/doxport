@@ -53,20 +53,20 @@ abstract class QueryAction extends Action
      */
     public function processSelfJoin(Walk $path, array $association)
     {
-        $walk = $this->getJoinWalk($path);
-
-        if ($association['type'] == ClassMetadata::ONE_TO_MANY) {
-            // Skipping because inverse of one that's already processed
-            return;
-        }
-
-        $walk->addSelfJoinNull($association['inversedBy'], $association['sourceToTargetKeyColumns']);
-
-        // One level of self-join
-        $this->processQuery($walk);
-
-        // Two levels of self-join
-        $this->processQuery($walk);
+//        $walk = $this->getJoinWalk($path);
+//
+//        if ($association['type'] == ClassMetadata::ONE_TO_MANY) {
+//            // Skipping because inverse of one that's already processed
+//            return;
+//        }
+//
+//        $walk->addSelfJoinNull($association['inversedBy'], $association['sourceToTargetKeyColumns']);
+//
+//        // One level of self-join
+//        $this->processQuery($walk);
+//
+//        // Two levels of self-join
+//        $this->processQuery($walk);
     }
 
     /**
@@ -128,9 +128,6 @@ abstract class QueryAction extends Action
             foreach ($properties as $property) {
                 if ($metadata->hasField($property) || $metadata->hasAssociation($property)) {
                     $metadata->setFieldValue($entity, $property, null);
-                } else {
-                    // Usually because of join columns without corresponding fields; fine
-                    $this->logger->debug('Skipping clear of {property}; no such field', ['property' => $property]);
                 }
             }
         }
@@ -157,8 +154,9 @@ abstract class QueryAction extends Action
 
     /**
      * @param \Fhaculty\Graph\Walk $walk
-     * @param array $properties
+     * @param array $fields
+     * @param array $joinFields
      * @return mixed
      */
-    abstract public function processClear(Walk $walk, array $properties);
+    abstract public function processClear(Walk $walk, array $fields, array $joinFields);
 }

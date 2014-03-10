@@ -28,22 +28,24 @@ class ClearPass extends JoinPass
 
             $entity     = $vertex->getId();
             $metadata   = $this->driver->getEntityMetadata($entity);
-            $properties = [];
+
+            $fields     = [];
+            $joinFields = [];
 
             foreach ($metadata->getProperties() as $property) {
                 if (!$property->hasAnnotation('Doxport\Annotation\Clear')) {
                     continue;
                 }
 
-                $properties[] = $property->getName();
+                $fields[] = $property->getName();
 
                 foreach ($property->getJoinColumnFieldNames() as $field) {
-                    $properties[] = $field;
+                    $joinFields[] = $field;
                 }
             }
 
-            if ($properties) {
-                $this->action->processClear($this->getWalkForVertex($vertex), $properties);
+            if ($fields || $joinFields) {
+                $this->action->processClear($this->getWalkForVertex($vertex), $fields, $joinFields);
             }
         }
     }

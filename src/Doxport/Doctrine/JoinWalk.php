@@ -123,25 +123,25 @@ class JoinWalk
      */
     public function addSelfJoinNull($associationFieldName, array $associationTargetFields)
     {
-        $original  = $this->aliases->get($this->getTargetId());
-        $afterJoin = $this->aliases->getAnother($this->getTargetId());
-
-        $this->builder->leftJoin(
-            $original . '.' . $associationFieldName,
-            $afterJoin
-        );
-
-        foreach ($associationTargetFields as $associationTargetField) {
-            $this->builder->andWhere(
-                $this->builder->expr()->isNull(
-                    $afterJoin . '.' . $associationTargetField
-                )
-            );
-        }
-
-        $this->builder->getQuery()->setHint(Query\SqlWalker::HINT_DISTINCT, true);
-        $this->builder->groupBy($original);
-        $this->builder->distinct(true);
+//        $original  = $this->aliases->get($this->getTargetId());
+//        $afterJoin = $this->aliases->getAnother($this->getTargetId());
+//
+//        $this->builder->leftJoin(
+//            $original . '.' . $associationFieldName,
+//            $afterJoin
+//        );
+//
+//        foreach ($associationTargetFields as $associationTargetField) {
+//            $this->builder->andWhere(
+//                $this->builder->expr()->isNull(
+//                    $afterJoin . '.' . $associationTargetField
+//                )
+//            );
+//        }
+//
+//        $this->builder->getQuery()->setHint(Query\SqlWalker::HINT_DISTINCT, true);
+//        $this->builder->groupBy($original);
+//        $this->builder->distinct(true);
     }
 
     /**

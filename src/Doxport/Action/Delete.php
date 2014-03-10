@@ -101,10 +101,11 @@ class Delete extends QueryAction
      * the database. (Actually making an update.)
      *
      * @param Walk $path
-     * @param array $properties
+     * @param array $fields
+     * @param array $joinFields
      * @return mixed
      */
-    public function processClear(Walk $path, array $properties)
+    public function processClear(Walk $path, array $fields, array $joinFields)
     {
         $this->logger->notice('Doing clear of properties');
 
@@ -134,8 +135,8 @@ class Delete extends QueryAction
         foreach ($iterator as $result) {
             $entity = $result[0];
 
-            $this->writeClearedProperties($file, $class, $entity, $properties);
-            $this->clearProperties($class, $entity, $properties);
+            $this->writeClearedProperties($file, $class, $entity, $joinFields);
+            $this->clearProperties($class, $entity, $fields + $joinFields);
 
             $this->em->persist($entity);
 

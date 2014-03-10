@@ -9,6 +9,8 @@ use LogicException;
 
 class Import extends Action
 {
+    const CHUNK = 500;
+
     /**
      * @var string
      */
@@ -91,16 +93,33 @@ class Import extends Action
         $helper = new EntityArrayHelper($this->em);
 
         $i = 0;
+        $chunk = 0;
+
         foreach ($entities as $values) {
             $entity = $helper->toEntity($entityName, $values);
 
             // Save entity
             $this->em->persist($entity);
+
             $i++;
+            $chunk++;
+
+            if ($chunk > self::CHUNK) {
+                $this->logger->notice('  Partial checkpoint flush...', ['i' => $i]);
+
+                $this->em->flush();
+                $this->em->clear();
+
+                $this->logger->notice('  Partial changes flushed');
+                $chunk = 0;
+            }
         }
 
         $this->logger->notice('  {i} entities processed. Flushing entity manager...', ['i' => $i]);
+
         $this->em->flush();
+        $this->em->clear();
+
         $this->logger->notice('  Changes flushed');
     }
 
