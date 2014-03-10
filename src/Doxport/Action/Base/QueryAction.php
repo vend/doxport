@@ -107,10 +107,14 @@ abstract class QueryAction extends Action
      */
     protected function writeClearedProperties(AsyncFile $file, ClassMetadata $metadata, $entity, array $properties)
     {
-        $file->writeObject([
-            'identifiers' => $this->entityToArray($entity, $metadata->getIdentifierFieldNames()),
-            'cleared'     => $this->entityToArray($entity, $properties)
-        ]);
+        $cleared = $this->entityToArray($entity, $properties);
+
+        if ($cleared) {
+            $file->writeObject([
+                'identifiers' => $this->entityToArray($entity, $metadata->getIdentifierFieldNames()),
+                'cleared'     => $cleared
+            ]);
+        }
     }
 
     /**

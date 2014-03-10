@@ -136,7 +136,7 @@ class Delete extends QueryAction
             $entity = $result[0];
 
             $this->writeClearedProperties($file, $class, $entity, $joinFields);
-            $this->clearProperties($class, $entity, $fields + $joinFields);
+            $this->clearProperties($class, $entity, array_merge($fields, $joinFields));
 
             $this->em->persist($entity);
 

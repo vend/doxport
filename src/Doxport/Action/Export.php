@@ -55,9 +55,11 @@ class Export extends QueryAction
             $entity = $result[0];
             $array = $this->entityToArray($entity);
 
-            if ($clearFile && ($properties = $this->clear[$walk->getTargetId()])) {
-                $this->writeClearedProperties($clearFile, $class, $entity, $properties);
-                $this->clearProperties($class, $array, $properties);
+            if ($clearFile) {
+                $clear = $this->clear[$walk->getTargetId()];
+
+                $this->writeClearedProperties($clearFile, $class, $entity, $clear['joinFields']);
+                $this->clearProperties($class, $array, array_merge($clear['fields'], $clear['joinFields']));
             }
 
             $file->writeObject($array);  // Write to file
@@ -99,11 +101,15 @@ class Export extends QueryAction
      * what we write to the exported files.
      *
      * @param \Fhaculty\Graph\Walk $walk
-     * @param array $properties
+     * @param array $fields
+     * @param array $joinFields
      * @return mixed
      */
-    public function processClear(Walk $walk, array $properties)
+    public function processClear(Walk $walk, array $fields, array $joinFields)
     {
-        $this->clear[$walk->getVertexSource()->getId()] = $properties;
+        $this->clear[$walk->getVertexSource()->getId()] = [
+            'fields'     => $fields,
+            'joinFields' => $joinFields
+        ];
     }
 }
