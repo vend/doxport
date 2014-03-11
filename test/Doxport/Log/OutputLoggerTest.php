@@ -2,7 +2,7 @@
 
 namespace Doxport\Log;
 
-use Doxport\AbstractTest;
+use Doxport\Test\AbstractTest;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class OutputLoggerTest extends AbstractTest

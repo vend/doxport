@@ -2,7 +2,7 @@
 
 namespace Doxport\File;
 
-use Doxport\AbstractTest;
+use Doxport\Test\AbstractTest;
 
 class FactoryTest extends AbstractTest
 {
@@ -25,7 +25,7 @@ class FactoryTest extends AbstractTest
     public function testBadConstructorFormat()
     {
         $formats = ['something' => 'stdClass'];
-        $instance = new Factory('else', $formats);
+        new Factory('else', $formats); // exception here
     }
 
     public function testAddFormat()

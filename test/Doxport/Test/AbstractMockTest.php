@@ -1,6 +1,9 @@
 <?php
 
-namespace Doxport;
+namespace Doxport\Test;
+
+use \AnnotationReader;
+use Doxport\Test\AbstractTest;
 
 abstract class AbstractMockTest extends AbstractTest
 {
@@ -12,11 +15,23 @@ abstract class AbstractMockTest extends AbstractTest
         return $logger;
     }
 
+    protected function getMockReader()
+    {
+        $reader = $this->getMockBuilder('Doctrine\Common\Annotations\Reader')
+            ->getMockForAbstractClass();
+
+        return $reader;
+    }
+
     protected function getMockMetadataDriverImpl()
     {
         $driver = $this->getMockBuilder('Doctrine\ORM\Mapping\Driver\AnnotationDriver')
             ->disableOriginalConstructor()
             ->getMock();
+
+        $driver->expects($this->any())
+            ->method('getReader')
+            ->will($this->returnValue($this->getMockReader()));
 
         return $driver;
     }

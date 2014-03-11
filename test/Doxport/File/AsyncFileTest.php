@@ -2,7 +2,7 @@
 
 namespace Doxport\File;
 
-use Doxport\AbstractTest;
+use Doxport\Test\AbstractTest;
 
 abstract class AsyncFileTest extends AbstractTest
 {

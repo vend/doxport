@@ -1,10 +1,11 @@
 <?php
 
-namespace Doxport;
+namespace Doxport\Test;
 
 use Doctrine\Common\Cache\ArrayCache;
 use Doctrine\ORM\Configuration;
 use Doctrine\ORM\EntityManager;
+use Doxport\Test\AbstractTest;
 
 abstract class EntityManagerTest extends AbstractTest
 {

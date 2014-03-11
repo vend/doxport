@@ -2,6 +2,8 @@
 
 namespace Doxport;
 
+use Doxport\Test\AbstractMockTest;
+
 class DoxportTest extends AbstractMockTest
 {
     public function testConstructor()

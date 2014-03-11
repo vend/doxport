@@ -1,6 +1,6 @@
 <?php
 
-namespace Doxport;
+namespace Doxport\Test;
 
 abstract class AbstractTest extends \PHPUnit_Framework_TestCase
 {

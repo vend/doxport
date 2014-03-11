@@ -124,10 +124,11 @@ class Driver
             return false;
         }
 
-        if (($property = $this->getEntityMetadata($association['sourceEntity'])->getProperty($association['fieldName']))) {
-            if ($property->hasAnnotation('Doxport\Annotation\Exclude')) {
-                return false;
-            }
+        $property = $this->getEntityMetadata($association['sourceEntity'])
+            ->getProperty($association['fieldName']);
+
+        if ($property && $property->hasAnnotation('Doxport\Annotation\Exclude')) {
+            return false;
         }
 
         return true;
