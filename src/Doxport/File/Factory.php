@@ -10,7 +10,7 @@ use \InvalidArgumentException;
 class Factory
 {
     /**
-     * @var array<string => string>
+     * @var array<string>
      */
     protected $formats = [
         'json' => 'Doxport\File\JsonFile',
@@ -20,7 +20,7 @@ class Factory
     /**
      * @var string
      */
-    protected $format = 'json';
+    protected $format;
 
     /**
      * @var string
@@ -28,27 +28,44 @@ class Factory
     protected $path = 'build';
 
     /**
-     * @param string $path
+     * Constructor
+     *
+     * @param string        $format
+     * @param array<string> $formats
      */
-    public function setPath($path)
+    public function __construct($format = 'json', array $formats = null)
     {
-        $this->path = $path;
+        if ($formats) {
+            $this->formats = $formats;
+        }
+
+        $this->setFormat($format);
     }
 
     /**
-     * @param string $path
+     * @return array<string>
      */
-    public function join($path)
+    public function getFormats()
     {
-        $this->path .= \DIRECTORY_SEPARATOR . $path;
+        return $this->formats;
+    }
+
+    /**
+     * @param string $format
+     * @param string $class
+     * @return void
+     */
+    public function addFormat($format, $class)
+    {
+        $this->formats[$format] = $class;
     }
 
     /**
      * @return string
      */
-    public function getPath()
+    public function getFormat()
     {
-        return $this->path;
+        return $this->format;
     }
 
     /**
@@ -62,6 +79,32 @@ class Factory
         }
 
         $this->format = $format;
+    }
+
+    /**
+     * @param string $path
+     * @return void
+     */
+    public function setPath($path)
+    {
+        $this->path = $path;
+    }
+
+    /**
+     * @param string $path
+     * @return string
+     */
+    public function join($path)
+    {
+        return ($this->path .= \DIRECTORY_SEPARATOR . $path);
+    }
+
+    /**
+     * @return string
+     */
+    public function getPath()
+    {
+        return $this->path;
     }
 
     /**

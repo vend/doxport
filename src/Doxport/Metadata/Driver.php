@@ -167,6 +167,10 @@ class Driver
         $meta = new Entity($this->em->getClassMetadata($entity));
 
         foreach ($meta->getClassMetadata()->getReflectionProperties() as $name => $property) {
+            if (!$property) {
+                continue;
+            }
+
             $relevant = array_filter($reader->getPropertyAnnotations($property), function ($value) {
                 return implode('\\', array_slice(explode('\\', get_class($value)), 0, -1)) == 'Doxport\\Annotation';
             });
@@ -175,7 +179,12 @@ class Driver
                 continue;
             }
 
-            $property = new Property($name, $relevant, $meta->getClassMetadata()->getAssociationMapping($property->name));
+            $property = new Property(
+                $name,
+                $relevant,
+                $meta->getClassMetadata()->getAssociationMapping($property->name)
+            );
+
             $meta->addProperty($property);
         }
 
