@@ -4,6 +4,14 @@ namespace Doxport;
 
 abstract class AbstractMockTest extends AbstractTest
 {
+    protected function getMockLogger()
+    {
+        $logger = $this->getMockBuilder('Doxport\Log\Logger')
+            ->getMockForAbstractClass();
+
+        return $logger;
+    }
+
     protected function getMockMetadataDriverImpl()
     {
         $driver = $this->getMockBuilder('Doctrine\ORM\Mapping\Driver\AnnotationDriver')

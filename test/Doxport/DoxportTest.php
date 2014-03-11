@@ -31,4 +31,10 @@ class DoxportTest extends AbstractMockTest
         $doxport = new Doxport($this->getMockEntityManager());
         $doxport->setOption('root', true);
     }
+
+    public function testSetLogger()
+    {
+        $doxport = new Doxport($this->getMockEntityManager());
+        $doxport->setLogger($this->getMockLogger());
+    }
 }
