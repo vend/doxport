@@ -2,9 +2,9 @@
 
 namespace Doxport\File;
 
-use Doxport\Test;
+use Doxport\AbstractTest;
 
-abstract class AsyncFileTest extends Test
+abstract class AsyncFileTest extends AbstractTest
 {
     protected $file;
 

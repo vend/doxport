@@ -2,10 +2,10 @@
 
 namespace Doxport\Log;
 
-use Doxport\Test;
+use Doxport\AbstractTest;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class OutputLoggerTest extends Test
+class OutputLoggerTest extends AbstractTest
 {
     protected function getMockOutputInterface($verbosity = OutputInterface::VERBOSITY_VERY_VERBOSE)
     {

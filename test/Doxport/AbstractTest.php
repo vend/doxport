@@ -2,7 +2,7 @@
 
 namespace Doxport;
 
-abstract class Test extends \PHPUnit_Framework_TestCase
+abstract class AbstractTest extends \PHPUnit_Framework_TestCase
 {
     /**
      * @var string

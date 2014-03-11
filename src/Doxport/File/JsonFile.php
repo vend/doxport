@@ -46,16 +46,15 @@ class JsonFile extends AsyncFile
      */
     protected function prepare()
     {
-        if ($this->prepared) {
-            return;
-        }
-
         if ($this->getFirstCharacter() != '[') {
             fwrite($this->file, '[');
             ftruncate($this->file, 1);
         } else {
             if ($this->getLastCharacter() != ']') {
-                throw new LogicException('Invalid JSON file ' . $this->getPath() . ': mismatched wrapping array brackets');
+                throw new LogicException(sprintf(
+                    'Invalid JSON file %s: mismatched wrapping array brackets',
+                    $this->getPath()
+                ));
             }
 
             if (ftell($this->file) != 2) {
@@ -117,7 +116,9 @@ class JsonFile extends AsyncFile
                     throw new InvalidArgumentException('Unknown error in JSON encode');
                 case JSON_ERROR_UTF8:
                     if (!$allowBinary) {
-                        throw new InvalidArgumentException('Invalid binary string in object to encode; JSON strings must be UTF-8');
+                        throw new InvalidArgumentException(
+                            'Invalid binary string in object to encode; JSON strings must be UTF-8'
+                        );
                     } else {
                         $object = $this->encodeBinary($object);
                         $json = $this->encode($object, false);
@@ -134,7 +135,7 @@ class JsonFile extends AsyncFile
      */
     protected function encodeBinary($object)
     {
-        $object[self::ENCODED_KEY] = [];
+        $encoded = [];
 
         foreach ($object as $key => &$value) {
             if ($key == self::ENCODED_KEY) {
@@ -143,9 +144,11 @@ class JsonFile extends AsyncFile
 
             if (is_scalar($value) && !mb_check_encoding($value, 'utf-8')) {
                 $value = base64_encode($value);
-                $object[self::ENCODED_KEY][] = $key;
+                $encoded[] = $key;
             }
         }
+
+        $object->{self::ENCODED_KEY} = $encoded;
 
         return $object;
     }
