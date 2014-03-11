@@ -3,28 +3,50 @@
 namespace Doxport\Test;
 
 use Doctrine\Common\Cache\ArrayCache;
+use Doctrine\Common\Persistence\Mapping\Driver\MappingDriver;
 use Doctrine\ORM\Configuration;
 use Doctrine\ORM\EntityManager;
-use Doxport\Test\AbstractTest;
+use Doctrine\ORM\Mapping\Driver\YamlDriver;
+use LogicException;
 
-abstract class EntityManagerTest extends AbstractTest
+abstract class AbstractEntityManagerTest extends AbstractTest
 {
-    protected $fixtures = 'Example';
+    /**
+     * @var string
+     */
+    protected $fixtures = 'Bookstore';
+
+    /**
+     * @var array<string>
+     */
+    protected $fixtureTypes = [
+        'User'      => 'yaml',
+        'Bookstore' => 'annotation'
+    ];
+
+    /**
+     * @var ArrayCache
+     */
     protected $cache;
+
+    /**
+     * @var Configuration
+     */
     protected $config;
 
+
+    /**
+     * @inheritDoc
+     */
     protected function setUp()
     {
         $this->setUpCache();
         $this->setUpConfig();
     }
 
-    protected function tearDown()
-    {
-        $this->cache  = null;
-        $this->config = null;
-    }
-
+    /**
+     * @return array<string>
+     */
     protected function getConnectionOptions()
     {
         return [
@@ -33,16 +55,25 @@ abstract class EntityManagerTest extends AbstractTest
         ];
     }
 
+    /**
+     * @return EntityManager
+     */
     protected function getEntityManager()
     {
         return EntityManager::create($this->getConnectionOptions(), $this->config);
     }
 
+    /**
+     * @return void
+     */
     protected function setUpCache()
     {
         $this->cache = new ArrayCache();
     }
 
+    /**
+     * @return void
+     */
     protected function setUpConfig()
     {
         $this->config = new Configuration();
@@ -50,12 +81,48 @@ abstract class EntityManagerTest extends AbstractTest
         $this->config->setMetadataCacheImpl($this->cache);
         $this->config->setQueryCacheImpl($this->cache);
 
-        $driverImpl = $this->config->newDefaultAnnotationDriver('/path/to/lib/MyProject/Entities');
-        $this->config->setMetadataDriverImpl($driverImpl);
+        $this->config->setMetadataDriverImpl($this->getMetadataImplementation());
 
-        $this->config->setProxyDir('/path/to/myproject/lib/MyProject/Proxies');
-        $this->config->setProxyNamespace('MyProject\Proxies');
+        $this->config->setProxyDir('build/tmp/proxies');
+        $this->config->setProxyNamespace('Doxport\Test\Proxies');
         
         $this->config->setAutoGenerateProxyClasses(true);
+    }
+
+    /**
+     * @return MappingDriver
+     */
+    protected function getMetadataImplementation()
+    {
+        $type = $this->fixtureTypes[$this->fixtures];
+
+        $fixtureDir = __DIR__ . DIRECTORY_SEPARATOR
+            . 'Fixtures' . DIRECTORY_SEPARATOR
+            . $this->fixtures;
+
+        $entityDir = $fixtureDir . DIRECTORY_SEPARATOR
+            . 'Entities';
+
+        switch ($type) {
+            case 'annotation':
+                return $this->config->newDefaultAnnotationDriver($entityDir);
+            case 'yaml':
+                $driver = new YamlDriver([$fixtureDir]);
+                return $driver;
+            default:
+                throw new LogicException(
+                    'Cannot get metadata implementation for unknown fixture type'
+                );
+        }
+
+    }
+
+    /**
+     * @inheritDoc
+     */
+    protected function tearDown()
+    {
+        $this->cache  = null;
+        $this->config = null;
     }
 }

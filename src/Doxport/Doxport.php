@@ -10,6 +10,7 @@ use Doxport\Pass\ClearPass;
 use Doxport\Pass\ConstraintPass;
 use Doxport\Pass\JoinPass;
 use Fhaculty\Graph\Set\Vertices;
+use LogicException;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
 use Psr\Log\LogLevel;
@@ -131,13 +132,13 @@ class Doxport implements LoggerAwareInterface
     }
 
     /**
-     * @throws \LogicException
+     * @throws LogicException
      * @return EntityGraph
      */
     public function getEntityGraph()
     {
         if (!$this->entity) {
-            throw new \LogicException('Specify an entity type first, with setEntity()');
+            throw new LogicException('Specify an entity type first, with setEntity()');
         }
 
         $this->logger->log(LogLevel::NOTICE, 'Creating entity graph for {entity}', [
@@ -187,6 +188,7 @@ class Doxport implements LoggerAwareInterface
      */
     public function getConstraintPass(array $options = [])
     {
+        $this->checkAction();
         $options = array_merge($this->options, $options);
 
         $this->logger->log(LogLevel::NOTICE, 'Creating constraint pass');
@@ -213,6 +215,7 @@ class Doxport implements LoggerAwareInterface
      */
     public function getJoinPass(Vertices $vertices, array $options = [])
     {
+        $this->checkAction();
         $options = array_merge($this->options, $options);
 
         $this->logger->log(LogLevel::NOTICE, 'Creating join pass');
@@ -238,9 +241,11 @@ class Doxport implements LoggerAwareInterface
      */
     public function getClearPass(Vertices $vertices, array $options = [])
     {
+        $this->checkAction();
         $options = array_merge($this->options, $options);
 
         $this->logger->log(LogLevel::NOTICE, 'Creating join pass');
+
 
         $pass = new ClearPass(
             $this->getMetadataDriver(),
@@ -254,5 +259,15 @@ class Doxport implements LoggerAwareInterface
         $pass->setFileFactory($this->fileFactory);
 
         return $pass;
+    }
+
+    /**
+     * @throws LogicException
+     */
+    protected function checkAction()
+    {
+        if (!$this->action) {
+            throw new LogicException('You must provide an action before obtaining pass objects');
+        }
     }
 }

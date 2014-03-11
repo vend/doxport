@@ -7,14 +7,6 @@ use Doxport\Test\AbstractTest;
 
 abstract class AbstractMockTest extends AbstractTest
 {
-    protected function getMockLogger()
-    {
-        $logger = $this->getMockBuilder('Doxport\Log\Logger')
-            ->getMockForAbstractClass();
-
-        return $logger;
-    }
-
     protected function getMockReader()
     {
         $reader = $this->getMockBuilder('Doctrine\Common\Annotations\Reader')
