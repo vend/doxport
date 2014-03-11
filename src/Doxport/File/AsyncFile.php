@@ -60,10 +60,15 @@ abstract class AsyncFile
     /**
      * Reads the whole of the file into a string and returns it
      *
+     * @throws IOException
      * @return string
      */
     public function readAll()
     {
+        if (!$this->file) {
+            throw new IOException('Cannot read all from file: file is not open');
+        }
+
         rewind($this->file);
 
         $contents = '';
@@ -77,10 +82,15 @@ abstract class AsyncFile
     /**
      * Flushes the file to disk
      *
+     * @throws IOException
      * @return void
      */
     public function flush()
     {
+        if (!$this->file) {
+            throw new IOException('Cannot flush file: file is not open');
+        }
+
         fflush($this->file);
     }
 
@@ -94,6 +104,10 @@ abstract class AsyncFile
      */
     public function sync()
     {
+        if (!$this->file) {
+            throw new IOException('Cannot sync file: file is not open');
+        }
+
         if (extension_loaded('eio')) {
             $success = false;
 
@@ -106,7 +120,7 @@ abstract class AsyncFile
             eio_event_loop();
 
             if (!$success) {
-                throw new IOException('Could not sync file to disk');
+                throw new IOException('Failed to sync file to disk');
             }
         }
     }
@@ -115,10 +129,15 @@ abstract class AsyncFile
      * Writes to the file
      *
      * @param string $string
+     * @throws IOException
      * @return int
      */
     protected function write($string)
     {
+        if (!$this->file) {
+            throw new IOException('Cannot write to file: file is not open');
+        }
+
         fseek($this->file, 0, SEEK_END);
         return fwrite($this->file, $string);
     }
@@ -131,8 +150,7 @@ abstract class AsyncFile
      */
     protected function writeln($string)
     {
-        fseek($this->file, 0, SEEK_END);
-        return fwrite($this->file, $string . "\n");
+        return $this->write($string . "\n");
     }
 
     /**

@@ -2,8 +2,10 @@
 
 namespace Doxport\File;
 
+use Doxport\Exception\IOException;
 use InvalidArgumentException;
 use LogicException;
+use stdClass;
 
 /**
  * JSON file output
@@ -46,6 +48,10 @@ class JsonFile extends AsyncFile
      */
     protected function prepare()
     {
+        if (!$this->file) {
+            throw new IOException('Cannot prepare file: file is not open');
+        }
+
         if ($this->getFirstCharacter() != '[') {
             fwrite($this->file, '[');
             ftruncate($this->file, 1);
@@ -68,7 +74,7 @@ class JsonFile extends AsyncFile
     /**
      * Writes the given object to the file
      *
-     * @param \stdClass $object
+     * @param stdClass $object
      * @return void
      * @throws InvalidArgumentException
      */
@@ -89,10 +95,9 @@ class JsonFile extends AsyncFile
         $this->write($encoded . ',');
     }
 
-
     /**
      * @param object $object
-     * @param bool $allowBinary
+     * @param boolean $allowBinary
      * @return string
      * @throws InvalidArgumentException
      */
@@ -130,7 +135,7 @@ class JsonFile extends AsyncFile
     }
 
     /**
-     * @param array $object
+     * @param array|stdClass $object
      * @return array
      */
     protected function encodeBinary($object)
@@ -154,8 +159,8 @@ class JsonFile extends AsyncFile
     }
 
     /**
-     * @param object $object
-     * @return object
+     * @param array|stdClass $object
+     * @return stdClass
      */
     protected function decode($object)
     {
@@ -210,7 +215,7 @@ class JsonFile extends AsyncFile
      */
     public function close()
     {
-        if ($this->prepared) {
+        if ($this->file && $this->prepared) {
             $last = $this->getLastCharacter();
 
             if ($last == ',') {
