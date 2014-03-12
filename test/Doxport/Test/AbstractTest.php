@@ -12,6 +12,16 @@ abstract class AbstractTest extends \PHPUnit_Framework_TestCase
     protected static $root = 'build/tmp';
 
     /**
+     * @inheritDoc
+     */
+    public static function setUpBeforeClass()
+    {
+        if (!is_dir(self::$root)) {
+            mkdir(self::$root);
+        }
+    }
+
+    /**
      * @return Logger
      */
     protected function getMockLogger()

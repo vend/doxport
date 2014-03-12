@@ -44,15 +44,6 @@ abstract class AbstractEntityManagerTest extends AbstractTest
      */
     protected static function getConnectionOptions()
     {
-        $p = self::$root . DIRECTORY_SEPARATOR . 'database.sqlite';
-        var_dump($p);
-        var_dump(realpath($p));
-        var_dump(dirname($p));
-        var_dump(is_readable($p));
-        var_dump(is_writable($p));
-        var_dump(is_readable(dirname($p)));
-        var_dump(is_writable(dirname($p)));
-
         return [
             'driver' => 'pdo_sqlite',
             'path'   => self::$root . DIRECTORY_SEPARATOR . 'database.sqlite'
@@ -152,6 +143,8 @@ abstract class AbstractEntityManagerTest extends AbstractTest
      */
     public static function setUpBeforeClass()
     {
+        parent::setUpBeforeClass();
+
         $em = self::getEntityManager();
 
         $classes = $em->getConfiguration()->getMetadataDriverImpl()->getAllClassNames();
