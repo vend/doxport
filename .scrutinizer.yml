@@ -2,7 +2,7 @@ tools:
     external_code_coverage: true
     php_pdepend:            true
     php_cpd:                true
-    php_analyzer:           true
+    php_analyzer:
         config:
             doctrine_entity_manager_injection:
                 enabled:              false
