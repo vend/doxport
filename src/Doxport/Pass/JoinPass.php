@@ -47,7 +47,6 @@ class JoinPass extends Pass
     protected function configureGraph()
     {
         $this->graph->from($this->driver, function (array $association) {
-            // Ignore self-joins
             return
                 $this->driver->isSupportedAssociation($association)
                 && $this->driver->isCoveredAssociation($association)
@@ -75,16 +74,6 @@ class JoinPass extends Pass
             }
 
             $walk = $this->getWalkForVertex($vertex);
-
-            // Process self-joins on the target first
-            $selfJoins = $this->driver->getEntityMetadata($vertex->getId())
-                ->getClassMetadata()->getAssociationsByTargetClass($vertex->getId());
-
-            foreach ($selfJoins as $association) {
-                $this->action->processSelfJoin($walk, $association);
-            }
-
-            // Then the actual target
             $this->action->process($walk);
         }
     }

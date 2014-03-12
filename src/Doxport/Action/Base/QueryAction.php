@@ -20,11 +20,6 @@ abstract class QueryAction extends Action
     protected $rootCriteria = [];
 
     /**
-     * @var array
-     */
-    protected $processedSelfJoins = [];
-
-    /**
      * @param string $column
      * @param mixed  $value
      * @return void
@@ -45,28 +40,6 @@ abstract class QueryAction extends Action
     {
         $walk = $this->getJoinWalk($path);
         $this->processQuery($walk);
-    }
-
-    /**
-     * @param Walk $path
-     * @param array $association
-     */
-    public function processSelfJoin(Walk $path, array $association)
-    {
-//        $walk = $this->getJoinWalk($path);
-//
-//        if ($association['type'] == ClassMetadata::ONE_TO_MANY) {
-//            // Skipping because inverse of one that's already processed
-//            return;
-//        }
-//
-//        $walk->addSelfJoinNull($association['inversedBy'], $association['sourceToTargetKeyColumns']);
-//
-//        // One level of self-join
-//        $this->processQuery($walk);
-//
-//        // Two levels of self-join
-//        $this->processQuery($walk);
     }
 
     /**
