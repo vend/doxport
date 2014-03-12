@@ -28,7 +28,14 @@ class Author
     protected $lastName;
 
     /**
+     * Joins back down to the book table, causing a cycle in the dependency graph
+     *
+     * We solve the cycle by excluding this relation from consideration, and
+     * preprocessing this column when exporting/deleting (and postprocessing
+     * for import)
+     *
      * @Export\Exclude
+     * @Export\Clear
      * @ORM\OneToOne(targetEntity="Book")
      */
     protected $favoriteWork;
@@ -41,5 +48,13 @@ class Author
     {
         $this->firstName = $first;
         $this->lastName = $last;
+    }
+
+    /**
+     * @param Book $book
+     */
+    public function setFavouriteWork(Book $book)
+    {
+        $this->favoriteWork = $book;
     }
 }

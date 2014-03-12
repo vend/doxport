@@ -6,16 +6,18 @@ use Doctrine\ORM\EntityManager;
 
 /** @var EntityManager $em */
 
+$cat = new Entities\Book();
+$cat->setTitle('Cat\'s Cradle');
+
 $kurt = new Entities\Author();
 $kurt->setName('Kurt', 'Vonnegut');
+$kurt->setFavouriteWork($cat);
+
+$cat->setAuthor($kurt);
 
 $breakfast = new Entities\Book();
 $breakfast->setTitle('Breakfast of Champions');
 $breakfast->setAuthor($kurt);
-
-$cat = new Entities\Book();
-$cat->setTitle('Cat\'s Cradle');
-$cat->setAuthor($kurt);
 
 $zhuang = new Entities\Author();
 $zhuang->setName('Zhuang', 'Zhou');

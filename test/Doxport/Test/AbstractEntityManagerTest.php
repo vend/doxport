@@ -48,6 +48,13 @@ abstract class AbstractEntityManagerTest extends AbstractTest
     protected $doxport;
 
     /**
+     * Whether to delete generated files at tearDown
+     *
+     * @var boolean
+     */
+    protected $cleanup = true;
+
+    /**
      * @return array<string>
      */
     protected static function getConnectionOptions()
@@ -217,12 +224,14 @@ abstract class AbstractEntityManagerTest extends AbstractTest
      */
     protected function tearDown()
     {
-        $factory = $this->doxport->getFileFactory();
-        $path    = $factory->getPath();
+        if ($this->doxport && $this->cleanup) {
+            $factory = $this->doxport->getFileFactory();
+            $path    = $factory->getPath();
 
-        if ($this->doxport && $factory->pathExists() && substr($path, 0, strlen(self::$root)) == self::$root) {
-            $fs      = new Filesystem();
-            $fs->remove($factory->getPath());
+            if ($factory->pathExists() && substr($path, 0, strlen(self::$root)) == self::$root) {
+                $fs = new Filesystem();
+                $fs->remove($path);
+            }
         }
 
         $this->em      = null;
