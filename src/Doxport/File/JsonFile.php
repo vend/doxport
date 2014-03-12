@@ -96,7 +96,7 @@ class JsonFile extends AsyncFile
     }
 
     /**
-     * @param object $object
+     * @param array   $object
      * @param boolean $allowBinary
      * @return string
      * @throws InvalidArgumentException
@@ -107,27 +107,36 @@ class JsonFile extends AsyncFile
 
         if ($last = json_last_error()) {
             switch ($last) {
-                case JSON_ERROR_DEPTH:
-                    throw new InvalidArgumentException('Maximum stack depth exceeded');
-                case JSON_ERROR_STATE_MISMATCH:
-                    throw new InvalidArgumentException('Underflow or the modes mismatch');
-                case JSON_ERROR_CTRL_CHAR:
-                    throw new InvalidArgumentException('Unexpected control character found');
-                case JSON_ERROR_SYNTAX:
-                    throw new InvalidArgumentException('Syntax error, malformed JSON');
                 case JSON_ERROR_NONE:
                     break;
-                default:
-                    throw new InvalidArgumentException('Unknown error in JSON encode');
+
+                case JSON_ERROR_DEPTH:
+                    throw new InvalidArgumentException('Maximum stack depth exceeded');
+                    break;
+                case JSON_ERROR_STATE_MISMATCH:
+                    throw new InvalidArgumentException('Underflow or the modes mismatch');
+                    break;
+                case JSON_ERROR_CTRL_CHAR:
+                    throw new InvalidArgumentException('Unexpected control character found');
+                    break;
+                case JSON_ERROR_SYNTAX:
+                    throw new InvalidArgumentException('Syntax error, malformed JSON');
+                    break;
+
                 case JSON_ERROR_UTF8:
                     if (!$allowBinary) {
                         throw new InvalidArgumentException(
                             'Invalid binary string in object to encode; JSON strings must be UTF-8'
                         );
-                    } else {
-                        $object = $this->encodeBinary($object);
-                        $json = $this->encode($object, false);
                     }
+
+                    $object = $this->encodeBinary($object);
+                    $json = $this->encode($object, false);
+                    break;
+
+                default:
+                    throw new InvalidArgumentException('Unknown error in JSON encode');
+                    break;
             }
         }
 
@@ -135,7 +144,7 @@ class JsonFile extends AsyncFile
     }
 
     /**
-     * @param array|stdClass $object
+     * @param array $object
      * @return array
      */
     protected function encodeBinary($object)
