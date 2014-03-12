@@ -3,10 +3,10 @@
 namespace Doxport\Test;
 
 use Doctrine\Common\Cache\ArrayCache;
-use Doctrine\Common\Persistence\Mapping\Driver\MappingDriver;
 use Doctrine\ORM\Configuration;
 use Doctrine\ORM\EntityManager;
-use Doctrine\ORM\Mapping\Driver\YamlDriver;
+use Doctrine\ORM\Tools\SchemaTool;
+use Doctrine\ORM\Tools\Setup;
 use LogicException;
 
 abstract class AbstractEntityManagerTest extends AbstractTest
@@ -14,107 +14,150 @@ abstract class AbstractEntityManagerTest extends AbstractTest
     /**
      * @var string
      */
-    protected $fixtures = 'Bookstore';
+    protected static $fixture = 'Library';
 
     /**
      * @var array<string>
      */
-    protected $fixtureTypes = [
-        'User'      => 'yaml',
-        'Bookstore' => 'annotation'
+    protected static $fixtureTypes = [
+        'Shop'    => 'yaml',
+        'Library' => 'annotation'
     ];
 
     /**
      * @var ArrayCache
      */
-    protected $cache;
+    protected static $cache;
 
     /**
      * @var Configuration
      */
-    protected $config;
-
+    protected static $config;
 
     /**
-     * @inheritDoc
+     * @var EntityManager
      */
-    protected function setUp()
-    {
-        $this->setUpCache();
-        $this->setUpConfig();
-    }
+    protected $em;
 
     /**
      * @return array<string>
      */
-    protected function getConnectionOptions()
+    protected static function getConnectionOptions()
     {
         return [
             'driver' => 'pdo_sqlite',
-            'path'   => 'database.sqlite'
+            'path'   => self::$root . DIRECTORY_SEPARATOR . 'database.sqlite'
         ];
+    }
+
+    /**
+     * @return Configuration
+     * @throws \LogicException
+     */
+    protected static function getConfig()
+    {
+        if (!self::$config) {
+            if (!self::$fixtureTypes[self::$fixture]) {
+                throw new LogicException('Unknown fixture type for fixture: ' . self::$fixture);
+            }
+
+            $type     = self::$fixtureTypes[self::$fixture];
+            $cache    = self::getCache();
+            $devMode  = true;
+            $proxyDir = 'build/tmp/proxies';
+
+            switch ($type) {
+                case 'annotation':
+                    self::$config = Setup::createAnnotationMetadataConfiguration(
+                        [
+                            self::getEntityDirectory()
+                        ],
+                        $devMode,
+                        $proxyDir,
+                        $cache
+                    );
+                    break;
+                case 'yaml':
+                    self::$config = Setup::createYAMLMetadataConfiguration(
+                        [
+                            self::getFixtureDirectory()
+                        ],
+                        $devMode,
+                        $proxyDir,
+                        $cache
+                    );
+                    break;
+                default:
+                    throw new LogicException('Invalid fixture type for fixture');
+            }
+        }
+
+        return self::$config;
+    }
+
+    /**
+     * @return string
+     */
+    protected static function getFixtureDirectory()
+    {
+        return __DIR__ . DIRECTORY_SEPARATOR
+            . self::$fixture;
+    }
+
+    /**
+     * @return string
+     */
+    protected static function getEntityDirectory()
+    {
+        return self::getFixtureDirectory() . DIRECTORY_SEPARATOR
+            . 'Entities';
+    }
+
+    /**
+     * @return string
+     */
+    protected static function getFixtureFile()
+    {
+        return self::getFixtureDirectory() . DIRECTORY_SEPARATOR
+            . 'fixtures.php';
+    }
+
+    /**
+     * @return ArrayCache
+     */
+    protected static function getCache()
+    {
+        return new ArrayCache();
     }
 
     /**
      * @return EntityManager
      */
-    protected function getEntityManager()
+    protected static function getEntityManager()
     {
-        return EntityManager::create($this->getConnectionOptions(), $this->config);
+        return EntityManager::create(self::getConnectionOptions(), self::getConfig());
+    }
+
+    public static function setUpBeforeClass()
+    {
+        $em = self::getEntityManager();
+        $classes = $em->getConfiguration()->getMetadataDriverImpl()->getAllClassNames();
+
+        $metadata = array_map(function ($class) use ($em) {
+            return $em->getClassMetadata($class);
+        }, $classes);
+
+        $tool = new SchemaTool($em);
+        $tool->dropDatabase();
+        $tool->createSchema($metadata);
     }
 
     /**
-     * @return void
+     * @inheritDoc
      */
-    protected function setUpCache()
+    public function setUp()
     {
-        $this->cache = new ArrayCache();
-    }
-
-    /**
-     * @return void
-     */
-    protected function setUpConfig()
-    {
-        $this->config = new Configuration();
-
-        $this->config->setMetadataCacheImpl($this->cache);
-        $this->config->setQueryCacheImpl($this->cache);
-
-        $this->config->setMetadataDriverImpl($this->getMetadataImplementation());
-
-        $this->config->setProxyDir('build/tmp/proxies');
-        $this->config->setProxyNamespace('Doxport\Test\Proxies');
-        
-        $this->config->setAutoGenerateProxyClasses(true);
-    }
-
-    /**
-     * @return MappingDriver
-     */
-    protected function getMetadataImplementation()
-    {
-        $type = $this->fixtureTypes[$this->fixtures];
-
-        $fixtureDir = __DIR__ . DIRECTORY_SEPARATOR
-            . 'Fixtures' . DIRECTORY_SEPARATOR
-            . $this->fixtures;
-
-        $entityDir = $fixtureDir . DIRECTORY_SEPARATOR
-            . 'Entities';
-
-        switch ($type) {
-            case 'annotation':
-                return $this->config->newDefaultAnnotationDriver($entityDir);
-            case 'yaml':
-                $driver = new YamlDriver([$fixtureDir]);
-                return $driver;
-            default:
-                throw new LogicException(
-                    'Cannot get metadata implementation for unknown fixture type'
-                );
-        }
-
+        $this->em = self::getEntityManager();
     }
 
     /**
@@ -122,7 +165,6 @@ abstract class AbstractEntityManagerTest extends AbstractTest
      */
     protected function tearDown()
     {
-        $this->cache  = null;
-        $this->config = null;
+        $this->em = null;
     }
 }

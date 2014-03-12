@@ -1,0 +1,20 @@
+Doxport\Test\PetStore\Entities\Sale:
+  type: entity
+  id:
+    id:
+      type: integer
+      generator:
+        strategy: AUTO
+  fields:
+    name:
+      type:   string
+      length: 50
+  manyToOne:
+    customer:
+      targetEntity: Customer
+      joinColumn:
+        name:                 customer_id
+        referencedColumnName: id
+   manyToMany:
+     products:
+       targetEntity: Product

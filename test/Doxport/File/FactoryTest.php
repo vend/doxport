@@ -68,7 +68,7 @@ class FactoryTest extends AbstractTest
     public function testPathExists()
     {
         $instance = new Factory();
-        $instance->setPath($this->root);
+        $instance->setPath(self::$root);
         $instance->join('testPathExists' . uniqid(time(), true));
 
         $this->assertFalse($instance->pathExists());

@@ -23,7 +23,7 @@ abstract class AsyncFileTest extends AbstractTest
      */
     protected function setUp()
     {
-        $this->file = $this->root . \DIRECTORY_SEPARATOR . str_replace('\\', '', get_class($this));
+        $this->file = self::$root . \DIRECTORY_SEPARATOR . str_replace('\\', '', get_class($this));
         @unlink($this->file);
     }
 
@@ -53,7 +53,7 @@ abstract class AsyncFileTest extends AbstractTest
     public function testNoPathDir()
     {
         $file = $this->getInstance(
-            $this->root . DIRECTORY_SEPARATOR
+            self::$root . DIRECTORY_SEPARATOR
             . uniqid(time(), true) . DIRECTORY_SEPARATOR
             . 'testFile'
         );

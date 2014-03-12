@@ -6,18 +6,27 @@ use Doctrine\ORM\Mapping as ORM;
 use Doxport\Annotation as Export;
 
 /**
- * @ORM\Entity
+ * @Table()
+ * @Entity()
  */
 class Book
 {
+    /**
+     * @Id
+     * @GeneratedValue(strategy="NONE")
+     * @Column(type="integer")
+     */
     protected $id;
 
+    /**
+     * @Column(name="name", type="string", length=200)
+     */
     protected $name;
 
     /**
      * @var Author
      *
-     * @ORM\ManyToOne
+     * @ManyToOne(targetEntity="Author")
      */
     protected $author;
 }
