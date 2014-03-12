@@ -73,12 +73,14 @@ class JsonFileTest extends AsyncFileTest
     public function testWriteObjectBinary()
     {
         $str = '';
+
         for ($i = 0; $i <= 255; $i++) {
             $str .= chr($i);
         }
 
-        $obj = new stdClass;
-        $obj->binary = $str;
+        $obj = [
+            'binary' => $str
+        ];
 
         $instance = $this->getInstance();
         $instance->writeObject($obj);

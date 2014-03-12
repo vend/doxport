@@ -153,8 +153,7 @@ class JsonFile extends AsyncFile
             }
         }
 
-        $object->{self::ENCODED_KEY} = $encoded;
-
+        $object[self::ENCODED_KEY] = $encoded;
         return $object;
     }
 
