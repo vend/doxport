@@ -3,6 +3,7 @@
 namespace Doxport\Pass;
 
 use Doxport\Action\Base\Action;
+use Doxport\Action\Base\QueryAction;
 use Doxport\EntityGraph;
 use Doxport\Metadata\Driver;
 use Fhaculty\Graph\Algorithm\ShortestPath\BreadthFirst;
@@ -18,7 +19,7 @@ class JoinPass extends Pass
     protected $vertices;
 
     /**
-     * @var Action
+     * @var QueryAction
      */
     protected $action;
 
