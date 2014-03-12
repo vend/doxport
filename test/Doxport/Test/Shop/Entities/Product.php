@@ -6,4 +6,5 @@ class Product
 {
     private $id;
     private $name;
+    private $parent;
 }

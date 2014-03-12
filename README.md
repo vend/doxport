@@ -137,6 +137,24 @@ Name | Type | Use
 `Exclude` | Property | To exclude a single relation from consideration. Useful for breaking cycles in the constraint graph, where entity A relates to B *and* B relates back to A via a different relation.
 `Clear` | Property | Before a delete operation, these columns will be set to null on the entity, and that change persisted. The existing values will be written to the output directory. After an import operation, these saved values will be updated back onto the entity.
 
+To use these annotations, you'll first need to register the annotation namespace with the registry. You can do that like this:
+
+```php
+AnnotationRegistry::registerAutoloadNamespaces([
+    'Doxport\Annotation' => 'path/to/Doxport'
+]);
+```
+
+The path to use is the relative path to the root Doxport namespace. If you don't know where this is, you can use a Composer autoloader instance to help find it.
+
+```php
+$loader = require 'vendor/autoload.php'; # Composer autoloader
+
+AnnotationRegistry::registerAutoloadNamespaces([
+    'Doxport\Annotation' => $loader->getPrefixes()['Doxport\\'][0]
+]);
+```
+
 ## Output
 
 ### Directory

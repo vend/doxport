@@ -74,7 +74,8 @@ abstract class AbstractEntityManagerTest extends AbstractTest
                         ],
                         $devMode,
                         $proxyDir,
-                        $cache
+                        $cache,
+                        false
                     );
                     break;
                 case 'yaml':
@@ -147,15 +148,19 @@ abstract class AbstractEntityManagerTest extends AbstractTest
 
         $em = self::getEntityManager();
 
-        $classes = $em->getConfiguration()->getMetadataDriverImpl()->getAllClassNames();
-
         $metadata = array_map(function ($class) use ($em) {
             return $em->getClassMetadata($class);
-        }, $classes);
+        }, $em->getConfiguration()->getMetadataDriverImpl()->getAllClassNames());
 
+        // Create the schema
         $tool = new SchemaTool($em);
         $tool->dropDatabase();
         $tool->createSchema($metadata);
+
+        // Load fixtures if there are any
+        if (is_readable(self::getFixtureFile())) {
+            include self::getFixtureFile();
+        }
     }
 
     /**

@@ -82,8 +82,14 @@ class DoxportFunctionalTest extends AbstractEntityManagerTest
     protected function getDoxport()
     {
         $instance = new Doxport($this->em);
+
+        $factory = $instance->getFileFactory();
+        $factory->setPath(self::$root);
+        $factory->join(uniqid(time(), true));
+        $factory->createPath();
+
         $instance->setLogger($this->getMockLogger());
-        $instance->setEntity('Doxport\Test\Fixtures\Bookstore\Entities\Book');
+        $instance->setEntity('Doxport\Test\Fixtures\Bookstore\Entities\Author');
         $instance->setOption('root', true);
         $instance->setAction($this->getAction($instance));
 
@@ -97,9 +103,11 @@ class DoxportFunctionalTest extends AbstractEntityManagerTest
     protected function getAction(Doxport $doxport)
     {
         $action = new Export($this->em);
+
         $action->setMetadataDriver($doxport->getMetadataDriver());
         $action->setFileFactory($doxport->getFileFactory());
         $action->setLogger($doxport->getLogger());
+        $action->addRootCriteria('firstName', 'Kurt');
 
         return $action;
     }
