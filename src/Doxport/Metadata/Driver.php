@@ -2,15 +2,10 @@
 
 namespace Doxport\Metadata;
 
-use Doctrine\Common\Persistence\Mapping\Driver\MappingDriver;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Mapping\ClassMetadata;
 use Doctrine\ORM\Mapping\Driver\AnnotationDriver;
-use Doctrine\DBAL\Driver\Statement;
-use InvalidArgumentException;
 use \LogicException;
-use Doxport\Exception\UnimplementedException;
-use PDO;
 
 class Driver
 {
@@ -18,11 +13,6 @@ class Driver
      * @var EntityManager
      */
     protected $em;
-
-    /**
-     * @var Statement
-     */
-    protected $coveringStatement;
 
     /**
      * @var Entity[]
@@ -196,30 +186,30 @@ class Driver
      * @param string $sourceEntity
      * @param array $joinColumnFieldNames
      * @return bool
-     * @throws InvalidArgumentException
-     * @throws UnimplementedException
-     * @todo Multiple join columns
      */
     public function isCovered($sourceEntity, $joinColumnFieldNames)
     {
-        if (count($joinColumnFieldNames) > 1) {
-            throw new UnimplementedException('Cannot yet handle more than one join column');
+        // Reindex numerically
+        $search   = array_values($joinColumnFieldNames);
+
+        // Get table and list of indexes
+        $table    = $this->getEntityMetadata($sourceEntity)->getClassMetadata()->getTableName();
+        $indexes  = $this->em->getConnection()->getSchemaManager()->listTableIndexes($table);
+
+        // Look for an index with all of $search
+        foreach ($indexes as $index) {
+            $columns = $index->getColumns();
+
+            foreach ($search as $i => $name) {
+                if ($columns[$i] != $name) {
+                    continue 2;
+                }
+            }
+
+            return true;
         }
 
-        $table = $this->getEntityMetadata($sourceEntity)->getClassMetadata()->getTableName();
-
-        if (strpbrk($table, '\\` ') !== false) {
-            throw new InvalidArgumentException('Cannot handle character in table name');
-        }
-
-        $column = array_pop($joinColumnFieldNames);
-
-        // No escaping of table name possible, no support in DBAL :-(
-        $sql = 'SHOW INDEXES FROM `' . $table . '` WHERE Column_name = ? AND Seq_in_index = 1';
-
-        $result = $this->em->getConnection()->executeQuery($sql, [$column]);
-
-        return $result && $result->rowCount() > 0;
+        return false;
     }
 
     /**
