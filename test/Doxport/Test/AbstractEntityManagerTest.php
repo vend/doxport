@@ -7,6 +7,7 @@ use Doctrine\ORM\Configuration;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Tools\SchemaTool;
 use Doctrine\ORM\Tools\Setup;
+use Doxport\Doxport;
 use LogicException;
 
 abstract class AbstractEntityManagerTest extends AbstractTest
@@ -169,6 +170,22 @@ abstract class AbstractEntityManagerTest extends AbstractTest
     public function setUp()
     {
         $this->em = self::getEntityManager();
+    }
+
+    /**
+     * @return Doxport
+     */
+    protected function getDoxport()
+    {
+        $instance = new Doxport($this->em);
+        $instance->setLogger($this->getMockLogger());
+
+        $factory = $instance->getFileFactory();
+        $factory->setPath(self::$root);
+        $factory->join(uniqid(time(), true));
+        $factory->createPath();
+
+        return $instance;
     }
 
     /**

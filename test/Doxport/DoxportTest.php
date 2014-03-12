@@ -39,4 +39,28 @@ class DoxportTest extends AbstractMockTest
         $doxport = new Doxport($this->getMockEntityManager());
         $doxport->setLogger($this->getMockLogger());
     }
+
+    /**
+     * @expectedException \LogicException
+     */
+    public function testNoEntityType()
+    {
+        $instance = new Doxport($this->getMockEntityManager());
+        $instance->setLogger($this->getMockLogger());
+
+        $instance->getConstraintPass();
+    }
+
+    /**
+     * @expectedException \LogicException
+     */
+    public function testNoAction()
+    {
+        $instance = new Doxport($this->getMockEntityManager());
+        $instance->setLogger($this->getMockLogger());
+        $instance->setEntity('Doxport\Test\Fixtures\Bookstore\Entities\Book');
+        $instance->setOption('root', true);
+
+        $instance->getConstraintPass();
+    }
 }

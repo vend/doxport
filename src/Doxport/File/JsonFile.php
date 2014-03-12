@@ -74,7 +74,7 @@ class JsonFile extends AsyncFile
     /**
      * Writes the given object to the file
      *
-     * @param stdClass $object
+     * @param array $object
      * @return void
      * @throws InvalidArgumentException
      */
@@ -112,16 +112,12 @@ class JsonFile extends AsyncFile
 
                 case JSON_ERROR_DEPTH:
                     throw new InvalidArgumentException('Maximum stack depth exceeded');
-                    break;
                 case JSON_ERROR_STATE_MISMATCH:
                     throw new InvalidArgumentException('Underflow or the modes mismatch');
-                    break;
                 case JSON_ERROR_CTRL_CHAR:
                     throw new InvalidArgumentException('Unexpected control character found');
-                    break;
                 case JSON_ERROR_SYNTAX:
                     throw new InvalidArgumentException('Syntax error, malformed JSON');
-                    break;
 
                 case JSON_ERROR_UTF8:
                     if (!$allowBinary) {
@@ -136,7 +132,6 @@ class JsonFile extends AsyncFile
 
                 default:
                     throw new InvalidArgumentException('Unknown error in JSON encode');
-                    break;
             }
         }
 
