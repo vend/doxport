@@ -7,8 +7,10 @@ use Doctrine\ORM\Configuration;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Tools\SchemaTool;
 use Doctrine\ORM\Tools\Setup;
+use Doxport\Action\Base\Action;
 use Doxport\Doxport;
 use LogicException;
+use Symfony\Component\Filesystem\Filesystem;
 
 abstract class AbstractEntityManagerTest extends AbstractTest
 {
@@ -39,6 +41,11 @@ abstract class AbstractEntityManagerTest extends AbstractTest
      * @var EntityManager
      */
     protected $em;
+
+    /**
+     * @var Doxport
+     */
+    protected $doxport;
 
     /**
      * @return array<string>
@@ -169,7 +176,8 @@ abstract class AbstractEntityManagerTest extends AbstractTest
      */
     public function setUp()
     {
-        $this->em = self::getEntityManager();
+        $this->em      = self::getEntityManager();
+        $this->doxport = $this->getDoxport();
     }
 
     /**
@@ -177,22 +185,47 @@ abstract class AbstractEntityManagerTest extends AbstractTest
      */
     protected function getDoxport()
     {
-        $instance = new Doxport($this->em);
-        $instance->setLogger($this->getMockLogger());
+        if (empty($this->doxport)) {
+            $instance = new Doxport($this->em);
+            $instance->setLogger($this->getMockLogger());
 
-        $factory = $instance->getFileFactory();
-        $factory->setPath(self::$root);
-        $factory->join(uniqid(time(), true));
-        $factory->createPath();
+            $instance->getFileFactory()
+                ->setPath(self::$root)
+                ->join(uniqid(get_class($this), true));
 
-        return $instance;
+            $action = $this->getAction($instance);
+            $action->setMetadataDriver($instance->getMetadataDriver());
+            $action->setFileFactory($instance->getFileFactory());
+            $action->setLogger($instance->getLogger());
+
+            $instance->setAction($action);
+
+            $this->doxport = $instance;
+        }
+
+        return $this->doxport;
     }
+
+    /**
+     * @param Doxport $doxport
+     * @return Action
+     */
+    abstract protected function getAction(Doxport $doxport);
 
     /**
      * @inheritDoc
      */
     protected function tearDown()
     {
-        $this->em = null;
+        $factory = $this->doxport->getFileFactory();
+        $path    = $factory->getPath();
+
+        if ($this->doxport && $factory->pathExists() && substr($path, 0, strlen(self::$root)) == self::$root) {
+            $fs      = new Filesystem();
+            $fs->remove($factory->getPath());
+        }
+
+        $this->em      = null;
+        $this->doxport = null;
     }
 }

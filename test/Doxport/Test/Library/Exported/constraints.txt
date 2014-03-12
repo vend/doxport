@@ -1,0 +1,2 @@
+Doxport\Test\Fixtures\Bookstore\Entities\Book
+Doxport\Test\Fixtures\Bookstore\Entities\Author

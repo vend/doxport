@@ -29,6 +29,7 @@
         "clue/graph":                   "0.7.*",
         "doctrine/orm":                 "2.4.*",
         "symfony/console":              "2.4.*",
+        "symfony/filesystem":           "2.4.*",
         "psr/log":                      "1.0.*"
     },
 

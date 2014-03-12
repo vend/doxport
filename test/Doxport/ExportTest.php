@@ -2,11 +2,10 @@
 
 namespace Doxport;
 
-use Doxport\Action\Base\Action;
 use Doxport\Action\Export;
-use Doxport\Test\AbstractActionTest;
+use Doxport\Test\AbstractQueryActionTest;
 
-class DoxportExportTest extends AbstractActionTest
+class ExportTest extends AbstractQueryActionTest
 {
     /**
      * @var string
@@ -27,9 +26,9 @@ class DoxportExportTest extends AbstractActionTest
     }
 
     /**
-     * @return Action
+     * @inheritDoc
      */
-    protected function getAction()
+    protected function getAction(Doxport $doxport)
     {
         $action = new Export($this->em);
         $action->addRootCriteria('firstName', 'Kurt');

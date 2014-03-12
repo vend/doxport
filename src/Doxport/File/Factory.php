@@ -53,11 +53,12 @@ class Factory
     /**
      * @param string $format
      * @param string $class
-     * @return void
+     * @return self
      */
     public function addFormat($format, $class)
     {
         $this->formats[$format] = $class;
+        return $this;
     }
 
     /**
@@ -71,6 +72,7 @@ class Factory
     /**
      * @param string $format
      * @throws InvalidArgumentException
+     * @return self
      */
     public function setFormat($format)
     {
@@ -79,24 +81,27 @@ class Factory
         }
 
         $this->format = $format;
+        return $this;
     }
 
     /**
      * @param string $path
-     * @return void
+     * @return self
      */
     public function setPath($path)
     {
         $this->path = $path;
+        return $this;
     }
 
     /**
      * @param string $path
-     * @return string
+     * @return self
      */
     public function join($path)
     {
-        return ($this->path .= \DIRECTORY_SEPARATOR . $path);
+        $this->path .= \DIRECTORY_SEPARATOR . $path;
+        return $this;
     }
 
     /**

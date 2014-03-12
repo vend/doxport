@@ -141,7 +141,7 @@ class Import extends Action
 
             $entity = $this->em->find($entityName, $update['identifiers']);
 
-            if (!$entity) {
+            if (empty($entity)) {
                 $this->logger->warning('Cannot find {entity} to update, skipping update', ['entity' => $entityName]);
             }
 
@@ -156,7 +156,10 @@ class Import extends Action
                     $reference = $this->em->getReference($association['targetEntity'], $value);
                     $class->setFieldValue($entity, $association['fieldName'], $reference);
                 } else {
-                    $this->logger->error('Could not fill in {field} on {entity}: unknown field', ['field' => $field, 'entity' => $entityName]);
+                    $this->logger->error(
+                        'Could not fill in {field} on {entity}: unknown field',
+                        ['field' => $field, 'entity' => $entityName]
+                    );
                 }
             }
 

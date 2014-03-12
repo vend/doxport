@@ -2,11 +2,10 @@
 
 namespace Doxport;
 
-use Doxport\Action\Base\Action;
 use Doxport\Action\Delete;
-use Doxport\Test\AbstractActionTest;
+use Doxport\Test\AbstractQueryActionTest;
 
-class DoxportDeleteTest extends AbstractActionTest
+class DeleteTest extends AbstractQueryActionTest
 {
     /**
      * @var string
@@ -27,9 +26,9 @@ class DoxportDeleteTest extends AbstractActionTest
     }
 
     /**
-     * @return Action
+     * @inheritDoc
      */
-    protected function getAction()
+    protected function getAction(Doxport $doxport)
     {
         $action = new Delete($this->em);
         $action->addRootCriteria('firstName', 'Zhuang');
