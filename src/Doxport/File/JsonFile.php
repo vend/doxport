@@ -103,7 +103,7 @@ class JsonFile extends AsyncFile
      */
     protected function encode($object, $allowBinary = true)
     {
-        $json = json_encode($object);
+        $json = @json_encode($object);
 
         if ($last = json_last_error()) {
             switch ($last) {
