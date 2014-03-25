@@ -169,7 +169,7 @@ abstract class AbstractEntityManagerTest extends AbstractTest
 
             $instance->getFileFactory()
                 ->setPath(self::$root)
-                ->join(uniqid(get_class($this), true));
+                ->join(uniqid(str_replace('\\', '-', get_class($this)), true));
 
             $action = $this->getAction($instance);
             $action->setMetadataDriver($instance->getMetadataDriver());
