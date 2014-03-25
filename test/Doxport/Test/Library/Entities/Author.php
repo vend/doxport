@@ -2,6 +2,7 @@
 
 namespace Doxport\Test\Fixtures\Library\Entities;
 
+use DateTime;
 use Doctrine\ORM\Mapping as ORM;
 use Doxport\Annotation as Export;
 
@@ -39,6 +40,19 @@ class Author
      * @ORM\OneToOne(targetEntity="Book")
      */
     protected $favoriteWork;
+
+    /**
+     * @ORM\Column(type="datetime")
+     */
+    protected $createdAt;
+
+    /**
+     * Constructor
+     */
+    public function __construct()
+    {
+        $this->createdAt = new DateTime();
+    }
 
     /**
      * @param string $first
