@@ -16,12 +16,13 @@ class CsvFileTest extends AbstractFileTest
 
     public function testWriteObject()
     {
-        $obj = new stdClass;
-        $obj->first = 'hello';
-        $obj->second = 'world';
+        $array = [
+            'first' => 'hello',
+            'second' => 'world'
+        ];
 
         $instance = $this->getInstance();
-        $instance->writeObject($obj);
+        $instance->writeObject($array);
         $instance->close();
 
         $other = $this->getInstance();
