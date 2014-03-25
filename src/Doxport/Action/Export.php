@@ -75,6 +75,11 @@ class Export extends QueryAction
             $this->logger->notice('No results.');
         }
 
+        if ($clearFile) {
+            $this->flush($clearFile);
+            $clearFile->close();
+        }
+
         $this->logger->notice('Done with {target}', ['target' => $walk->getTargetId()]);
         $file->close();
     }
