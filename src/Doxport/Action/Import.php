@@ -75,6 +75,14 @@ class Import extends Action
         $this->logger->info('Secondary pass done');
     }
 
+    protected function debugMemory()
+    {
+        $this->logger->notice('Memory USAGE: {memory}', ['memory' => memory_get_usage()]);
+        $this->logger->notice('Memory USAGE_REAL: {memory}', ['memory' => memory_get_usage(true)]);
+        $this->logger->notice('Memory PEAK: {memory}', ['memory' => memory_get_peak_usage()]);
+        $this->logger->notice('Memory PEAK_REAL: {memory}', ['memory' => memory_get_peak_usage(true)]);
+    }
+
     /**
      * Persists the given entities
      *
@@ -84,6 +92,7 @@ class Import extends Action
     protected function process($entityName, array $entities)
     {
         $this->logger->notice('Processing import of {entityName}', ['entityName' => $entityName]);
+        $this->debugMemory();
 
         if (!$entities) {
             $this->logger->notice('  No entities to process');
@@ -96,31 +105,49 @@ class Import extends Action
         $chunk = 0;
 
         foreach ($entities as $values) {
-            $entity = $helper->toEntity($entityName, $values);
-
-            // Save entity
-            $this->em->persist($entity);
+            $this->processEntity($helper, $entityName, $values);
 
             $i++;
             $chunk++;
 
             if ($chunk > self::CHUNK) {
-                $this->logger->notice('  Partial checkpoint flush...', ['i' => $i]);
-
-                $this->em->flush();
-                $this->em->clear();
-
-                $this->logger->notice('  Partial changes flushed');
+                $this->logger->notice('  Partial checkpoint.');
+                $this->flush();
                 $chunk = 0;
             }
         }
 
-        $this->logger->notice('  {i} entities processed. Flushing entity manager...', ['i' => $i]);
+        $this->logger->notice('  {i} entities processed. ', ['i' => $i]);
+        $this->flush();
+    }
+
+    /**
+     * Flushes the entity manager
+     */
+    protected function flush()
+    {
+        $this->logger->notice('  Flushing entity manager...');
 
         $this->em->flush();
         $this->em->clear();
 
-        $this->logger->notice('  Changes flushed');
+        $this->logger->notice('    changes flushed.');
+        $this->debugMemory();
+    }
+
+    /**
+     * Processes an entity into the entityManager
+     *
+     * @param EntityArrayHelper $helper
+     * @param string            $entityName
+     * @param array             $values
+     */
+    protected function processEntity(EntityArrayHelper $helper, $entityName, array $values)
+    {
+        $entity = $helper->toEntity($entityName, $values);
+
+        // Save entity
+        $this->em->persist($entity);
     }
 
     /**
@@ -167,6 +194,7 @@ class Import extends Action
         }
 
         $this->em->flush();
+        $this->em->clear();
     }
 
     /**

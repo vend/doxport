@@ -7,7 +7,7 @@ class AliasGenerator
     /**
      * Table alias map
      *
-     * @var array<string => string>
+     * @var array<string>
      */
     protected $aliases = [];
 
