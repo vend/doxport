@@ -18,11 +18,18 @@ class JsonStreamFile extends AbstractJsonFile implements JSONChunkProcessor
     /**
      * Current chunk of JSON content being processed
      *
-     * Coverted from $chunk -> $jsonChunk by JSONCharInputReader
+     * Converted from $chunk -> $jsonChunk by $reader
      *
      * @var string
      */
     protected $jsonChunk = '';
+
+    /**
+     * The stream JSON reader we use to pull chunks out of the stream
+     *
+     * @var \janeklb\json\JSONCharInputReader
+     */
+    protected $reader;
 
     /**
      * @inheritDoc
