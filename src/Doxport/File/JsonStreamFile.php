@@ -11,9 +11,11 @@ class JsonStreamFile extends AbstractJsonFile implements JSONChunkProcessor
     /**
      * Current chunk of file content being processed
      *
-     * @var string
+     * Character array (the strings in this array are all of length 1)
+     *
+     * @var array<string>
      */
-    protected $chunk = '';
+    protected $chunk = [];
 
     /**
      * Current chunk of JSON content being processed
@@ -22,7 +24,7 @@ class JsonStreamFile extends AbstractJsonFile implements JSONChunkProcessor
      *
      * @var string
      */
-    protected $jsonChunk = '';
+    protected $jsonChunk = null;
 
     /**
      * The stream JSON reader we use to pull chunks out of the stream
@@ -52,36 +54,36 @@ class JsonStreamFile extends AbstractJsonFile implements JSONChunkProcessor
     public function readObject()
     {
         if (!$this->file) {
-            throw new IOException('Cannot read all from file: file is not open');
+            throw new IOException('Cannot read object from file: file is not open');
         }
 
-        while (!$this->jsonChunk) {
-            if (!$this->chunk) {
-                $this->chunk = $this->readChunk();
+        while (true) {
+            if (!count($this->chunk)) {
+                $read = $this->readChunk();
+
+                if ($read === false || $read === '') {
+                    if (!feof($this->file)) {
+                        throw new IOException('End of stream processing, but not at end of file?!');
+                    }
+
+                    return false;
+                }
+
+                $this->chunk = str_split($read);
             }
 
-            if ($this->chunk === '') {
-                return false; // No next object available
-            }
+            $this->reader->readChar(array_shift($this->chunk));
 
-            // Dequeue a char
-            $char = substr($this->chunk, 0, 1);
-            $this->chunk = substr($this->chunk, 1);
-
-            // Pass to char input reader
-            $this->reader->readChar($char);
-
-            if ($this->jsonChunk) {
+            if ($this->jsonChunk !== null) {
                 $decoded = $this->decode(json_decode($this->jsonChunk, true));
-                $this->jsonChunk = false;
-
+                $this->jsonChunk = null;
                 return $decoded;
             }
         }
     }
 
     /**
-     * Receives a valid JSON "chunk" when the processor has recieved enough
+     * Receives a valid JSON "chunk" when the processor has received enough
      * chars
      *
      * @param string $jsonChunk a chunk of JSON data

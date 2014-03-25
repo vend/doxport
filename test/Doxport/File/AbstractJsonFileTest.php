@@ -49,6 +49,10 @@ abstract class AbstractJsonFileTest extends AbstractFileTest
         $obj = new stdClass;
         $obj->first  = 'hello';
         $obj->second = 'world';
+        $obj->third  = '00000';
+        $obj->fourth = '0';
+        $obj->fifth  = 0;
+        $obj->sixth  = false;
 
         $instance = $this->getInstance();
         $instance->writeObject($obj);
@@ -60,7 +64,7 @@ abstract class AbstractJsonFileTest extends AbstractFileTest
         $other->close();
 
         $this->assertEquals(
-            '[{"first":"hello","second":"world"}]',
+            '[{"first":"hello","second":"world","third":"00000","fourth":"0","fifth":0,"sixth":false}]',
             $string,
             'Single write then read JSON file'
         );
@@ -97,13 +101,13 @@ abstract class AbstractJsonFileTest extends AbstractFileTest
 
         $file = $this->getInstance($path);
 
-        $object = $file->readObject();
-        $this->assertArrayHasKey('title', $object);
+        $book = $file->readObject();
+        $this->assertArrayHasKey('title', $book);
 
-        $object = $file->readObject();
-        $this->assertArrayHasKey('title', $object);
+        $book = $file->readObject();
+        $this->assertArrayHasKey('title', $book);
 
-        $object = $file->readObject();
-        $this->assertFalse($object);
+        $book = $file->readObject();
+        $this->assertFalse($book);
     }
 }
