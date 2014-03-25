@@ -58,21 +58,17 @@ class JsonStreamFile extends AbstractJsonFile implements JSONChunkProcessor
         }
 
         while (true) {
-            if (!count($this->chunk)) {
-                $read = $this->readChunk();
+            $c = $this->readChunk(1);
 
-                if ($read === false || $read === '') {
-                    if (!feof($this->file)) {
-                        throw new IOException('End of stream processing, but not at end of file?!');
-                    }
-
-                    return false;
+            if ($c === false || $c === '') {
+                if (!feof($this->file)) {
+                    throw new IOException('End of stream processing, but not at end of file?!');
                 }
 
-                $this->chunk = str_split($read);
+                return false;
             }
 
-            $this->reader->readChar(array_shift($this->chunk));
+            $this->reader->readChar($c);
 
             if ($this->jsonChunk !== null) {
                 $decoded = $this->decode(json_decode($this->jsonChunk, true));

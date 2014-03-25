@@ -13,7 +13,6 @@ class Factory
      * @var array<string>
      */
     protected $formats = [
-        'json' => 'Doxport\File\JsonStreamFile',
         'csv'  => 'Doxport\File\CsvFile'
     ];
 
@@ -33,13 +32,20 @@ class Factory
      * @param string        $format
      * @param array<string> $formats
      */
-    public function __construct($format = 'json', array $formats = null)
+    public function __construct($format = null)
     {
-        if ($formats) {
-            $this->formats = $formats;
-        }
+        $this->addFormat('json', function ($file) {
+            if (is_readable($file) && filesize($file) > 100000) {
+                return 'Doxport\File\JsonStreamFile';
+            }
+            return 'Doxport\File\JsonWholeFile';
+        });
 
-        $this->setFormat($format);
+        if ($format) {
+            $this->setFormat($format);
+        } else {
+            $this->setFormat('json');
+        }
     }
 
     /**
@@ -51,13 +57,13 @@ class Factory
     }
 
     /**
-     * @param string $format
-     * @param string $class
+     * @param string          $format
+     * @param string|callable $classOrClosure
      * @return self
      */
-    public function addFormat($format, $class)
+    public function addFormat($format, $classOrClosure)
     {
-        $this->formats[$format] = $class;
+        $this->formats[$format] = $classOrClosure;
         return $this;
     }
 
@@ -151,15 +157,21 @@ class Factory
     }
 
     /**
+     * @param string $file Path
      * @return string
      */
-    protected function getClass()
+    protected function getClass($file)
     {
-        return $this->formats[$this->format];
+        if (is_callable($this->formats[$this->format])) {
+            return $this->formats[$this->format]($file);
+        } else {
+            return $this->formats[$this->format];
+        }
     }
 
     /**
      * @param string $name
+     * @throws InvalidArgumentException
      * @return AbstractFile
      */
     public function getFile($name)
@@ -168,7 +180,9 @@ class Factory
             throw new InvalidArgumentException('Could not get file with no name');
         }
 
-        $class = $this->getClass();
-        return new $class($this->getPathForFile($name));
+        $path  = $this->getPathForFile($name);
+        $class = $this->getClass($path);
+
+        return new $class($path);
     }
 }

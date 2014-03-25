@@ -102,9 +102,13 @@ abstract class AbstractJsonFileTest extends AbstractFileTest
         $file = $this->getInstance($path);
 
         $book = $file->readObject();
+        $this->assertArrayHasKey('id', $book);
+        $this->assertArrayHasKey('author_id', $book);
         $this->assertArrayHasKey('title', $book);
 
         $book = $file->readObject();
+        $this->assertArrayHasKey('id', $book);
+        $this->assertArrayHasKey('author_id', $book);
         $this->assertArrayHasKey('title', $book);
 
         $book = $file->readObject();

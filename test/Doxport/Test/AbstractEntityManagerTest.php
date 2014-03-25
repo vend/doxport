@@ -168,6 +168,7 @@ abstract class AbstractEntityManagerTest extends AbstractTest
             $instance->setLogger($this->getMockLogger());
 
             $instance->getFileFactory()
+                ->setFormat('json')
                 ->setPath(self::$root)
                 ->join(uniqid(str_replace('\\', '-', get_class($this)), true));
 
