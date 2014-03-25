@@ -24,7 +24,7 @@ abstract class AbstractFile
     /**
      * Writes the given object to the file
      *
-     * @param \stdClass|array $object
+     * @param array $object
      * @return void
      */
     abstract public function writeObject($object);

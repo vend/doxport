@@ -9,15 +9,11 @@ class CsvFile extends AbstractFile
     /**
      * Writes the given object to the file
      *
-     * @param \stdClass|array $object
+     * @param array $object
      * @return int
      */
     public function writeObject($object)
     {
-        if ($object instanceof \stdClass) {
-            $object = (array)$object;
-        }
-
         return fputcsv($this->file, $object);
     }
 

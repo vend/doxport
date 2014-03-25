@@ -165,8 +165,8 @@ abstract class AbstractJsonFile extends AbstractFile
     }
 
     /**
-     * @param array|stdClass $object
-     * @return stdClass
+     * @param array $object
+     * @return array
      */
     protected function decode($object)
     {
