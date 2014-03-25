@@ -92,10 +92,19 @@ class Import extends Action
 
     protected function debugMemory()
     {
-        $this->logger->notice('Memory USAGE: {memory}', ['memory' => memory_get_usage()]);
-        $this->logger->notice('Memory USAGE_REAL: {memory}', ['memory' => memory_get_usage(true)]);
-        $this->logger->notice('Memory PEAK: {memory}', ['memory' => memory_get_peak_usage()]);
-        $this->logger->notice('Memory PEAK_REAL: {memory}', ['memory' => memory_get_peak_usage(true)]);
+        $a = [
+            memory_get_usage(),
+            memory_get_peak_usage(),
+            round(100 * memory_get_usage() / memory_get_peak_usage()),
+            round(100 * memory_get_peak_usage() / 160000000),
+        ];
+
+        $s = '';
+        foreach ($a as $v) {
+            $s .= str_pad(round($v), 8, ' ');
+        }
+
+        $this->logger->notice('Memory: ' . $s);
     }
 
     /**
