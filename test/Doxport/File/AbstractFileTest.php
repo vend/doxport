@@ -4,7 +4,7 @@ namespace Doxport\File;
 
 use Doxport\Test\AbstractTest;
 
-abstract class AsyncFileTest extends AbstractTest
+abstract class AbstractFileTest extends AbstractTest
 {
     protected $file;
 
@@ -17,6 +17,11 @@ abstract class AsyncFileTest extends AbstractTest
      * @return void
      */
     abstract public function testWriteObject();
+
+    /**
+     * @return void
+     */
+    abstract public function testReadObject();
 
     /**
      * @inheritDoc
@@ -37,7 +42,7 @@ abstract class AsyncFileTest extends AbstractTest
 
     /**
      * @param string $file
-     * @return AsyncFile
+     * @return AbstractFile
      */
     protected function getInstance($file = null)
     {

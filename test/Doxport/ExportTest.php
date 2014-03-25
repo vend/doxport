@@ -19,7 +19,7 @@ class ExportTest extends AbstractQueryActionTest
     {
         $instance = parent::getDoxport();
 
-        $instance->setEntity('Doxport\Test\Fixtures\Bookstore\Entities\Author');
+        $instance->setEntity('Doxport\Test\Fixtures\Library\Entities\Author');
         $instance->setOption('root', true);
 
         return $instance;

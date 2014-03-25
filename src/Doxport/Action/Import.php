@@ -42,9 +42,18 @@ class Import extends Action
 
         foreach ($this->constraints as $constraint) {
             $class = $this->getClassName($constraint);
-
             $file = $this->fileFactory->getFile($class);
-            $objects = $file->readObjects();
+
+            $objects = [];
+
+            while ($object = $file->readObject()) {
+                $objects[] = $object;
+
+                if (count($objects) > self::CHUNK) {
+                    $this->process($constraint, $objects);
+                    $objects = [];
+                }
+            }
 
             $this->process($constraint, $objects);
         }
@@ -63,10 +72,16 @@ class Import extends Action
             $class = $this->getClassName($constraint);
 
             $file = $this->fileFactory->getFile($class . ClearPass::FILE_SUFFIX);
-            $objects = $file->readObjects();
 
-            if (!$objects) {
-                continue;
+            $objects = [];
+
+            while ($object = $file->readObject()) {
+                $objects[] = $object;
+
+                if (count($objects) > self::CHUNK) {
+                    $this->processUpdate($constraint, $objects);
+                    $objects = [];
+                }
             }
 
             $this->processUpdate($constraint, $objects);
@@ -102,19 +117,10 @@ class Import extends Action
         $helper = new EntityArrayHelper($this->em);
 
         $i = 0;
-        $chunk = 0;
 
         foreach ($entities as $values) {
             $this->processEntity($helper, $entityName, $values);
-
             $i++;
-            $chunk++;
-
-            if ($chunk > self::CHUNK) {
-                $this->logger->notice('  Partial checkpoint.');
-                $this->flush();
-                $chunk = 0;
-            }
         }
 
         $this->logger->notice('  {i} entities processed. ', ['i' => $i]);
@@ -221,6 +227,11 @@ class Import extends Action
     {
         $contents = file_get_contents($this->constraintPath);
         $contents = explode(PHP_EOL, $contents);
+
+        $contents = array_filter($contents, function ($v) {
+            return !empty($v);
+        });
+
         $this->constraints = array_reverse($contents);
     }
 }

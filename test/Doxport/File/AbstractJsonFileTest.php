@@ -4,15 +4,8 @@ namespace Doxport\File;
 
 use stdClass;
 
-class JsonFileTest extends AsyncFileTest
+abstract class AbstractJsonFileTest extends AbstractFileTest
 {
-    /**
-     * @return string
-     */
-    protected function getClassUnderTest()
-    {
-        return 'Doxport\File\JsonFile';
-    }
 
     /**
      * @return void
@@ -25,6 +18,7 @@ class JsonFileTest extends AsyncFileTest
 
         $instance = $this->getInstance();
         $instance->writeObject($obj);
+        $instance->flush();
         $instance->close();
 
         $obj = new stdClass;
@@ -33,6 +27,7 @@ class JsonFileTest extends AsyncFileTest
 
         $instance = $this->getInstance();
         $instance->writeObject($obj);
+        $instance->flush();
         $instance->close();
 
         $other = $this->getInstance();
@@ -57,6 +52,7 @@ class JsonFileTest extends AsyncFileTest
 
         $instance = $this->getInstance();
         $instance->writeObject($obj);
+        $instance->flush();
         $instance->close();
 
         $other = $this->getInstance();
@@ -84,17 +80,30 @@ class JsonFileTest extends AsyncFileTest
 
         $instance = $this->getInstance();
         $instance->writeObject($obj);
+        $instance->flush();
         $instance->close();
 
         $other = $this->getInstance();
-        $objects = $other->readObjects();
+        $object = $other->readObject();
         $other->close();
 
-        $this->assertCount(1, $objects, 'One object returned');
+        $this->assertArrayHasKey('binary', $object);
+        $this->assertEquals($str, $object['binary']);
+    }
 
-        $result = $objects[0];
+    public function testReadObject()
+    {
+        $path = self::getExportedDirectory() . DIRECTORY_SEPARATOR . 'Book.json';
 
-        $this->assertArrayHasKey('binary', $result);
-        $this->assertEquals($str, $result['binary']);
+        $file = $this->getInstance($path);
+
+        $object = $file->readObject();
+        $this->assertArrayHasKey('title', $object);
+
+        $object = $file->readObject();
+        $this->assertArrayHasKey('title', $object);
+
+        $object = $file->readObject();
+        $this->assertFalse($object);
     }
 }

@@ -4,7 +4,7 @@ namespace Doxport\File;
 
 use stdClass;
 
-class CsvFileTest extends AsyncFileTest
+class CsvFileTest extends AbstractFileTest
 {
     /**
      * @return string
@@ -29,5 +29,12 @@ class CsvFileTest extends AsyncFileTest
         $other->close();
 
         $this->assertEquals("hello,world\n", $string, 'Write then read CSV file');
+    }
+
+    /**
+     * @return void
+     */
+    public function testReadObject()
+    {
     }
 }

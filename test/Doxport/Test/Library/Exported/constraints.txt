@@ -1,2 +1,2 @@
-Doxport\Test\Fixtures\Bookstore\Entities\Book
-Doxport\Test\Fixtures\Bookstore\Entities\Author
+Doxport\Test\Fixtures\Library\Entities\Book
+Doxport\Test\Fixtures\Library\Entities\Author

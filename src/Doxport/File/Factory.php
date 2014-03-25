@@ -13,7 +13,7 @@ class Factory
      * @var array<string>
      */
     protected $formats = [
-        'json' => 'Doxport\File\JsonFile',
+        'json' => 'Doxport\File\JsonStreamFile',
         'csv'  => 'Doxport\File\CsvFile'
     ];
 
@@ -160,10 +160,14 @@ class Factory
 
     /**
      * @param string $name
-     * @return AsyncFile
+     * @return AbstractFile
      */
     public function getFile($name)
     {
+        if (empty($name)) {
+            throw new InvalidArgumentException('Could not get file with no name');
+        }
+
         $class = $this->getClass();
         return new $class($this->getPathForFile($name));
     }

@@ -17,8 +17,12 @@ use stdClass;
  *  - We need to support arbitrary binary strings (JSON only supports valid UTF-8
  *     strings). This class encodes such values with base64, and decodes when the
  *     objects are read.
+ *
+ * The implementation of readObject() is undefined in this class. See JsonWholeFile
+ * and JsonStreamFile for two specific implementations. (JsonStreamFile is recommended
+ * for large JSON files.)
  */
-class JsonFile extends AsyncFile
+abstract class AbstractJsonFile extends AbstractFile
 {
     /**
      * JSON does not support UTF-8
@@ -82,7 +86,6 @@ class JsonFile extends AsyncFile
     {
         if (!$this->prepared) {
             $this->prepare();
-            $this->prepared = true;
         }
 
         foreach ($object as &$value) {
@@ -180,32 +183,6 @@ class JsonFile extends AsyncFile
         }
 
         return $object;
-    }
-
-    /**
-     * @inheritDoc
-     * @return array
-     * @throws LogicException
-     */
-    public function readObjects()
-    {
-        $content = trim($this->readAll());
-
-        if (!$content) {
-            return [];
-        }
-
-        $decoded = json_decode($content, true);
-
-        if (!is_array($decoded)) {
-            throw new LogicException('Expected wrapping array within JSON content');
-        }
-
-        foreach ($decoded as &$object) {
-            $object = $this->decode($object);
-        }
-
-        return $decoded;
     }
 
     /**

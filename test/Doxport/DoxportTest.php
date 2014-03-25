@@ -58,7 +58,7 @@ class DoxportTest extends AbstractMockTest
     {
         $instance = new Doxport($this->getMockEntityManager());
         $instance->setLogger($this->getMockLogger());
-        $instance->setEntity('Doxport\Test\Fixtures\Bookstore\Entities\Book');
+        $instance->setEntity('Doxport\Test\Fixtures\Library\Entities\Book');
         $instance->setOption('root', true);
 
         $instance->getConstraintPass();

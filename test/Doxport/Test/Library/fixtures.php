@@ -1,6 +1,6 @@
 <?php
 
-namespace Doxport\Test\Fixtures\Bookstore;
+namespace Doxport\Test\Fixtures\Library;
 
 use Doctrine\ORM\EntityManager;
 
