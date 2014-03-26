@@ -2,23 +2,24 @@
 
 namespace Doxport\File;
 
-use Doxport\Exception\IOException;
 use InvalidArgumentException;
 use LogicException;
-use stdClass;
 
 /**
- * JSON file output
+ * A file formed by concatenating JSON objects with newlines between them
  *
- * Two things JSON doesn't quite support that we need here:
- *  - We need a file with a streaming format, so we can just append new entries
- *     to the end. So, this class ensures there's a wrapping array, and adds objects
- *     to it ([]).
+ * The overall file is not a valid JSON file, but may be converted into one
+ * easily:
+ *   - Replace literal newlines with commas
+ *   - Wrap entire file in square brackets
+ *
+ * Assumptions:
+ *  - PHP's json_encode does not return any literal newlines
  *  - We need to support arbitrary binary strings (JSON only supports valid UTF-8
  *     strings). This class encodes such values with base64, and decodes when the
  *     objects are read.
  */
-class JsonFile extends AsyncFile
+class JsonFile extends AbstractFile
 {
     /**
      * JSON does not support UTF-8
@@ -31,47 +32,6 @@ class JsonFile extends AsyncFile
     const ENCODED_KEY = '__encoded';
 
     /**
-     * Whether the file is ready to receive writes
-     *
-     * @var boolean
-     */
-    protected $prepared = false;
-
-    /**
-     * Extra behaviour for JSON:
-     *  - On open, check the first character is an open bracket of a JSON array
-     *  - If not, truncate the file to the first character
-     *  - If it is, check the end of the file, and remove the close bracket, add a comma
-     *  - Leave the file pointer position at the correct place to start writing
-     *
-     * @throws LogicException
-     */
-    protected function prepare()
-    {
-        if (!$this->file) {
-            throw new IOException('Cannot prepare file: file is not open');
-        }
-
-        if ($this->getFirstCharacter() != '[') {
-            fwrite($this->file, '[');
-            ftruncate($this->file, 1);
-        } else {
-            if ($this->getLastCharacter() != ']') {
-                throw new LogicException(sprintf(
-                    'Invalid JSON file %s: mismatched wrapping array brackets',
-                    $this->getPath()
-                ));
-            }
-
-            if (ftell($this->file) != 2) {
-                $this->writeToLastCharacter(',');
-            }
-        }
-
-        $this->prepared = true;
-    }
-
-    /**
      * Writes the given object to the file
      *
      * @param array $object
@@ -80,11 +40,6 @@ class JsonFile extends AsyncFile
      */
     public function writeObject($object)
     {
-        if (!$this->prepared) {
-            $this->prepare();
-            $this->prepared = true;
-        }
-
         foreach ($object as &$value) {
             if (is_resource($value)) {
                 $value = stream_get_contents($value);
@@ -92,7 +47,30 @@ class JsonFile extends AsyncFile
         }
 
         $encoded = $this->encode($object);
-        $this->write($encoded . ',');
+        $this->write($encoded . "\n");
+    }
+
+    /**
+     * Read the next object from the file, using the already-decoded array
+     *
+     * @throws \LogicException
+     * @return false|array
+     */
+    public function readObject()
+    {
+        $content = $this->readLine();
+
+        if (!$content || feof($this->file)) {
+            return false;
+        }
+
+        $decoded = json_decode($content, true);
+
+        if (!is_array($decoded)) {
+            throw new LogicException('Expected wrapping array within JSON content');
+        }
+
+        return $decoded;
     }
 
     /**
@@ -103,7 +81,7 @@ class JsonFile extends AsyncFile
      */
     protected function encode($object, $allowBinary = true)
     {
-        $json = json_encode($object);
+        $json = @json_encode($object);
 
         if ($last = json_last_error()) {
             switch ($last) {
@@ -162,8 +140,8 @@ class JsonFile extends AsyncFile
     }
 
     /**
-     * @param array|stdClass $object
-     * @return stdClass
+     * @param array $object
+     * @return array
      */
     protected function decode($object)
     {
@@ -180,98 +158,5 @@ class JsonFile extends AsyncFile
         }
 
         return $object;
-    }
-
-    /**
-     * @inheritDoc
-     * @return array
-     * @throws LogicException
-     */
-    public function readObjects()
-    {
-        $content = trim($this->readAll());
-
-        if (!$content) {
-            return [];
-        }
-
-        $decoded = json_decode($content, true);
-
-        if (!is_array($decoded)) {
-            throw new LogicException('Expected wrapping array within JSON content');
-        }
-
-        foreach ($decoded as &$object) {
-            $object = $this->decode($object);
-        }
-
-        return $decoded;
-    }
-
-    /**
-     * Extra behaviour for JSON:
-     *  - Check the last character of the file is a comma (or open bracket if file otherwise empty)
-     *  - Remove the
-     *
-     * @inheritDoc
-     * @throws LogicException
-     */
-    public function close()
-    {
-        if ($this->file && $this->prepared) {
-            $last = $this->getLastCharacter();
-
-            if ($last == ',') {
-                $this->writeToLastCharacter(']');
-            } elseif ($last == '[') {
-                fwrite($this->file, ']');
-            } elseif ($last != ']') {
-                throw new LogicException('Unexpected character at end of file');
-            }
-
-            $this->prepared = false;
-        }
-
-        parent::close();
-    }
-
-    /**
-     * Writes to the last character
-     *
-     * Leaves the file pointer just after the last character, at the end of the
-     * file
-     *
-     * @param string $char
-     */
-    protected function writeToLastCharacter($char)
-    {
-        fseek($this->file, -1, SEEK_END);
-        fwrite($this->file, $char);
-    }
-
-    /**
-     * Gets the first character of the file
-     *
-     * Leaves the file pointer just after the first character in the file
-     *
-     * @return string
-     */
-    protected function getFirstCharacter()
-    {
-        fseek($this->file, 0, SEEK_SET);
-        return fread($this->file, 1);
-    }
-
-    /**
-     * Gets the last character of the file
-     *
-     * Leaves the file point just after the last character in the file
-     *
-     * @return string
-     */
-    protected function getLastCharacter()
-    {
-        fseek($this->file, -1, SEEK_END);
-        return fread($this->file, 1);
     }
 }

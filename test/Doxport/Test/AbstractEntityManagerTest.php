@@ -15,19 +15,6 @@ use Symfony\Component\Filesystem\Filesystem;
 abstract class AbstractEntityManagerTest extends AbstractTest
 {
     /**
-     * @var string
-     */
-    protected static $fixture = 'Library';
-
-    /**
-     * @var array<string>
-     */
-    protected static $fixtureTypes = [
-        'Shop'    => 'yaml',
-        'Library' => 'annotation'
-    ];
-
-    /**
      * @var ArrayCache
      */
     protected static $cache;
@@ -112,33 +99,6 @@ abstract class AbstractEntityManagerTest extends AbstractTest
     }
 
     /**
-     * @return string
-     */
-    protected static function getFixtureDirectory()
-    {
-        return __DIR__ . DIRECTORY_SEPARATOR
-            . self::$fixture;
-    }
-
-    /**
-     * @return string
-     */
-    protected static function getEntityDirectory()
-    {
-        return self::getFixtureDirectory() . DIRECTORY_SEPARATOR
-            . 'Entities';
-    }
-
-    /**
-     * @return string
-     */
-    protected static function getFixtureFile()
-    {
-        return self::getFixtureDirectory() . DIRECTORY_SEPARATOR
-            . 'fixtures.php';
-    }
-
-    /**
      * @return ArrayCache
      */
     protected static function getCache()
@@ -172,8 +132,19 @@ abstract class AbstractEntityManagerTest extends AbstractTest
         $tool->dropDatabase();
         $tool->createSchema($metadata);
 
+        self::loadFixtures();
+    }
+
+    /**
+     * Loads the fixtures
+     */
+    protected static function loadFixtures()
+    {
         // Load fixtures if there are any
         if (is_readable(self::getFixtureFile())) {
+            // Available to fixture file variables:
+            $em = self::getEntityManager();
+
             include self::getFixtureFile();
         }
     }
@@ -197,8 +168,9 @@ abstract class AbstractEntityManagerTest extends AbstractTest
             $instance->setLogger($this->getMockLogger());
 
             $instance->getFileFactory()
+                ->setFormat('json')
                 ->setPath(self::$root)
-                ->join(uniqid(get_class($this), true));
+                ->join(uniqid(str_replace('\\', '-', get_class($this)), true));
 
             $action = $this->getAction($instance);
             $action->setMetadataDriver($instance->getMetadataDriver());

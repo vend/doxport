@@ -9,7 +9,7 @@ use Doxport\Exception\IOException;
  *
  * Provides fsync support via eio extension
  */
-abstract class AsyncFile
+abstract class AbstractFile
 {
     /**
      * @var resource
@@ -24,17 +24,19 @@ abstract class AsyncFile
     /**
      * Writes the given object to the file
      *
-     * @param \stdClass|array $object
+     * @param array $object
      * @return void
      */
     abstract public function writeObject($object);
 
     /**
-     * Reads all objects in the file
+     * Reads the next object from the file
      *
-     * @return array
+     * If there are no more objects to be read, returns false
+     *
+     * @return array|false
      */
-    abstract public function readObjects();
+    abstract public function readObject();
 
     /**
      * @param string $path
@@ -53,8 +55,7 @@ abstract class AsyncFile
             throw new IOException('Could not open file: ' . $this->path);
         }
 
-        // Seek to end of file (can't use 'a+' mode to do so, won't allow seek for writes)
-        fseek($this->file, 0, SEEK_END);
+        rewind($this->file);
     }
 
     /**
@@ -71,12 +72,40 @@ abstract class AsyncFile
 
         rewind($this->file);
 
+        $this->rewind();
+
         $contents = '';
+
         while (!feof($this->file)) {
-            $contents .= fread($this->file, 8192);
+            $contents .= $this->readChunk();
         }
 
         return $contents;
+    }
+
+    public function rewind()
+    {
+        if (!$this->file) {
+            throw new IOException('Cannot rewind file: file is not open');
+        }
+
+        rewind($this->file);
+    }
+
+    /**
+     * Reads a chunk of the file into a string and returns it
+     *
+     * @param int $size
+     * @throws IOException
+     * @return string
+     */
+    public function readChunk($size = 8192)
+    {
+        if (!$this->file) {
+            throw new IOException('Cannot read from file: file is not open');
+        }
+
+        return fread($this->file, $size);
     }
 
     /**
@@ -151,6 +180,14 @@ abstract class AsyncFile
     protected function writeln($string)
     {
         return $this->write($string . "\n");
+    }
+
+    /**
+     * @return string
+     */
+    protected function readLine()
+    {
+        return fgets($this->file);
     }
 
     /**

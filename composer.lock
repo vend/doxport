@@ -3,7 +3,7 @@
         "This file locks the dependencies of your project to a known state",
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file"
     ],
-    "hash": "c5dfbadb5dcb6dcd51bb14978aa50bcc",
+    "hash": "e8ec14b95a60ae96465eaa93e4c39051",
     "packages": [
         {
             "name": "clue/graph",
@@ -599,6 +599,48 @@
                 "orm"
             ],
             "time": "2014-02-08 16:35:09"
+        },
+        {
+            "name": "janeklb/json-char-input-reader",
+            "version": "v0.3.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/janeklb/JSONCharInputReader.git",
+                "reference": "204cf7e969b1fc91e10ed20d7997b1092214d74e"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/janeklb/JSONCharInputReader/zipball/204cf7e969b1fc91e10ed20d7997b1092214d74e",
+                "reference": "204cf7e969b1fc91e10ed20d7997b1092214d74e",
+                "shasum": ""
+            },
+            "require-dev": {
+                "phpunit/phpunit": "3.7.18"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "janeklb": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Janek Lasocki-Biczysko",
+                    "email": "janek.lb@gmail.com"
+                }
+            ],
+            "description": "Read a JSON stream and execute callbacks whenever complete JSON chunks are parsed",
+            "keywords": [
+                "chunk",
+                "json",
+                "reader",
+                "stream"
+            ],
+            "time": "2013-03-25 20:00:39"
         },
         {
             "name": "psr/log",

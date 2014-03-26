@@ -4,20 +4,16 @@ namespace Doxport\File;
 
 use Doxport\Exception\UnimplementedException;
 
-class CsvFile extends AsyncFile
+class CsvFile extends AbstractFile
 {
     /**
      * Writes the given object to the file
      *
-     * @param \stdClass|array $object
+     * @param array $object
      * @return int
      */
     public function writeObject($object)
     {
-        if ($object instanceof \stdClass) {
-            $object = (array)$object;
-        }
-
         return fputcsv($this->file, $object);
     }
 
@@ -25,10 +21,11 @@ class CsvFile extends AsyncFile
      * @inheritDoc
      * @return array
      * @throws UnimplementedException
+     * @todo Unimplemented
+     * @todo Should read line by line
      */
-    public function readObjects()
+    public function readObject()
     {
         throw new UnimplementedException();
-        return [];
     }
 }

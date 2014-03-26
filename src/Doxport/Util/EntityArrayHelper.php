@@ -5,6 +5,7 @@ namespace Doxport\Util;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Proxy\Proxy;
+use RuntimeException;
 
 class EntityArrayHelper
 {
@@ -59,14 +60,23 @@ class EntityArrayHelper
 
     /**
      * @param string $entityName
-     * @param array  $values
+     * @param array $values
+     * @throws \RuntimeException
      * @return object Detached Doctrine2 entity instance
      */
     public function toEntity($entityName, $values)
     {
+        $false = serialize(false);
+
         if (!empty($values[self::SERIALIZED_KEY])) {
             foreach ($values[self::SERIALIZED_KEY] as $field) {
-                $values[$field] = unserialize($values[$field]);
+                $result = unserialize($values[$field]);
+
+                if ($values[$field] !== $false && $result === false) {
+                    throw new RuntimeException('Could not unserialize value: ' . $values[$field]);
+                }
+
+                $values[$field] = $result;
             }
         }
 

@@ -5,7 +5,7 @@ namespace Doxport\Action;
 use Doctrine\ORM\Query;
 use Doxport\Action\Base\QueryAction;
 use Doxport\Doctrine\JoinWalk;
-use Doxport\File\AsyncFile;
+use Doxport\File\AbstractFile;
 use Fhaculty\Graph\Walk;
 
 /**
@@ -75,15 +75,20 @@ class Export extends QueryAction
             $this->logger->notice('No results.');
         }
 
+        if ($clearFile) {
+            $this->flush($clearFile);
+            $clearFile->close();
+        }
+
         $this->logger->notice('Done with {target}', ['target' => $walk->getTargetId()]);
         $file->close();
     }
 
     /**
-     * @param AsyncFile $file
+     * @param AbstractFile $file
      * @return void
      */
-    protected function flush(AsyncFile $file)
+    protected function flush(AbstractFile $file)
     {
         $this->logger->notice('  Flushing and syncing...');
 

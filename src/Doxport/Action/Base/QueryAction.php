@@ -6,7 +6,7 @@ use Doctrine\ORM\Mapping\ClassMetadata;
 use Doctrine\ORM\Query;
 use Doxport\Doctrine\AliasGenerator;
 use Doxport\Doctrine\JoinWalk;
-use Doxport\File\AsyncFile;
+use Doxport\File\AbstractFile;
 use Doxport\Metadata\Driver;
 use Doxport\Pass\ClearPass;
 use Doxport\Util\EntityArrayHelper;
@@ -63,7 +63,7 @@ abstract class QueryAction extends Action
 
     /**
      * @param JoinWalk $walk
-     * @return AsyncFile
+     * @return AbstractFile
      */
     protected function getClearFile(JoinWalk $walk)
     {
@@ -73,12 +73,12 @@ abstract class QueryAction extends Action
     }
 
     /**
-     * @param AsyncFile     $file
+     * @param AbstractFile     $file
      * @param ClassMetadata $metadata
      * @param object        $entity
      * @param array         $properties
      */
-    protected function writeClearedProperties(AsyncFile $file, ClassMetadata $metadata, $entity, array $properties)
+    protected function writeClearedProperties(AbstractFile $file, ClassMetadata $metadata, $entity, array $properties)
     {
         $cleared = $this->entityToArray($entity, $properties);
 

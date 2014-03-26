@@ -42,9 +42,18 @@ class Import extends Action
 
         foreach ($this->constraints as $constraint) {
             $class = $this->getClassName($constraint);
-
             $file = $this->fileFactory->getFile($class);
-            $objects = $file->readObjects();
+
+            $objects = [];
+
+            while ($object = $file->readObject()) {
+                $objects[] = $object;
+
+                if (count($objects) > self::CHUNK) {
+                    $this->process($constraint, $objects);
+                    $objects = [];
+                }
+            }
 
             $this->process($constraint, $objects);
         }
@@ -63,16 +72,39 @@ class Import extends Action
             $class = $this->getClassName($constraint);
 
             $file = $this->fileFactory->getFile($class . ClearPass::FILE_SUFFIX);
-            $objects = $file->readObjects();
 
-            if (!$objects) {
-                continue;
+            $objects = [];
+
+            while ($object = $file->readObject()) {
+                $objects[] = $object;
+
+                if (count($objects) > self::CHUNK) {
+                    $this->processUpdate($constraint, $objects);
+                    $objects = [];
+                }
             }
 
             $this->processUpdate($constraint, $objects);
         }
 
         $this->logger->info('Secondary pass done');
+    }
+
+    protected function debugMemory()
+    {
+        $a = [
+            memory_get_usage(),
+            memory_get_peak_usage(),
+            round(100 * memory_get_usage() / memory_get_peak_usage()),
+            round(100 * memory_get_peak_usage() / 160000000),
+        ];
+
+        $s = '';
+        foreach ($a as $v) {
+            $s .= str_pad(round($v), 15, ' ', STR_PAD_LEFT);
+        }
+
+        $this->logger->notice('Memory: ' . $s);
     }
 
     /**
@@ -84,6 +116,7 @@ class Import extends Action
     protected function process($entityName, array $entities)
     {
         $this->logger->notice('Processing import of {entityName}', ['entityName' => $entityName]);
+        $this->debugMemory();
 
         if (!$entities) {
             $this->logger->notice('  No entities to process');
@@ -93,34 +126,43 @@ class Import extends Action
         $helper = new EntityArrayHelper($this->em);
 
         $i = 0;
-        $chunk = 0;
 
         foreach ($entities as $values) {
-            $entity = $helper->toEntity($entityName, $values);
-
-            // Save entity
-            $this->em->persist($entity);
-
+            $this->processEntity($helper, $entityName, $values);
             $i++;
-            $chunk++;
-
-            if ($chunk > self::CHUNK) {
-                $this->logger->notice('  Partial checkpoint flush...', ['i' => $i]);
-
-                $this->em->flush();
-                $this->em->clear();
-
-                $this->logger->notice('  Partial changes flushed');
-                $chunk = 0;
-            }
         }
 
-        $this->logger->notice('  {i} entities processed. Flushing entity manager...', ['i' => $i]);
+        $this->logger->notice('  {i} entities processed. ', ['i' => $i]);
+        $this->flush();
+    }
+
+    /**
+     * Flushes the entity manager
+     */
+    protected function flush()
+    {
+        $this->logger->notice('  Flushing entity manager...');
 
         $this->em->flush();
         $this->em->clear();
 
-        $this->logger->notice('  Changes flushed');
+        $this->logger->notice('    changes flushed.');
+        $this->debugMemory();
+    }
+
+    /**
+     * Processes an entity into the entityManager
+     *
+     * @param EntityArrayHelper $helper
+     * @param string            $entityName
+     * @param array             $values
+     */
+    protected function processEntity(EntityArrayHelper $helper, $entityName, array $values)
+    {
+        $entity = $helper->toEntity($entityName, $values);
+
+        // Save entity
+        $this->em->persist($entity);
     }
 
     /**
@@ -167,6 +209,7 @@ class Import extends Action
         }
 
         $this->em->flush();
+        $this->em->clear();
     }
 
     /**
@@ -193,6 +236,11 @@ class Import extends Action
     {
         $contents = file_get_contents($this->constraintPath);
         $contents = explode(PHP_EOL, $contents);
+
+        $contents = array_filter($contents, function ($v) {
+            return !empty($v);
+        });
+
         $this->constraints = array_reverse($contents);
     }
 }

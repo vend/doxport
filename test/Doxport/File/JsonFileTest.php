@@ -4,16 +4,8 @@ namespace Doxport\File;
 
 use stdClass;
 
-class JsonFileTest extends AsyncFileTest
+abstract class JsonFileTest extends AbstractFileTest
 {
-    /**
-     * @return string
-     */
-    protected function getClassUnderTest()
-    {
-        return 'Doxport\File\JsonFile';
-    }
-
     /**
      * @return void
      */
@@ -25,6 +17,7 @@ class JsonFileTest extends AsyncFileTest
 
         $instance = $this->getInstance();
         $instance->writeObject($obj);
+        $instance->flush();
         $instance->close();
 
         $obj = new stdClass;
@@ -33,6 +26,7 @@ class JsonFileTest extends AsyncFileTest
 
         $instance = $this->getInstance();
         $instance->writeObject($obj);
+        $instance->flush();
         $instance->close();
 
         $other = $this->getInstance();
@@ -54,9 +48,14 @@ class JsonFileTest extends AsyncFileTest
         $obj = new stdClass;
         $obj->first  = 'hello';
         $obj->second = 'world';
+        $obj->third  = '00000';
+        $obj->fourth = '0';
+        $obj->fifth  = 0;
+        $obj->sixth  = false;
 
         $instance = $this->getInstance();
         $instance->writeObject($obj);
+        $instance->flush();
         $instance->close();
 
         $other = $this->getInstance();
@@ -64,7 +63,7 @@ class JsonFileTest extends AsyncFileTest
         $other->close();
 
         $this->assertEquals(
-            '[{"first":"hello","second":"world"}]',
+            '[{"first":"hello","second":"world","third":"00000","fourth":"0","fifth":0,"sixth":false}]',
             $string,
             'Single write then read JSON file'
         );
@@ -84,17 +83,34 @@ class JsonFileTest extends AsyncFileTest
 
         $instance = $this->getInstance();
         $instance->writeObject($obj);
+        $instance->flush();
         $instance->close();
 
         $other = $this->getInstance();
-        $objects = $other->readObjects();
+        $object = $other->readObject();
         $other->close();
 
-        $this->assertCount(1, $objects, 'One object returned');
+        $this->assertArrayHasKey('binary', $object);
+        $this->assertEquals($str, $object['binary']);
+    }
 
-        $result = $objects[0];
+    public function testReadObject()
+    {
+        $path = self::getExportedDirectory() . DIRECTORY_SEPARATOR . 'Book.json';
 
-        $this->assertArrayHasKey('binary', $result);
-        $this->assertEquals($str, $result['binary']);
+        $file = $this->getInstance($path);
+
+        $book = $file->readObject();
+        $this->assertArrayHasKey('id', $book);
+        $this->assertArrayHasKey('author_id', $book);
+        $this->assertArrayHasKey('title', $book);
+
+        $book = $file->readObject();
+        $this->assertArrayHasKey('id', $book);
+        $this->assertArrayHasKey('author_id', $book);
+        $this->assertArrayHasKey('title', $book);
+
+        $book = $file->readObject();
+        $this->assertFalse($book);
     }
 }

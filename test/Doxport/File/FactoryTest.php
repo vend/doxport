@@ -3,6 +3,7 @@
 namespace Doxport\File;
 
 use Doxport\Test\AbstractTest;
+use InvalidArgumentException;
 
 class FactoryTest extends AbstractTest
 {
@@ -11,11 +12,11 @@ class FactoryTest extends AbstractTest
         $instance = new Factory();
         $this->assertInstanceOf('Doxport\File\Factory', $instance);
 
-        $formats = ['something' => 'stdClass'];
-        $instance = new Factory('something', $formats);
+        $instance = new Factory();
+        $instance->addFormat('something', 'stdClass');
+        $instance->setFormat('something');
 
         $this->assertInstanceOf('Doxport\File\Factory', $instance);
-        $this->assertEquals($formats, $instance->getFormats());
         $this->assertEquals('something', $instance->getFormat());
     }
 
