@@ -30,8 +30,7 @@
         "doctrine/orm":                 "2.4.*",
         "symfony/console":              "2.4.*",
         "symfony/filesystem":           "2.4.*",
-        "psr/log":                      "1.0.*",
-        "janeklb/json-char-input-reader": "~0.3.1"
+        "psr/log":                      "1.0.*"
     },
 
     "require-dev": {
