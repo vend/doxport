@@ -183,6 +183,14 @@ abstract class AbstractFile
     }
 
     /**
+     * @return string
+     */
+    protected function readLine()
+    {
+        return fgets($this->file);
+    }
+
+    /**
      * Closes the file
      *
      * @return void

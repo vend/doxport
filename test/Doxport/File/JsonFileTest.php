@@ -4,9 +4,8 @@ namespace Doxport\File;
 
 use stdClass;
 
-abstract class AbstractJsonFileTest extends AbstractFileTest
+abstract class JsonFileTest extends AbstractFileTest
 {
-
     /**
      * @return void
      */

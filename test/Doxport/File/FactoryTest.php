@@ -64,7 +64,7 @@ class FactoryTest extends AbstractTest
         $instance->setPath(self::$root);
         $file = $instance->getFile('foobar');
 
-        $this->assertInstanceOf('Doxport\File\JsonWholeFile', $file);
+        $this->assertInstanceOf('Doxport\File\JsonFile', $file);
 
         unlink($file->getPath());
     }

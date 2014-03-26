@@ -13,7 +13,8 @@ class Factory
      * @var array<string>
      */
     protected $formats = [
-        'csv'  => 'Doxport\File\CsvFile'
+        'csv'  => 'Doxport\File\CsvFile',
+        'json' => 'Doxport\File\JsonFile'
     ];
 
     /**
@@ -34,13 +35,6 @@ class Factory
      */
     public function __construct($format = null)
     {
-        $this->addFormat('json', function ($file) {
-            if (is_readable($file) && filesize($file) > 100000) {
-                return 'Doxport\File\JsonStreamFile';
-            }
-            return 'Doxport\File\JsonWholeFile';
-        });
-
         if ($format) {
             $this->setFormat($format);
         } else {
