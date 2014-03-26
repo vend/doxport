@@ -101,7 +101,7 @@ class Import extends Action
 
         $s = '';
         foreach ($a as $v) {
-            $s .= str_pad(round($v), 8, ' ');
+            $s .= str_pad(round($v), 15, ' ', STR_PAD_LEFT);
         }
 
         $this->logger->notice('Memory: ' . $s);
