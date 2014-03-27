@@ -4,7 +4,7 @@ namespace Doxport\File;
 
 use stdClass;
 
-abstract class JsonFileTest extends AbstractFileTest
+class JsonFileTest extends AbstractFileTest
 {
     /**
      * @return void
@@ -34,7 +34,7 @@ abstract class JsonFileTest extends AbstractFileTest
         $other->close();
 
         $this->assertEquals(
-            '[{"first":"hello","second":"world"},{"third":"and","fourth":"again"}]',
+            '{"first":"hello","second":"world"}' . "\n" . '{"third":"and","fourth":"again"}' . "\n",
             $string,
             'Multiple writes then read JSON file'
         );
@@ -63,7 +63,7 @@ abstract class JsonFileTest extends AbstractFileTest
         $other->close();
 
         $this->assertEquals(
-            '[{"first":"hello","second":"world","third":"00000","fourth":"0","fifth":0,"sixth":false}]',
+            '{"first":"hello","second":"world","third":"00000","fourth":"0","fifth":0,"sixth":false}' . "\n",
             $string,
             'Single write then read JSON file'
         );
@@ -112,5 +112,13 @@ abstract class JsonFileTest extends AbstractFileTest
 
         $book = $file->readObject();
         $this->assertFalse($book);
+    }
+
+    /**
+     * @return string
+     */
+    protected function getClassUnderTest()
+    {
+        return 'Doxport\File\JsonFile';
     }
 }

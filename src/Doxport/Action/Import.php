@@ -90,23 +90,6 @@ class Import extends Action
         $this->logger->info('Secondary pass done');
     }
 
-    protected function debugMemory()
-    {
-        $a = [
-            memory_get_usage(),
-            memory_get_peak_usage(),
-            round(100 * memory_get_usage() / memory_get_peak_usage()),
-            round(100 * memory_get_peak_usage() / 160000000),
-        ];
-
-        $s = '';
-        foreach ($a as $v) {
-            $s .= str_pad(round($v), 15, ' ', STR_PAD_LEFT);
-        }
-
-        $this->logger->notice('Memory: ' . $s);
-    }
-
     /**
      * Persists the given entities
      *

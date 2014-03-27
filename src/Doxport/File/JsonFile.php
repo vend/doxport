@@ -65,9 +65,10 @@ class JsonFile extends AbstractFile
         }
 
         $decoded = json_decode($content, true);
+        $decoded = $this->decode($decoded);
 
         if (!is_array($decoded)) {
-            throw new LogicException('Expected wrapping array within JSON content');
+            throw new LogicException('Expected JSON to contain an object');
         }
 
         return $decoded;
@@ -124,13 +125,13 @@ class JsonFile extends AbstractFile
     {
         $encoded = [];
 
-        foreach ($object as $key => &$value) {
+        foreach ($object as $key => $value) {
             if ($key == self::ENCODED_KEY) {
                 continue;
             }
 
             if (is_scalar($value) && !mb_check_encoding($value, 'utf-8')) {
-                $value = base64_encode($value);
+                $object[$key] = base64_encode($value);
                 $encoded[] = $key;
             }
         }
