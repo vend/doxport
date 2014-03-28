@@ -65,39 +65,65 @@ class Export extends QueryAction
             }
 
             $file->writeObject($array);  // Write to file
+
             $this->em->detach($entity);
+            $entity = null;
+            $array = null;
+
+            if ($i % 100) {
+                $this->flush($file, $clearFile);
+                $this->em->clear();
+            }
 
             $i++;
         }
 
         if ($i > 0) {
             // Remaining in current chunk
-            $this->flush($file);
+            $this->flush($file, $clearFile);
         } elseif ($i == 0) {
             $this->logger->notice('No results.');
         }
 
-        if ($clearFile) {
-            $this->flush($clearFile);
-            $clearFile->close();
-        }
-
         $this->logger->notice('Done with {target}', ['target' => $walk->getTargetId()]);
-        $file->close();
+        $this->close($file, $clearFile);
     }
 
     /**
+     * Flushes the files
+     *
      * @param AbstractFile $file
+     * @param AbstractFile $clearFile
      * @return void
      */
-    protected function flush(AbstractFile $file)
+    protected function flush(AbstractFile $file, AbstractFile $clearFile = null)
     {
         $this->logger->notice('  Flushing and syncing...');
 
         $file->flush();
         $file->sync();
 
+        if ($clearFile) {
+            $clearFile->flush();
+            $clearFile->sync();
+        }
+
         $this->logger->notice('  done.');
+    }
+
+    /**
+     * Closes the files
+     *
+     * @param AbstractFile $file
+     * @param AbstractFile $clearFile
+     */
+    protected function close(AbstractFile $file, AbstractFile $clearFile = null)
+    {
+        $file->close();
+
+        if ($clearFile) {
+            $clearFile->close();
+        }
     }
 
     /**
