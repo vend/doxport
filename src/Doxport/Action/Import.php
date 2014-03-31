@@ -42,7 +42,9 @@ class Import extends Action
 
         foreach ($this->constraints as $constraint) {
             $class = $this->getClassName($constraint);
+
             $file = $this->fileFactory->getFile($class);
+            $file->rewind();
 
             $objects = [];
 
@@ -72,6 +74,7 @@ class Import extends Action
             $class = $this->getClassName($constraint);
 
             $file = $this->fileFactory->getFile($class . ClearPass::FILE_SUFFIX);
+            $file->rewind();
 
             $objects = [];
 

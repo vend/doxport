@@ -87,6 +87,7 @@ class JsonFileTest extends AbstractFileTest
         $instance->close();
 
         $other = $this->getInstance();
+        $other->rewind();
         $object = $other->readObject();
         $other->close();
 
@@ -99,6 +100,7 @@ class JsonFileTest extends AbstractFileTest
         $path = self::getExportedDirectory() . DIRECTORY_SEPARATOR . 'Book.json';
 
         $file = $this->getInstance($path);
+        $file->rewind();
 
         $book = $file->readObject();
         $this->assertArrayHasKey('id', $book);

@@ -55,7 +55,7 @@ abstract class AbstractFile
             throw new IOException('Could not open file: ' . $this->path);
         }
 
-        rewind($this->file);
+        $this->end();
     }
 
     /**
@@ -70,17 +70,23 @@ abstract class AbstractFile
             throw new IOException('Cannot read all from file: file is not open');
         }
 
-        rewind($this->file);
-
         $this->rewind();
 
         $contents = '';
-
         while (!feof($this->file)) {
             $contents .= $this->readChunk();
         }
 
         return $contents;
+    }
+
+    public function end()
+    {
+        if (!$this->file) {
+            throw new IOException('Cannot seek to end of file: file is not open');
+        }
+
+        fseek($this->file, 0, SEEK_END);
     }
 
     public function rewind()
@@ -167,7 +173,6 @@ abstract class AbstractFile
             throw new IOException('Cannot write to file: file is not open');
         }
 
-        fseek($this->file, 0, SEEK_END);
         return fwrite($this->file, $string);
     }
 
