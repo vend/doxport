@@ -14,6 +14,11 @@ use Fhaculty\Graph\Walk;
 class Export extends QueryAction
 {
     /**
+     * Flush output files every n rows
+     */
+    const FLUSH_EVERY = 1000;
+
+    /**
      * Properties to be cleared during export
      *
      * @var array
@@ -70,7 +75,7 @@ class Export extends QueryAction
             $entity = null;
             $array = null;
 
-            if ($i % 100) {
+            if ($i % self::FLUSH_EVERY) {
                 $this->flush($file, $clearFile);
                 $this->em->clear();
             }
@@ -98,14 +103,12 @@ class Export extends QueryAction
      */
     protected function flush(AbstractFile $file, AbstractFile $clearFile = null)
     {
-        $this->logger->notice('  Flushing and syncing...');
+        $this->logger->notice('  Flushing...');
 
         $file->flush();
-        $file->sync();
 
         if ($clearFile) {
             $clearFile->flush();
-            $clearFile->sync();
         }
 
         $this->logger->notice('  done.');

@@ -9,7 +9,7 @@ use LogicException;
 
 class Import extends Action
 {
-    const CHUNK = 500;
+    const FLUSH_EVERY = 500;
 
     /**
      * @var string
@@ -49,7 +49,7 @@ class Import extends Action
             while ($object = $file->readObject()) {
                 $objects[] = $object;
 
-                if (count($objects) > self::CHUNK) {
+                if (count($objects) > self::FLUSH_EVERY) {
                     $this->process($constraint, $objects);
                     $objects = [];
                 }
@@ -78,7 +78,7 @@ class Import extends Action
             while ($object = $file->readObject()) {
                 $objects[] = $object;
 
-                if (count($objects) > self::CHUNK) {
+                if (count($objects) > self::FLUSH_EVERY) {
                     $this->processUpdate($constraint, $objects);
                     $objects = [];
                 }
