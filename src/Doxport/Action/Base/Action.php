@@ -45,8 +45,8 @@ abstract class Action implements LoggerAwareInterface
     {
         $this->em = $em;
 
-        // 500 rows initial estimate, target perform in 0.2 seconds
-        $this->chunk = new Chunk(500, 0.2);
+        // 500 rows initial estimate and max, target perform in 0.2 seconds
+        $this->chunk = new Chunk(500, 0.2, ['max' => 500, 'min' => 5]);
     }
 
     /**
