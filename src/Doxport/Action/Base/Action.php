@@ -5,6 +5,7 @@ namespace Doxport\Action\Base;
 use Doctrine\ORM\EntityManager;
 use Doxport\File\Factory;
 use Doxport\Metadata\Driver;
+use Doxport\Util\Chunk;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
 
@@ -33,11 +34,19 @@ abstract class Action implements LoggerAwareInterface
     protected $fileFactory;
 
     /**
+     * @var Chunk
+     */
+    protected $chunk;
+
+    /**
      * @param EntityManager $em
      */
     public function __construct(EntityManager $em)
     {
         $this->em = $em;
+
+        // 500 rows initial estimate and max, target perform in 0.2 seconds
+        $this->chunk = new Chunk(500, 0.2, ['max' => 500, 'min' => 5]);
     }
 
     /**
@@ -72,6 +81,14 @@ abstract class Action implements LoggerAwareInterface
     public function setMetadataDriver(Driver $driver)
     {
         $this->driver = $driver;
+    }
+
+    /**
+     * @param Chunk $chunk
+     */
+    public function setChunk(Chunk $chunk)
+    {
+        $this->chunk = $chunk;
     }
 
     /**

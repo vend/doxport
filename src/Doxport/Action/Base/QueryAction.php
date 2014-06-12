@@ -7,7 +7,6 @@ use Doctrine\ORM\Query;
 use Doxport\Doctrine\AliasGenerator;
 use Doxport\Doctrine\JoinWalk;
 use Doxport\File\AbstractFile;
-use Doxport\Metadata\Driver;
 use Doxport\Pass\ClearPass;
 use Doxport\Util\EntityArrayHelper;
 use Fhaculty\Graph\Walk;

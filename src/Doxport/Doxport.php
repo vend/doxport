@@ -9,6 +9,7 @@ use Doxport\Metadata\Driver;
 use Doxport\Pass\ClearPass;
 use Doxport\Pass\ConstraintPass;
 use Doxport\Pass\JoinPass;
+use Doxport\Util\Chunk;
 use Fhaculty\Graph\Set\Vertices;
 use LogicException;
 use Psr\Log\LoggerAwareInterface;
@@ -245,7 +246,6 @@ class Doxport implements LoggerAwareInterface
         $options = array_merge($this->options, $options);
 
         $this->logger->log(LogLevel::NOTICE, 'Creating join pass');
-
 
         $pass = new ClearPass(
             $this->getMetadataDriver(),

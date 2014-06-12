@@ -3,7 +3,6 @@
 namespace Doxport\Test\Fixtures\Library\Entities;
 
 use Doctrine\ORM\Mapping as ORM;
-use Doxport\Annotation as Export;
 
 /**
  * @ORM\Entity

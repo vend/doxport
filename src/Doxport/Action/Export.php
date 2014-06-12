@@ -14,11 +14,6 @@ use Fhaculty\Graph\Walk;
 class Export extends QueryAction
 {
     /**
-     * Flush output files every n rows
-     */
-    const FLUSH_EVERY = 1000;
-
-    /**
      * Properties to be cleared during export
      *
      * @var array
@@ -72,16 +67,17 @@ class Export extends QueryAction
             $file->writeObject($array);  // Write to file
 
             $this->em->detach($entity);
-            $entity = null;
-            $array = null;
 
-            if ($i % self::FLUSH_EVERY) {
+            if ($i % $this->chunk->getEstimatedSize()) {
                 $this->flush($file, $clearFile);
                 $this->em->clear();
             }
 
             $i++;
         }
+
+        $entity = null;
+        $array  = null;
 
         if ($i > 0) {
             // Remaining in current chunk
