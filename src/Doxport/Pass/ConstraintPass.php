@@ -2,13 +2,7 @@
 
 namespace Doxport\Pass;
 
-use Doctrine\ORM\EntityManager;
-use Doxport\Metadata\Driver;
-use Doxport\EntityGraph;
-use Fhaculty\Graph\Exception\UnexpectedValueException;
-use Fhaculty\Graph\Graph;
 use Fhaculty\Graph\Set\Vertices;
-use Fhaculty\Graph\Walk;
 use Psr\Log\LogLevel;
 
 class ConstraintPass extends Pass

@@ -2,14 +2,10 @@
 
 namespace Doxport\Console;
 
-use Doctrine\ORM\EntityManager;
 use Doxport\Doxport;
 use Doxport\Log\OutputLogger;
-use Doxport\Metadata\Driver;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
-use Psr\Log\LoggerInterface;
-use Psr\Log\LogLevel;
 use Symfony\Component\Console\Command\Command as CommandComponent;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;

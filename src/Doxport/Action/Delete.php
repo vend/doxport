@@ -133,6 +133,7 @@ class Delete extends QueryAction
         $i = 0;
 
         foreach ($iterator as $result) {
+            /** @var object $entity */
             $entity = $result[0];
 
             $this->writeClearedProperties($file, $class, $entity, $joinFields);

@@ -30,7 +30,7 @@ abstract class AbstractTest extends \PHPUnit_Framework_TestCase
     protected static function getFixtureDirectory()
     {
         return __DIR__ . DIRECTORY_SEPARATOR
-        . self::$fixture;
+            . self::$fixture;
     }
 
     /**
@@ -38,8 +38,9 @@ abstract class AbstractTest extends \PHPUnit_Framework_TestCase
      */
     protected static function getEntityDirectory()
     {
-        return self::getFixtureDirectory() . DIRECTORY_SEPARATOR
-        . 'Entities';
+        return self::getFixtureDirectory()
+            . DIRECTORY_SEPARATOR
+            . 'Entities';
     }
 
     /**
@@ -47,8 +48,9 @@ abstract class AbstractTest extends \PHPUnit_Framework_TestCase
      */
     protected static function getExportedDirectory()
     {
-        return self::getFixtureDirectory() . DIRECTORY_SEPARATOR
-        . 'Exported';
+        return self::getFixtureDirectory()
+            . DIRECTORY_SEPARATOR
+            . 'Exported';
     }
 
     /**
@@ -56,8 +58,9 @@ abstract class AbstractTest extends \PHPUnit_Framework_TestCase
      */
     protected static function getFixtureFile()
     {
-        return self::getFixtureDirectory() . DIRECTORY_SEPARATOR
-        . 'fixtures.php';
+        return self::getFixtureDirectory()
+            . DIRECTORY_SEPARATOR
+            . 'fixtures.php';
     }
 
     /**
