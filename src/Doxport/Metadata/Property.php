@@ -76,5 +76,7 @@ class Property
                 return true;
             }
         }
+
+        return false;
     }
 }
