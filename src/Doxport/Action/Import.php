@@ -51,7 +51,7 @@ class Import extends Action
             while ($object = $file->readObject()) {
                 $objects[] = $object;
 
-                if (count($objects) > self::FLUSH_EVERY) {
+                if (count($objects) > $this->chunk->getEstimatedSize()) {
                     $this->process($constraint, $objects);
                     $objects = [];
                 }
@@ -81,7 +81,7 @@ class Import extends Action
             while ($object = $file->readObject()) {
                 $objects[] = $object;
 
-                if (count($objects) > self::FLUSH_EVERY) {
+                if (count($objects) > $this->chunk->getEstimatedSize()) {
                     $this->processUpdate($constraint, $objects);
                     $objects = [];
                 }
@@ -129,8 +129,10 @@ class Import extends Action
     {
         $this->logger->notice('  Flushing entity manager...');
 
+        $this->chunk->begin();
         $this->em->flush();
         $this->em->clear();
+        $this->chunk->end();
 
         $this->logger->notice('    changes flushed.');
         $this->debugMemory();
@@ -194,8 +196,10 @@ class Import extends Action
             $this->em->persist($entity);
         }
 
+        $this->chunk->begin();
         $this->em->flush();
         $this->em->clear();
+        $this->chunk->end();
     }
 
     /**

@@ -80,6 +80,11 @@ abstract class AbstractFile
         return $contents;
     }
 
+    /**
+     * Seeks the file pointer to the end of the file
+     *
+     * @throws \Doxport\Exception\IOException
+     */
     public function end()
     {
         if (!$this->file) {

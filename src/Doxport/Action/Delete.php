@@ -14,8 +14,6 @@ use Fhaculty\Graph\Walk;
  */
 class Delete extends QueryAction
 {
-    const FLUSH_EVERY = 500;
-
     /**
      * @param JoinWalk $walk
      * @return void
@@ -51,7 +49,7 @@ class Delete extends QueryAction
 
             $this->em->remove($entity);  // Queue delete
 
-            if ($i > self::FLUSH_EVERY) {
+            if ($i > $this->chunk->getEstimatedSize()) {
                 $this->flush($file); // Actually apply changes
                 $i = 0;
             }
@@ -83,8 +81,10 @@ class Delete extends QueryAction
 
         $this->logger->notice('  done. Committing deletes...');
 
+        $this->chunk->begin();
         $this->em->flush();
         $this->em->clear();
+        $this->chunk->end();
 
         $this->logger->notice('  done.');
     }
@@ -140,7 +140,7 @@ class Delete extends QueryAction
 
             $this->em->persist($entity);
 
-            if ($i > self::FLUSH_EVERY) {
+            if ($i > $this->chunk->getEstimatedSize()) {
                 $this->flush($file); // Actually apply changes
                 $i = 0;
             }
