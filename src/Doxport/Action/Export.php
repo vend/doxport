@@ -67,8 +67,6 @@ class Export extends QueryAction
             $file->writeObject($array);  // Write to file
 
             $this->em->detach($entity);
-            $entity = null;
-            $array = null;
 
             if ($i % $this->chunk->getEstimatedSize()) {
                 $this->flush($file, $clearFile);
@@ -77,6 +75,9 @@ class Export extends QueryAction
 
             $i++;
         }
+
+        $entity = null;
+        $array  = null;
 
         if ($i > 0) {
             // Remaining in current chunk
