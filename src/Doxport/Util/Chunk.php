@@ -4,6 +4,7 @@ namespace Doxport\Util;
 
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
+use Psr\Log\NullLogger;
 
 /**
  * Tracks chunk time for large segmented operations that target wallclock time
@@ -74,6 +75,7 @@ class Chunk implements LoggerAwareInterface
         $this->estimate = (int)$estimate;
         $this->target   = $target;
         $this->average  = $estimate / $target;
+        $this->logger   = new NullLogger();
 
         $this->options  = array_merge([
             'min'       => (int)(0.01 * $this->estimate),
@@ -133,8 +135,11 @@ class Chunk implements LoggerAwareInterface
      */
     protected function updateEstimate()
     {
+        $previous = $this->estimate;
+
         // dx/dt of last observation, per second rate
-        $observed = $this->estimate / ($this->end - $this->begin);
+        $time     = ($this->end - $this->begin);
+        $observed = $previous / $time;
 
         // Update the average
         $this->average = $this->updateExponentialAverage($this->average, $observed);
@@ -142,13 +147,32 @@ class Chunk implements LoggerAwareInterface
         // Calculate the new estimate
         $this->estimate = (int)$this->average * $this->target;
 
+        $clamp = false;
+
         // Clamp
         if ($this->estimate > $this->options['max']) {
+            $clamp = true;
             $this->estimate = (int)$this->options['max'];
         }
 
         if ($this->estimate < $this->options['min']) {
+            $clamp = true;
             $this->estimate = (int)$this->options['min'];
+        }
+
+        if ($this->options['verbose']) {
+            $this->logger->notice(
+                'Chunk size update: {p}, {d}/{n}s, {r}/{nr} -> {e} {c}',
+                [
+                    'p'  => $previous,
+                    'd'  => $time,
+                    'n'  => $this->target,
+                    'r'  => $observed,
+                    'nr' => $previous / $this->target,
+                    'e'  => $this->estimate,
+                    'c'  => ($clamp ? '(clamped)' : '')
+                ]
+            );
         }
 
         $this->begin = null;
