@@ -8,8 +8,11 @@ class ChunkTest extends AbstractTest
 {
     public function testInitialEstimate()
     {
-        $chunk = new Chunk(500);
+        $chunk = new Chunk(500, 0.2, ['verbose' => true]);
         $this->assertInstanceOf('Doxport\Util\Chunk', $chunk);
+        $this->assertEquals(500, $chunk->getEstimatedSize());
+
+        $chunk->interval(0.2);
         $this->assertEquals(500, $chunk->getEstimatedSize());
     }
 
@@ -56,5 +59,17 @@ class ChunkTest extends AbstractTest
         $chunk->interval(1000);
 
         $this->assertEquals(100, $chunk->getEstimatedSize());
+    }
+
+    public function testTakingLongerFractional()
+    {
+        $chunk = new Chunk(500, 0.2);
+
+        $chunk->interval(0.22);
+        $chunk->interval(0.22);
+        $chunk->interval(0.22);
+        $chunk->interval(0.22);
+
+        $this->assertLessThan(500, $chunk->getEstimatedSize());
     }
 }
