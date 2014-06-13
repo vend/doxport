@@ -20,6 +20,66 @@ the correct order.
 
 Doxport is installed via Composer. The package name is `vend/doxport`.
 
+## Actions
+
+### Delete
+
+The delete action removes rows from the database, and saves their content to
+the output directory. If the **eio** extension is loaded, these files will be
+sync'd at the point the entity manager is flushed and the rows actually
+removed.
+
+### Export
+
+Like the delete action, the export action saves row content to the output
+directory. However, it does not remove rows from the database. This means you
+won't be able to immediate import a set of exported data into the same
+database, because you'll get primary key errors. However, you can import into a
+fresh database, and this action is very useful for taking backups without
+disturbing the original data.
+
+### Import
+
+The import action takes a path to a previously output set for data (usually
+from the export or delete actions). By reading the dumped constraint
+information, Doxport figures out the correct order to import the data, and does
+so.
+
+## Algorithm
+
+Doxport uses a bit of graph theory, so you might want to read up on these
+before jumping in:
+
+* [Directed acyclic
+  graphs](http://en.wikipedia.org/wiki/Directed_acyclic_graph): DAGs for short
+* [Topological sorting](http://en.wikipedia.org/wiki/Topological_sorting):
+  basically, produces a dependency-safe order to walk the nodes of a DAG
+
+### Outline
+
+To start with, you tell Doxport the *root entity type*, and give it some
+criteria to apply to this type. For example, you might say the root entity is
+`My\Namespace\User`, and the criteria is `id == <some value>`.
+
+Then, Doxport will:
+
+1. Create a DAG with all tables in the database as the nodes, and all
+   associations between them as the edges
+2. Filter the edges to only consider 'constraining associations'
+   * Usually this means only associations that actually own the foreign key,
+     and have a foreign key constraint
+3. Filter the nodes to only consider tables still associated with the root
+   entity after the edge filtering
+   * This step removes irrelevant tables. For example, only tables associated with the user type (via any number of relations)
+4. Produce a topological sort of this DAG
+5. For each node, in the order of the topological sort, find the shortest path
+   back to the root entity, using a slightly different filtered DAG
+   * The filtering is slightly different for this DAG because we additionally
+     only consider edges that are 'covered' by an index
+
+Each time step 5 occurs, an action is invoked on the resulting query. This
+might be `export` or `delete`, for example.
+
 ## Configuration
 
 Doxport follows a similar configuration approach to Doctrine2 (when installed
@@ -61,69 +121,6 @@ Available commands:
   import   Imports a set of exported data into the database
   list     Lists commands
 ```
-
-## Actions
-
-### Delete
-
-The delete action removes rows from the database, and saves their content to
-the output directory. If the **eio** extension is loaded, these files will be
-sync'd at the point the entity manager is flushed and the rows actually
-removed.
-
-### Export
-
-Like the delete action, the export action saves row content to the output
-directory. However, it does not remove rows from the database. This means you
-won't be able to immediate import a set of exported data into the same
-database, because you'll get primary key errors. However, you can import into a
-fresh database, and this action is very useful for taking backups without
-disturbing the original data.
-
-### Import
-
-The import action takes a path to a previously output set for data (usually
-from the export or delete actions). By reading the dumped constraint
-information, Doxport figures out the correct order to import the data, and does
-so.
-
-## Algorithm
-
-### Graph Theory
-
-Doxport uses a bit of graph theory, so you might want to read up on these
-before jumping in:
-
-* [Directed acyclic
-  graphs](http://en.wikipedia.org/wiki/Directed_acyclic_graph): DAGs for short
-* [Topological sorting](http://en.wikipedia.org/wiki/Topological_sorting):
-  basically, produces a dependency-safe order to walk the nodes of a DAG
-
-### Outline
-
-To start with, you tell Doxport the *root entity type*, and give it some
-criteria to apply to this type. For example, you might say the root entity is
-`My\Namespace\User`, and the criteria is `id = <some value>`.
-
-Then, Doxport will:
-
-1. Create a DAG with all tables in the database as the nodes, and all
-   associations between them as the edges
-2. Filter the edges to only consider 'constraining associations'
-   * Usually this means only associations that actually own the foreign key,
-     and have a foreign key constraint
-3. Filter the nodes to only consider tables still associated with the root
-   entity after the edge filtering
-   * This step removes irrelevant tables. For example, if your root entity is
-     the retailer, the admin user tables would be filtered out.
-4. Produce a topological sort of this DAG
-5. For each node, in the order of the topological sort, find the shortest path
-   back to the root entity, using a slightly different filtered DAG
-   * The filtering is slightly different for this DAG because we additionally
-     only consider edges that are 'covered' by an index
-
-Each time step 5 occurs, an action is invoked on the resulting query. This
-might be `export` or `delete`, for example.
 
 ### Excluding Associations
 
@@ -169,8 +166,7 @@ also a few additional files:
 
 * constraints.png: A graphviz image of the constraint graph, useful for
   debugging the produced DAG
-* constraints.txt: The topological order the entities were dumped in (on entity
-  per line). Used (in reverse) to decide the order to import.
+* constraints.txt: The topological order the entities were dumped in (one entity type per line). Used (in reverse) to decide the order to import.
 
 ### Format
 
