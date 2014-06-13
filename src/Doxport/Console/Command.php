@@ -44,6 +44,10 @@ abstract class Command extends CommandComponent implements LoggerAwareInterface
         $this->configureDoxport($input);
     }
 
+    /**
+     * @param InputInterface $input
+     * @return Doxport
+     */
     protected function configureDoxport(InputInterface $input)
     {
         $this->doxport = new Doxport($this->getHelper('em')->getEntityManager());
