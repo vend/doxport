@@ -50,6 +50,7 @@ class ConstraintPass extends Pass
         $this->outputGraph();
 
         $this->logger->log(LogLevel::INFO, 'Producing topological sort for dependency order');
+
         $vertices = $this->graph->topologicalSort();
 
         $this->outputVertices($vertices);
@@ -60,6 +61,7 @@ class ConstraintPass extends Pass
     protected function outputVertices(Vertices $vertices)
     {
         $path = $this->fileFactory->getPathForFile('constraints', 'txt');
+
         $this->logger->info('Outputting constraint text to {path}', ['path' => $path]);
         file_put_contents($path, implode("\n", $vertices->getIds()));
     }

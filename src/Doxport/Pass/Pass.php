@@ -8,6 +8,7 @@ use Doxport\File\Factory;
 use Doxport\Metadata\Driver;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
+use Psr\Log\NullLogger;
 
 abstract class Pass implements LoggerAwareInterface
 {
@@ -50,6 +51,7 @@ abstract class Pass implements LoggerAwareInterface
         $this->driver  = $driver;
         $this->graph   = $graph;
         $this->action  = $action;
+        $this->logger  = new NullLogger();
     }
 
     /**

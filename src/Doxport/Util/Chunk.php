@@ -78,7 +78,8 @@ class Chunk implements LoggerAwareInterface
         $this->options  = array_merge([
             'min'       => (int)(0.01 * $this->estimate),
             'max'       => (int)(3    * $this->estimate),
-            'smoothing' => 0.3
+            'smoothing' => 0.3,
+            'verbose'   => false
         ], $options);
     }
 

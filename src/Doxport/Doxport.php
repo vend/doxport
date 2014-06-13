@@ -9,7 +9,7 @@ use Doxport\Metadata\Driver;
 use Doxport\Pass\ClearPass;
 use Doxport\Pass\ConstraintPass;
 use Doxport\Pass\JoinPass;
-use Doxport\Util\Chunk;
+use Doxport\Pass\Pass;
 use Fhaculty\Graph\Set\Vertices;
 use LogicException;
 use Psr\Log\LoggerAwareInterface;
@@ -54,11 +54,12 @@ class Doxport implements LoggerAwareInterface
     protected $entity;
 
     /**
-     * @var array
+     * @var array<string,mixed>
      */
     protected $options = [
-        'root'  => false,
-        'image' => false
+        'root'    => false,
+        'image'   => false,
+        'verbose' => false
     ];
 
     /**
@@ -142,9 +143,11 @@ class Doxport implements LoggerAwareInterface
             throw new LogicException('Specify an entity type first, with setEntity()');
         }
 
-        $this->logger->log(LogLevel::NOTICE, 'Creating entity graph for {entity}', [
-            'entity' => $this->entity
-        ]);
+        if ($this->options['verbose']) {
+            $this->logger->log(LogLevel::NOTICE, 'Creating entity graph for {entity}', [
+                'entity' => $this->entity
+            ]);
+        }
 
         return new EntityGraph($this->entity);
     }
@@ -189,10 +192,7 @@ class Doxport implements LoggerAwareInterface
      */
     public function getConstraintPass(array $options = [])
     {
-        $this->checkAction();
-        $options = array_merge($this->options, $options);
-
-        $this->logger->log(LogLevel::NOTICE, 'Creating constraint pass');
+        $options = $this->check($options);
 
         $pass = new ConstraintPass(
             $this->getMetadataDriver(),
@@ -201,10 +201,8 @@ class Doxport implements LoggerAwareInterface
         );
 
         $pass->setExportGraph($options['image']);
-        $pass->setIncludeRoot($options['root']);
 
-        $pass->setLogger($this->logger);
-        $pass->setFileFactory($this->fileFactory);
+        $this->configurePass($pass, $options);
 
         return $pass;
     }
@@ -216,10 +214,7 @@ class Doxport implements LoggerAwareInterface
      */
     public function getJoinPass(Vertices $vertices, array $options = [])
     {
-        $this->checkAction();
-        $options = array_merge($this->options, $options);
-
-        $this->logger->log(LogLevel::NOTICE, 'Creating join pass');
+        $options = $this->check($options);
 
         $pass = new JoinPass(
             $this->getMetadataDriver(),
@@ -228,9 +223,7 @@ class Doxport implements LoggerAwareInterface
             $this->action
         );
 
-        $pass->setIncludeRoot($options['root']);
-        $pass->setLogger($this->logger);
-        $pass->setFileFactory($this->fileFactory);
+        $this->configurePass($pass, $options);
 
         return $pass;
     }
@@ -242,10 +235,7 @@ class Doxport implements LoggerAwareInterface
      */
     public function getClearPass(Vertices $vertices, array $options = [])
     {
-        $this->checkAction();
-        $options = array_merge($this->options, $options);
-
-        $this->logger->log(LogLevel::NOTICE, 'Creating join pass');
+        $options = $this->check($options);
 
         $pass = new ClearPass(
             $this->getMetadataDriver(),
@@ -254,20 +244,39 @@ class Doxport implements LoggerAwareInterface
             $this->action
         );
 
-        $pass->setIncludeRoot($options['root']);
-        $pass->setLogger($this->logger);
-        $pass->setFileFactory($this->fileFactory);
+        $this->configurePass($pass, $options);
 
         return $pass;
     }
 
     /**
-     * @throws LogicException
+     * @param Pass $pass
+     * @param array $options
      */
-    protected function checkAction()
+    protected function configurePass(Pass $pass, array $options)
+    {
+        if ($options['verbose']) {
+            $this->logger->log(LogLevel::NOTICE, 'Configuring pass: ' . get_class($pass));
+        }
+
+        $pass->setIncludeRoot($options['root']);
+        $pass->setFileFactory($this->fileFactory);
+
+        if ($options['verbose']) {
+            $pass->setLogger($this->logger);
+        }
+    }
+
+    /**
+     * @param array $options
+     * @return array
+     */
+    protected function check(array $options)
     {
         if (!$this->action) {
             throw new LogicException('You must provide an action before obtaining pass objects');
         }
+
+        return array_merge($this->options, $options);
     }
 }

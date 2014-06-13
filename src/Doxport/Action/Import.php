@@ -135,7 +135,10 @@ class Import extends Action
         $this->chunk->end();
 
         $this->logger->notice('    changes flushed.');
-        $this->debugMemory();
+
+        if ($this->options['verbose']) {
+            $this->debugMemory();
+        }
     }
 
     /**

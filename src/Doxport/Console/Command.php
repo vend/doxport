@@ -8,6 +8,7 @@ use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
 use Symfony\Component\Console\Command\Command as CommandComponent;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 abstract class Command extends CommandComponent implements LoggerAwareInterface
@@ -18,6 +19,16 @@ abstract class Command extends CommandComponent implements LoggerAwareInterface
      * @var Doxport
      */
     protected $doxport;
+
+    /**
+     * @return void
+     */
+    protected function configure()
+    {
+        parent::configure();
+
+        $this->addOption('verbose', 'v', InputOption::VALUE_NONE, 'Verbose logging', null);
+    }
 
     /**
      * @param InputInterface  $input
@@ -37,6 +48,7 @@ abstract class Command extends CommandComponent implements LoggerAwareInterface
     {
         $this->doxport = new Doxport($this->getHelper('em')->getEntityManager());
         $this->doxport->setLogger($this->logger);
+        $this->doxport->setOption('verbose', $input->getOption('verbose'));
 
         return $this->doxport;
     }

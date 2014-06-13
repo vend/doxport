@@ -26,7 +26,9 @@ class Export extends QueryAction
      */
     protected function processQuery(JoinWalk $walk)
     {
-        $this->debugMemory();
+        if ($this->options['verbose']) {
+            $this->debugMemory();
+        }
 
         if (!empty($this->clear[$walk->getTargetId()])) {
             $clearFile = $this->getClearFile($walk);

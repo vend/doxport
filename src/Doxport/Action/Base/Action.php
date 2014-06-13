@@ -8,10 +8,14 @@ use Doxport\Metadata\Driver;
 use Doxport\Util\Chunk;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
+use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
 
 abstract class Action implements LoggerAwareInterface
 {
-    use LoggerAwareTrait;
+    use LoggerAwareTrait {
+        setLogger as setParentLogger;
+    }
 
     /**
      * @var EntityManager
@@ -39,14 +43,39 @@ abstract class Action implements LoggerAwareInterface
     protected $chunk;
 
     /**
-     * @param EntityManager $em
+     * @var array<string,mixed>
      */
-    public function __construct(EntityManager $em)
+    protected $options = [];
+
+    /**
+     * @param EntityManager $em
+     * @param array<string,mixed> $options
+     */
+    public function __construct(EntityManager $em, array $options = [])
     {
-        $this->em = $em;
+        $this->logger = new NullLogger();
+        $this->em     = $em;
+
+        $this->options = array_merge([
+            'verbose' => false
+        ], $options);
 
         // 500 rows initial estimate and max, target perform in 0.2 seconds
-        $this->chunk = new Chunk(500, 0.2, ['max' => 500, 'min' => 5]);
+        $this->chunk = new Chunk(500, 0.2, [
+            'max'     => 500,
+            'min'     => 5,
+            'verbose' => $this->options['verbose']
+        ]);
+    }
+
+    /**
+     * @param LoggerInterface $logger
+     * @return void
+     */
+    public function setLogger(LoggerInterface $logger)
+    {
+        $this->chunk->setLogger($logger);
+        $this->setParentLogger($logger);
     }
 
     /**

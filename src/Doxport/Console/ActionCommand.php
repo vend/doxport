@@ -90,6 +90,12 @@ abstract class ActionCommand extends Command
     {
         parent::execute($input, $output);
 
-        $this->logger->log(LogLevel::NOTICE, 'Configured action: {action_class}', ['action_class' => get_class($this->doxport->getAction())]);
+        if ($input->getOption('verbose')) {
+            $this->logger->log(
+                LogLevel::NOTICE,
+                'Configured action: {action_class}',
+                ['action_class' => get_class($this->doxport->getAction())]
+            );
+        }
     }
 }
