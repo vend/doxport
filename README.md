@@ -172,3 +172,4 @@ also a few additional files:
 
 By default, Doxport will output to JSON format. This can be changing using the
 `--format` option. The JSON format is an array of objects.
+
