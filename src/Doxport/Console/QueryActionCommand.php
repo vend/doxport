@@ -23,10 +23,10 @@ abstract class QueryActionCommand extends ActionCommand
 
         $this->addArgument('entity', InputArgument::REQUIRED, 'The entity to begin deleting from', null)
             ->addArgument('column', InputArgument::REQUIRED, 'A column to limit deleting', null)
-            ->addArgument('value', InputArgument::REQUIRED, 'The value to limit by', null);
+            ->addArgument('value', InputArgument::REQUIRED, 'The value to limit by', null)
+            ->addOption('include-root', 'r', InputOption::VALUE_NONE, 'Whether to include the root entity in the action')
+            ->addOption('graph', 'g', InputOption::VALUE_NONE, 'Whether to output the constraints graph that was used');
 
-        $this->addOption('include-root', 'r', InputOption::VALUE_NONE, 'Whether to include the root entity in the action');
-        $this->addOption('graph', 'g', InputOption::VALUE_NONE, 'Whether to output the constraints graph that was used');
     }
 
     /**
