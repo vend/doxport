@@ -31,7 +31,6 @@ class Factory
      * Constructor
      *
      * @param string        $format
-     * @param array<string> $formats
      */
     public function __construct($format = null)
     {

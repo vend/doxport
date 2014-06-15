@@ -2,8 +2,6 @@
 
 namespace Doxport\Pass;
 
-use Fhaculty\Graph\Vertex;
-
 /**
  * Pass to clear properties with update, ahead of main action
  */

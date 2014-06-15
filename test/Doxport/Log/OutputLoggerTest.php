@@ -7,6 +7,9 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class OutputLoggerTest extends AbstractTest
 {
+    /**
+     * @return OutputInterface
+     */
     protected function getMockOutputInterface($verbosity = OutputInterface::VERBOSITY_VERY_VERBOSE)
     {
         $mock = $this->getMockBuilder('Symfony\Component\Console\Output\OutputInterface')

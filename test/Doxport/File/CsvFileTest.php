@@ -2,8 +2,6 @@
 
 namespace Doxport\File;
 
-use stdClass;
-
 class CsvFileTest extends AbstractFileTest
 {
     /**

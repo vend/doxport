@@ -3,7 +3,6 @@
 namespace Doxport\Console;
 
 use Doxport\Action\Base\Action;
-use Doxport\Action\Base\FileActionTrait;
 use Doxport\File\Factory;
 use Psr\Log\LogLevel;
 use Symfony\Component\Console\Input\InputInterface;

@@ -3,7 +3,6 @@
 namespace Doxport;
 
 use Doxport\Metadata\Driver;
-use Doxport\Metadata\Entity;
 use Fhaculty\Graph\Algorithm\Search\BreadthFirst;
 use Fhaculty\Graph\Algorithm\TopologicalSort;
 use Fhaculty\Graph\Exporter\Dot;

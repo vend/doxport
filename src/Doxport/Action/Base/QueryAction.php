@@ -3,7 +3,6 @@
 namespace Doxport\Action\Base;
 
 use Doctrine\ORM\Mapping\ClassMetadata;
-use Doctrine\ORM\Query;
 use Doxport\Doctrine\AliasGenerator;
 use Doxport\Doctrine\JoinWalk;
 use Doxport\File\AbstractFile;

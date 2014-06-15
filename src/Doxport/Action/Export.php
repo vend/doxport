@@ -2,7 +2,6 @@
 
 namespace Doxport\Action;
 
-use Doctrine\ORM\Query;
 use Doxport\Action\Base\QueryAction;
 use Doxport\Doctrine\JoinWalk;
 use Doxport\File\AbstractFile;

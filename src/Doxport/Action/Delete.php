@@ -2,11 +2,9 @@
 
 namespace Doxport\Action;
 
-use Doctrine\ORM\Query;
 use Doxport\Action\Base\QueryAction;
 use Doxport\Doctrine\JoinWalk;
 use Doxport\File\AbstractFile;
-use Doxport\Pass\ClearPass;
 use Fhaculty\Graph\Walk;
 
 /**
