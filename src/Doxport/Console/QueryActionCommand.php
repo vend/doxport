@@ -3,6 +3,7 @@
 namespace Doxport\Console;
 
 use Doxport\Action\Base\QueryAction;
+use InvalidArgumentException;
 use Psr\Log\LogLevel;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -26,7 +27,6 @@ abstract class QueryActionCommand extends ActionCommand
             ->addArgument('value', InputArgument::REQUIRED, 'The value to limit by', null)
             ->addOption('include-root', 'r', InputOption::VALUE_NONE, 'Whether to include the root entity in the action')
             ->addOption('graph', 'g', InputOption::VALUE_NONE, 'Whether to output the constraints graph that was used');
-
     }
 
     /**
@@ -51,6 +51,9 @@ abstract class QueryActionCommand extends ActionCommand
         return $doxport;
     }
 
+    /**
+     * @inheritDoc
+     */
     protected function configureFileFactory(InputInterface $input)
     {
         $factory = parent::configureFileFactory($input);
@@ -75,14 +78,21 @@ abstract class QueryActionCommand extends ActionCommand
 
         $factory->createPath();
         $this->logger->log(LogLevel::NOTICE, 'Output directory: {dir}', ['dir' => $factory->getPath()]);
+
+        return $factory;
     }
 
     /**
      * @inheritDoc
+     * @return QueryAction
      */
     protected function configureAction(InputInterface $input)
     {
         $action = parent::configureAction($input);
+
+        if (!$action instanceof QueryAction) {
+            throw new InvalidArgumentException('Query action command is for detailing with query actions only');
+        }
 
         if ($input->hasArgument('column') && $input->hasArgument('value')) {
             $action->addRootCriteria(
@@ -90,6 +100,8 @@ abstract class QueryActionCommand extends ActionCommand
                 $input->getArgument('value')
             );
         }
+
+        return $action;
     }
 
     protected function validateInput(InputInterface $input)
