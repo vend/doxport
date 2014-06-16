@@ -46,6 +46,11 @@ class Factory implements LoggerAwareInterface
     protected $action;
 
     /**
+     * @var \Doxport\File\Factory
+     */
+    protected $fileFactory;
+
+    /**
      * Constructor
      *
      * @param Driver $driver
