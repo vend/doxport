@@ -2,6 +2,8 @@
 
 namespace Doxport\Console;
 
+use Doxport\Console\Base\QueryActionCommandTest;
+
 class DeleteCommandTest extends QueryActionCommandTest
 {
     /**
@@ -40,6 +42,9 @@ class DeleteCommandTest extends QueryActionCommandTest
         ]);
     }
 
+    /**
+     * @inheritDoc
+     */
     protected function getCommand()
     {
         return new DeleteCommand();

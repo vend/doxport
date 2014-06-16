@@ -2,7 +2,7 @@
 
 namespace Doxport\Console;
 
-use Doxport\Console\Base\Command;
+use Doxport\Console\Base\ActionCommandTest;
 
 class ImportCommandTest extends ActionCommandTest
 {
@@ -17,7 +17,7 @@ class ImportCommandTest extends ActionCommandTest
     }
 
     /**
-     * @return Command
+     * @inheritDoc
      */
     protected function getCommand()
     {

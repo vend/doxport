@@ -1,8 +1,7 @@
 <?php
 
-namespace Doxport\Console;
+namespace Doxport\Console\Base;
 
-use Doxport\Console\Base\Command;
 use Doxport\Test\AbstractTest;
 use Symfony\Component\Console\Tester\CommandTester;
 

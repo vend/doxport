@@ -2,6 +2,8 @@
 
 namespace Doxport\Console;
 
+use Doxport\Console\Base\QueryActionCommandTest;
+
 class ExportCommandTest extends QueryActionCommandTest
 {
     /**
@@ -40,6 +42,9 @@ class ExportCommandTest extends QueryActionCommandTest
         ]);
     }
 
+    /**
+     * @inheritDoc
+     */
     protected function getCommand()
     {
         return new ExportCommand();
