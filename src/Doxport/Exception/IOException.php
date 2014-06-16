@@ -2,6 +2,6 @@
 
 namespace Doxport\Exception;
 
-class IOException extends \Exception
+class IOException extends Exception
 {
 }
