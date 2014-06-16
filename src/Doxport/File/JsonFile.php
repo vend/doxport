@@ -2,8 +2,8 @@
 
 namespace Doxport\File;
 
+use Doxport\Exception\InvalidArgumentException;
 use Doxport\Exception\LogicException;
-use InvalidArgumentException;
 
 /**
  * A file formed by concatenating JSON objects with newlines between them
@@ -53,7 +53,7 @@ class JsonFile extends AbstractFile
     /**
      * Read the next object from the file, using the already-decoded array
      *
-     * @throws \LogicException
+     * @throws LogicException
      * @return false|array
      */
     public function readObject()

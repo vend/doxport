@@ -2,6 +2,8 @@
 
 namespace Doxport\Metadata;
 
+use Doxport\Exception\LogicException;
+
 /**
  * Wraps metadata about a particular property of an entity
  */
@@ -46,12 +48,12 @@ class Property
 
     /**
      * @return mixed
-     * @throws \LogicException
+     * @throws LogicException
      */
     public function getTargetEntity()
     {
         if (!isset($this->association['targetEntity'])) {
-            throw new \LogicException('No target entity on association of marked property');
+            throw new LogicException('No target entity on association of marked property');
         }
 
         return $this->association['targetEntity'];

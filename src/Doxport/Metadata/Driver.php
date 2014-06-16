@@ -5,7 +5,7 @@ namespace Doxport\Metadata;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Mapping\ClassMetadata;
 use Doctrine\ORM\Mapping\Driver\AnnotationDriver;
-use \LogicException;
+use Doxport\Exception\LogicException;
 
 class Driver
 {

@@ -4,7 +4,6 @@ namespace Doxport\Metadata;
 
 use Doxport\Annotation\Exclude;
 use Doxport\Test\AbstractTest;
-use LogicException;
 
 class PropertyTest extends AbstractTest
 {
@@ -28,7 +27,7 @@ class PropertyTest extends AbstractTest
     }
 
     /**
-     * @expectedException LogicException
+     * @expectedException Doxport\Exception\LogicException
      */
     public function testNoTargetEntity()
     {
