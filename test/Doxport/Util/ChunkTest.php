@@ -72,4 +72,12 @@ class ChunkTest extends AbstractTest
 
         $this->assertLessThan(500, $chunk->getEstimatedSize());
     }
+
+    public function testUpdateEstimateSpecificCount()
+    {
+        $chunk = new Chunk(100, 1);
+        $chunk->interval(1, 10000);
+
+        $this->assertEquals(300, $chunk->getEstimatedSize());
+    }
 }
