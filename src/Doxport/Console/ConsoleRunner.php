@@ -2,6 +2,7 @@
 
 namespace Doxport\Console;
 
+use Doxport\Exception\Exception;
 use Doxport\Version;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Helper\HelperSet;
@@ -17,11 +18,20 @@ class ConsoleRunner
      * calling this method (the actual bin command file).
      *
      * @param HelperSet $helperSet
+     * @param Application $application
+     * @throws \Doxport\Exception\Exception
      * @return integer 0 if everything went fine, or an error code
      */
-    public static function run(HelperSet $helperSet)
+    public static function run(HelperSet $helperSet, Application $application = null)
     {
-        $application = new Application('Doxport relational data tool', Version::VERSION);
+        if (!$helperSet->has('em')) {
+            throw new Exception('Helper set passed to Doxport console runner must have an entity manager ("em")');
+        }
+
+        if (!$application) {
+            $application = new Application('Doxport relational data tool', Version::VERSION);
+        }
+
         $application->setCatchExceptions(true);
         $application->setHelperSet($helperSet);
 
