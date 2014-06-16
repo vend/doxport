@@ -1,8 +1,9 @@
 <?php
 
-namespace Doxport\Console;
+namespace Doxport\Console\Base;
 
 use Doxport\Action\Base\QueryAction;
+use Doxport\Console\Base\ActionCommand;
 use InvalidArgumentException;
 use Psr\Log\LogLevel;
 use Symfony\Component\Console\Input\InputArgument;
@@ -37,7 +38,19 @@ abstract class QueryActionCommand extends ActionCommand
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         parent::execute($input, $output);
+
         $this->validateInput($input);
+
+        $pass = $this->doxport->getConstraintPass();
+        $vertices = $pass->run();
+
+        $pass = $this->doxport->getClearPass($vertices);
+        $pass->run();
+
+        $pass = $this->doxport->getJoinPass($vertices);
+        $pass->run();
+
+        $this->logger->notice('All done.');
     }
 
     protected function configureDoxport(InputInterface $input)

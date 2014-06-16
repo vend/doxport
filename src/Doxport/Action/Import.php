@@ -138,9 +138,7 @@ class Import extends Action
 
         $this->logger->notice('    changes flushed.');
 
-        if ($this->options['verbose']) {
-            $this->debugMemory();
-        }
+        $this->debugMemory();
     }
 
     /**
@@ -178,6 +176,7 @@ class Import extends Action
 
             if (empty($entity)) {
                 $this->logger->warning('Cannot find {entity} to update, skipping update', ['entity' => $entityName]);
+                continue;
             }
 
             // @todo Doesn't support foreign keys in identifier

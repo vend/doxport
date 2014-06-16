@@ -127,6 +127,10 @@ abstract class Action implements LoggerAwareInterface
      */
     protected function debugMemory()
     {
+        if (!$this->options['verbose']) {
+            return;
+        }
+
         $a = [
             memory_get_usage(),
             memory_get_peak_usage(),

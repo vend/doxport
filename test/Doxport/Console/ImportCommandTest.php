@@ -2,6 +2,8 @@
 
 namespace Doxport\Console;
 
+use Doxport\Console\Base\Command;
+
 class ImportCommandTest extends ActionCommandTest
 {
     /**

@@ -23,7 +23,7 @@ class Delete extends QueryAction
         // Get query
         $this->logger->notice('Getting select query for {target}', ['target' => $walk->getTargetId()]);
         $query = $walk->getQuery();
-        $this->logger->info($query->getSQL());
+        $this->debugQuery($query);
 
         // Output join information
         $this->logger->info((string)$walk);
@@ -116,7 +116,7 @@ class Delete extends QueryAction
         // Get query
         $this->logger->notice('Getting select query for {target}', ['target' => $walk->getTargetId()]);
         $query = $walk->getQuery();
-        $this->logger->info($query->getSQL());
+        $this->debugQuery($query);
 
         // Output join information
         $this->logger->info((string)$walk);

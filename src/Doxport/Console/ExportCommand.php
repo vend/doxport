@@ -4,8 +4,7 @@ namespace Doxport\Console;
 
 use Doxport\Action\Base\Action;
 use Doxport\Action\Export;
-use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Output\OutputInterface;
+use Doxport\Console\Base\QueryActionCommand;
 
 /**
  * Exports a dataset, writing it to files
@@ -19,32 +18,9 @@ class ExportCommand extends QueryActionCommand
     {
         parent::configure();
 
-        $this
-            ->setName('export')
+        $this->setName('export')
             ->setDescription('Exports a set of data from the database, beginning with a specified type');
     }
-
-    /**
-     * @param InputInterface  $input
-     * @param OutputInterface $output
-     * @return void
-     */
-    protected function execute(InputInterface $input, OutputInterface $output)
-    {
-        parent::execute($input, $output);
-
-        $pass = $this->doxport->getConstraintPass();
-        $vertices = $pass->run();
-
-        $pass = $this->doxport->getClearPass($vertices);
-        $pass->run();
-
-        $pass = $this->doxport->getJoinPass($vertices);
-        $pass->run();
-
-        $this->logger->notice('All done.');
-    }
-
 
     /**
      * @return Action

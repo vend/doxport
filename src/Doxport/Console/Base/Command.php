@@ -1,6 +1,6 @@
 <?php
 
-namespace Doxport\Console;
+namespace Doxport\Console\Base;
 
 use Doxport\Doxport;
 use Doxport\Log\OutputLogger;
