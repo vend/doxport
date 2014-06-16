@@ -150,10 +150,9 @@ class Delete extends QueryAction
         }
 
         if ($i > 0) {
-            // Remaining in current chunk
             $this->flush($file, $i);
         } elseif ($i == 0) {
-            $this->logger->notice('No results.');
+            $this->logger->notice('No results to delete');
         }
 
         $this->logger->notice('Done with {target}', ['target' => $walk->getTargetId()]);

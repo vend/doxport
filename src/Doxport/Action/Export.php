@@ -81,10 +81,9 @@ class Export extends QueryAction
         $array  = null;
 
         if ($i > 0) {
-            // Remaining in current chunk
             $this->flush($file, $clearFile);
         } elseif ($i == 0) {
-            $this->logger->notice('No results.');
+            $this->logger->notice('No results for export');
         }
 
         $this->logger->notice('Done with {target}', ['target' => $walk->getTargetId()]);
