@@ -1,8 +1,9 @@
 <?php
 
-namespace Doxport\Console;
+namespace Doxport\Console\Base;
 
 use Doxport\Action\Base\Action;
+use Doxport\Console\Base\Command;
 use Doxport\File\Factory;
 use Psr\Log\LogLevel;
 use Symfony\Component\Console\Input\InputInterface;

@@ -2,6 +2,7 @@
 
 namespace Doxport\Console;
 
+use Doxport\Console\Base\Command;
 use Doxport\Test\AbstractTest;
 use Symfony\Component\Console\Tester\CommandTester;
 

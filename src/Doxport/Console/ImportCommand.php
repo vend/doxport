@@ -3,6 +3,7 @@
 namespace Doxport\Console;
 
 use Doxport\Action\Import;
+use Doxport\Console\Base\ActionCommand;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;

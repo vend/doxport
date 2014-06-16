@@ -4,8 +4,7 @@ namespace Doxport\Console;
 
 use Doxport\Action\Base\Action;
 use Doxport\Action\Export;
-use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Output\OutputInterface;
+use Doxport\Console\Base\QueryActionCommand;
 
 /**
  * Exports a dataset, writing it to files

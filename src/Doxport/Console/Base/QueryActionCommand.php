@@ -1,8 +1,9 @@
 <?php
 
-namespace Doxport\Console;
+namespace Doxport\Console\Base;
 
 use Doxport\Action\Base\QueryAction;
+use Doxport\Console\Base\ActionCommand;
 use InvalidArgumentException;
 use Psr\Log\LogLevel;
 use Symfony\Component\Console\Input\InputArgument;

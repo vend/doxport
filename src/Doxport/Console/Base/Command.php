@@ -1,6 +1,6 @@
 <?php
 
-namespace Doxport\Console;
+namespace Doxport\Console\Base;
 
 use Doxport\Doxport;
 use Doxport\Log\OutputLogger;
@@ -25,7 +25,7 @@ abstract class Command extends CommandComponent implements LoggerAwareInterface
      */
     protected function configure()
     {
-        parent::configure();
+        CommandComponent::configure();
 
         $this->addOption('verbose', 'v', InputOption::VALUE_NONE, 'Verbose logging', null);
     }
