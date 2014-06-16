@@ -5,6 +5,7 @@ namespace Doxport\Pass;
 use Doxport\Action\Base\Action;
 use Doxport\Action\Base\QueryAction;
 use Doxport\EntityGraph;
+use Doxport\Exception\Exception;
 use Doxport\Metadata\Driver;
 use Fhaculty\Graph\Algorithm\ShortestPath\BreadthFirst;
 use Fhaculty\Graph\Set\Vertices;
@@ -13,11 +14,6 @@ use Fhaculty\Graph\Walk;
 
 class JoinPass extends Pass
 {
-    /**
-     * @var Vertices
-     */
-    protected $vertices;
-
     /**
      * @var QueryAction
      */
@@ -29,12 +25,12 @@ class JoinPass extends Pass
     protected $includeRoot = true;
 
     /**
-     * @param Driver      $driver
+     * @param Driver $driver
      * @param EntityGraph $graph
-     * @param Vertices    $vertices
-     * @param Action      $action
+     * @param Action $action
+     * @param Vertices $vertices
      */
-    public function __construct(Driver $driver, EntityGraph $graph, Vertices $vertices, Action $action)
+    public function __construct(Driver $driver, EntityGraph $graph, Action $action, Vertices $vertices = null)
     {
         parent::__construct($driver, $graph, $action);
 
@@ -60,10 +56,15 @@ class JoinPass extends Pass
 
     /**
      * @return void
+     * @throws Exception
      */
     public function run()
     {
         parent::run();
+
+        if (!isset($this->vertices)) {
+            throw new Exception('Cannot run join pass without a set of vertices to run on');
+        }
 
         foreach ($this->vertices as $vertex) {
             /* @var $vertex Vertex */

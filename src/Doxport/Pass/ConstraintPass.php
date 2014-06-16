@@ -7,21 +7,6 @@ use Psr\Log\LogLevel;
 
 class ConstraintPass extends Pass
 {
-    /**
-     * Whether to export the constraint graph image
-     *
-     * @var boolean
-     */
-    protected $exportGraph = false;
-
-    /**
-     * @param boolean $export
-     */
-    public function setExportGraph($export)
-    {
-        $this->exportGraph = $export;
-    }
-
     protected function configureGraph()
     {
         $this->logger->log(LogLevel::INFO, 'Filtering for covered, supported associations');

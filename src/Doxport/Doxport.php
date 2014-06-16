@@ -4,7 +4,8 @@ namespace Doxport;
 
 use Doctrine\ORM\EntityManager;
 use Doxport\Action\Base\Action;
-use Doxport\File\Factory;
+use Doxport\File\Factory as FileFactory;
+use Doxport\Pass\Factory as PassFactory;
 use Doxport\Metadata\Driver;
 use Doxport\Pass\ClearPass;
 use Doxport\Pass\ConstraintPass;
@@ -39,9 +40,14 @@ class Doxport implements LoggerAwareInterface
     protected $driver;
 
     /**
-     * @var File\Factory
+     * @var FileFactory
      */
     protected $fileFactory;
+
+    /**
+     * @var PassFactory
+     */
+    protected $passFactory;
 
     /**
      * @var Action
@@ -71,9 +77,9 @@ class Doxport implements LoggerAwareInterface
     {
         $this->entityManager = $manager;
 
-        // Defaults, can be injected?
+        // Defaults, can be injected with setter injection
         $this->driver      = new Driver($manager);
-        $this->fileFactory = new Factory();
+        $this->fileFactory = new FileFactory();
     }
 
     /**
@@ -118,15 +124,7 @@ class Doxport implements LoggerAwareInterface
     }
 
     /**
-     * @param Factory $factory
-     */
-    public function setFileFactory(Factory $factory)
-    {
-        $this->fileFactory = $factory;
-    }
-
-    /**
-     * @return Factory
+     * @return FileFactory
      */
     public function getFileFactory()
     {
@@ -134,22 +132,30 @@ class Doxport implements LoggerAwareInterface
     }
 
     /**
-     * @throws LogicException
-     * @return EntityGraph
+     * @param PassFactory $factory
      */
-    public function getEntityGraph()
+    public function setPassFactory(PassFactory $factory)
     {
-        if (!$this->entity) {
-            throw new LogicException('Specify an entity type first, with setEntity()');
+        $this->passFactory = $factory;
+    }
+
+    /**
+     * @return PassFactory
+     */
+    protected function getPassFactory()
+    {
+        if (!isset($this->passFactory)) {
+            $this->passFactory = new PassFactory(
+                $this->driver,
+                $this->getEntityGraph(),
+                $this->action,
+                $this->fileFactory
+            );
+
+            $this->passFactory->setLogger($this->getLogger());
         }
 
-        if ($this->options['verbose']) {
-            $this->logger->log(LogLevel::NOTICE, 'Creating entity graph for {entity}', [
-                'entity' => $this->entity
-            ]);
-        }
-
-        return new EntityGraph($this->entity);
+        return $this->passFactory;
     }
 
     /**
@@ -185,26 +191,34 @@ class Doxport implements LoggerAwareInterface
     }
 
     /**
-     * @param array $options An array of options
-     *   - boolean image, default false   Whether to output a constraints image
-     *   - boolean root, default false    Whether to include the root entity
+     * @throws LogicException
+     * @return EntityGraph
+     */
+    public function getEntityGraph()
+    {
+        if (!$this->entity) {
+            throw new LogicException('Specify an entity type first, with setEntity()');
+        }
+
+        if ($this->options['verbose']) {
+            $this->logger->log(LogLevel::NOTICE, 'Creating entity graph for {entity}', [
+                'entity' => $this->entity
+            ]);
+        }
+
+        return new EntityGraph($this->entity);
+    }
+
+    /**
+     * @param array $options
      * @return ConstraintPass
      */
     public function getConstraintPass(array $options = [])
     {
-        $options = $this->check($options);
-
-        $pass = new ConstraintPass(
-            $this->getMetadataDriver(),
-            $this->getEntityGraph(),
-            $this->action
-        );
-
-        $pass->setExportGraph($options['image']);
-
-        $this->configurePass($pass, $options);
-
-        return $pass;
+        return $this->getPassFactory()->get('constraint', null, array_merge(
+            $this->options,
+            $options
+        ));
     }
 
     /**
@@ -214,18 +228,10 @@ class Doxport implements LoggerAwareInterface
      */
     public function getJoinPass(Vertices $vertices, array $options = [])
     {
-        $options = $this->check($options);
-
-        $pass = new JoinPass(
-            $this->getMetadataDriver(),
-            $this->getEntityGraph(),
-            $vertices,
-            $this->action
-        );
-
-        $this->configurePass($pass, $options);
-
-        return $pass;
+        return $this->getPassFactory()->get('join', $vertices, array_merge(
+            $this->options,
+            $options
+        ));
     }
 
     /**
@@ -235,48 +241,9 @@ class Doxport implements LoggerAwareInterface
      */
     public function getClearPass(Vertices $vertices, array $options = [])
     {
-        $options = $this->check($options);
-
-        $pass = new ClearPass(
-            $this->getMetadataDriver(),
-            $this->getEntityGraph(),
-            $vertices,
-            $this->action
-        );
-
-        $this->configurePass($pass, $options);
-
-        return $pass;
-    }
-
-    /**
-     * @param Pass $pass
-     * @param array $options
-     */
-    protected function configurePass(Pass $pass, array $options)
-    {
-        if ($options['verbose']) {
-            $this->logger->log(LogLevel::NOTICE, 'Configuring pass: ' . get_class($pass));
-        }
-
-        $pass->setIncludeRoot($options['root']);
-        $pass->setFileFactory($this->fileFactory);
-
-        if ($options['verbose']) {
-            $pass->setLogger($this->logger);
-        }
-    }
-
-    /**
-     * @param array $options
-     * @return array
-     */
-    protected function check(array $options)
-    {
-        if (!$this->action) {
-            throw new LogicException('You must provide an action before obtaining pass objects');
-        }
-
-        return array_merge($this->options, $options);
+        return $this->getPassFactory()->get('clear', $vertices, array_merge(
+            $this->options,
+            $options
+        ));
     }
 }
