@@ -99,23 +99,25 @@ class Chunk implements LoggerAwareInterface
      * Call this method immediately after the end of each chunk being processed
      *
      * @return void
+     * @param int $processed The number of items that were actually processed
      */
-    public function end()
+    public function end($processed = null)
     {
         $this->end = microtime(true);
-        $this->updateEstimate();
+        $this->updateEstimate($processed);
     }
 
     /**
      * Alternative way to set observed time
      *
      * @param float $interval
+     * @param int $processed The number of items that were actually processed
      */
-    public function interval($interval)
+    public function interval($interval, $processed = null)
     {
         $this->begin = 0;
         $this->end = $interval;
-        $this->updateEstimate();
+        $this->updateEstimate($processed);
     }
 
     /**
@@ -131,11 +133,13 @@ class Chunk implements LoggerAwareInterface
     /**
      * Updates the current estimate of the correct chunk size
      *
+     * @param integer $processed
      * @return void
      */
-    protected function updateEstimate()
+    protected function updateEstimate($processed = null)
     {
-        $previous = $this->estimate;
+        // The previous chunk size processed, from either the caller, or the last estimate
+        $previous = $processed !== null ? $processed : $this->estimate;
 
         // dx/dt of last observation, per second rate
         $time     = ($this->end - $this->begin);
