@@ -20,30 +20,8 @@ class DeleteCommand extends QueryActionCommand
     {
         parent::configure();
 
-        $this
-            ->setName('delete')
+        $this->setName('delete')
             ->setDescription('Deletes a set of data from the database, beginning with a specified type, but not including it');
-    }
-
-    /**
-     * @param InputInterface  $input
-     * @param OutputInterface $output
-     * @return void
-     */
-    protected function execute(InputInterface $input, OutputInterface $output)
-    {
-        parent::execute($input, $output);
-
-        $pass = $this->doxport->getConstraintPass();
-        $vertices = $pass->run();
-
-        $pass = $this->doxport->getClearPass($vertices);
-        $pass->run();
-
-        $pass = $this->doxport->getJoinPass($vertices);
-        $pass->run();
-
-        $this->logger->notice('All done.');
     }
 
     /**

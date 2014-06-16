@@ -37,7 +37,19 @@ abstract class QueryActionCommand extends ActionCommand
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         parent::execute($input, $output);
+
         $this->validateInput($input);
+
+        $pass = $this->doxport->getConstraintPass();
+        $vertices = $pass->run();
+
+        $pass = $this->doxport->getClearPass($vertices);
+        $pass->run();
+
+        $pass = $this->doxport->getJoinPass($vertices);
+        $pass->run();
+
+        $this->logger->notice('All done.');
     }
 
     protected function configureDoxport(InputInterface $input)
