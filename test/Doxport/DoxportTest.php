@@ -2,6 +2,8 @@
 
 namespace Doxport;
 
+use Doxport\Action\Delete;
+use Doxport\Exception\Exception;
 use Doxport\Test\AbstractMockTest;
 
 class DoxportTest extends AbstractMockTest
@@ -41,18 +43,19 @@ class DoxportTest extends AbstractMockTest
     }
 
     /**
-     * @expectedException \LogicException
+     * @expectedException Exception
      */
     public function testNoEntityType()
     {
         $instance = new Doxport($this->getMockEntityManager());
         $instance->setLogger($this->getMockLogger());
+        $instance->setAction(new Delete($this->getMockEntityManager(), []));
 
         $instance->getConstraintPass();
     }
 
     /**
-     * @expectedException \LogicException
+     * @expectedException Exception
      */
     public function testNoAction()
     {

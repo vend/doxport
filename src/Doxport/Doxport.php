@@ -4,6 +4,7 @@ namespace Doxport;
 
 use Doctrine\ORM\EntityManager;
 use Doxport\Action\Base\Action;
+use Doxport\Exception\Exception;
 use Doxport\File\Factory as FileFactory;
 use Doxport\Pass\Factory as PassFactory;
 use Doxport\Metadata\Driver;
@@ -12,7 +13,6 @@ use Doxport\Pass\ConstraintPass;
 use Doxport\Pass\JoinPass;
 use Doxport\Pass\Pass;
 use Fhaculty\Graph\Set\Vertices;
-use LogicException;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
 use Psr\Log\LogLevel;
@@ -191,13 +191,13 @@ class Doxport implements LoggerAwareInterface
     }
 
     /**
-     * @throws LogicException
+     * @throws Exception
      * @return EntityGraph
      */
     public function getEntityGraph()
     {
         if (!$this->entity) {
-            throw new LogicException('Specify an entity type first, with setEntity()');
+            throw new Exception('Specify an entity type first, with setEntity()');
         }
 
         if ($this->options['verbose']) {

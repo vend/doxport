@@ -2,8 +2,8 @@
 
 namespace Doxport\File;
 
+use Doxport\Exception\LogicException;
 use InvalidArgumentException;
-use LogicException;
 
 /**
  * A file formed by concatenating JSON objects with newlines between them

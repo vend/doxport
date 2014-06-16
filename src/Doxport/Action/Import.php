@@ -3,9 +3,9 @@
 namespace Doxport\Action;
 
 use Doxport\Action\Base\Action;
+use Doxport\Exception\IOException;
 use Doxport\Pass\ClearPass;
 use Doxport\Util\EntityArrayHelper;
-use LogicException;
 
 class Import extends Action
 {
@@ -207,19 +207,19 @@ class Import extends Action
     }
 
     /**
-     * @throws LogicException
+     * @throws IOException
      * @return void
      */
     protected function validate()
     {
         if (!is_dir($this->fileFactory->getPath())) {
-            throw new LogicException('Cannot find data directory: ' . $this->fileFactory->getPath());
+            throw new IOException('Cannot find data directory: ' . $this->fileFactory->getPath());
         }
 
         $this->constraintPath = $this->fileFactory->getPathForFile('constraints', 'txt');
 
         if (!is_readable($this->constraintPath)) {
-            throw new LogicException('Unreadable constraints.txt in data directory - invalid data dir?');
+            throw new IOException('Unreadable constraints.txt in data directory - invalid data dir?');
         }
     }
 

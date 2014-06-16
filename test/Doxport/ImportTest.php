@@ -4,13 +4,13 @@ namespace Doxport;
 
 use Doxport\Action\Base\Action;
 use Doxport\Action\Import;
+use Doxport\Exception\IOException;
 use Doxport\Test\AbstractEntityManagerTest;
-use LogicException;
 
 class ImportTest extends AbstractEntityManagerTest
 {
     /**
-     * @expectedException LogicException
+     * @expectedException Doxport\Exception\IOException
      */
     public function testEmptyDirectory()
     {
