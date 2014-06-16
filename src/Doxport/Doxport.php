@@ -11,7 +11,6 @@ use Doxport\Metadata\Driver;
 use Doxport\Pass\ClearPass;
 use Doxport\Pass\ConstraintPass;
 use Doxport\Pass\JoinPass;
-use Doxport\Pass\Pass;
 use Fhaculty\Graph\Set\Vertices;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
@@ -140,22 +139,32 @@ class Doxport implements LoggerAwareInterface
     }
 
     /**
+     * Don't locally memoize the pass factory that's instantiated here, otherwise
+     * the graph isn't cleared between passes
+     *
      * @return PassFactory
+     * @throws Exception
      */
     protected function getPassFactory()
     {
-        if (!isset($this->passFactory)) {
-            $this->passFactory = new PassFactory(
-                $this->driver,
-                $this->getEntityGraph(),
-                $this->action,
-                $this->fileFactory
-            );
-
-            $this->passFactory->setLogger($this->getLogger());
+        if ($this->passFactory) {
+            return $this->passFactory;
         }
 
-        return $this->passFactory;
+        if (!isset($this->action)) {
+            throw new Exception('Unable to create pass: tell the Doxport instance what action to run first');
+        }
+
+        $factory = new PassFactory(
+            $this->driver,
+            $this->getEntityGraph(),
+            $this->action,
+            $this->fileFactory
+        );
+
+        $factory->setLogger($this->getLogger());
+
+        return $factory;
     }
 
     /**
