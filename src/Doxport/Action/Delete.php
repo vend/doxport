@@ -68,9 +68,11 @@ class Delete extends QueryAction
 
     /**
      * @param AbstractFile $file
+     * @param integer $count The number of queued operations on the unit of work
+     * @throws \Doxport\Exception\IOException
      * @return void
      */
-    protected function flush(AbstractFile $file)
+    protected function flush(AbstractFile $file, $count = null)
     {
         $this->logger->notice('  Flushing and syncing...');
 
@@ -82,7 +84,7 @@ class Delete extends QueryAction
         $this->chunk->begin();
         $this->em->flush();
         $this->em->clear();
-        $this->chunk->end();
+        $this->chunk->end($count);
 
         $this->logger->notice('  done.');
     }
@@ -140,7 +142,7 @@ class Delete extends QueryAction
             $this->em->persist($entity);
 
             if ($i > $this->chunk->getEstimatedSize()) {
-                $this->flush($file); // Actually apply changes
+                $this->flush($file, $i); // Actually apply changes
                 $i = 0;
             }
 
@@ -149,7 +151,7 @@ class Delete extends QueryAction
 
         if ($i > 0) {
             // Remaining in current chunk
-            $this->flush($file);
+            $this->flush($file, $i);
         } elseif ($i == 0) {
             $this->logger->notice('No results.');
         }

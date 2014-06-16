@@ -118,21 +118,23 @@ class Import extends Action
             $i++;
         }
 
+        $this->flush($i);
         $this->logger->notice('  {i} entities processed. ', ['i' => $i]);
-        $this->flush();
     }
 
     /**
      * Flushes the entity manager
+     *
+     * @param integer $count Number of queued changes
      */
-    protected function flush()
+    protected function flush($count = null)
     {
         $this->logger->notice('  Flushing entity manager...');
 
         $this->chunk->begin();
         $this->em->flush();
         $this->em->clear();
-        $this->chunk->end();
+        $this->chunk->end($count);
 
         $this->logger->notice('    changes flushed.');
 
@@ -202,7 +204,7 @@ class Import extends Action
         $this->chunk->begin();
         $this->em->flush();
         $this->em->clear();
-        $this->chunk->end();
+        $this->chunk->end(count($updates));
     }
 
     /**
