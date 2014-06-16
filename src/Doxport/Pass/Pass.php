@@ -4,7 +4,7 @@ namespace Doxport\Pass;
 
 use Doxport\Action\Base\Action;
 use Doxport\EntityGraph;
-use Doxport\File\Factory;
+use Doxport\File\Factory as FileFactory;
 use Doxport\Metadata\Driver;
 use Fhaculty\Graph\Set\Vertices;
 use Psr\Log\LoggerAwareInterface;
@@ -36,7 +36,7 @@ abstract class Pass implements LoggerAwareInterface
     protected $action;
 
     /**
-     * @var Factory
+     * @var FileFactory
      */
     protected $fileFactory;
 
@@ -85,9 +85,9 @@ abstract class Pass implements LoggerAwareInterface
     }
 
     /**
-     * @param Factory $fileFactory
+     * @param FileFactory $fileFactory
      */
-    public function setFileFactory(Factory $fileFactory)
+    public function setFileFactory(FileFactory $fileFactory)
     {
         $this->fileFactory = $fileFactory;
     }
