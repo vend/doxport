@@ -25,7 +25,7 @@ abstract class Command extends CommandComponent implements LoggerAwareInterface
      */
     protected function configure()
     {
-        CommandComponent::configure();
+        parent::configure();
 
         $this->addOption('verbose', 'v', InputOption::VALUE_NONE, 'Verbose logging', null);
     }

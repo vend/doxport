@@ -145,6 +145,4 @@ abstract class Action implements LoggerAwareInterface
 
         $this->logger->notice('Memory: ' . $s);
     }
-
-
 }
