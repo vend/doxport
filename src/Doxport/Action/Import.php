@@ -138,9 +138,7 @@ class Import extends Action
 
         $this->logger->notice('    changes flushed.');
 
-        if ($this->options['verbose']) {
-            $this->debugMemory();
-        }
+        $this->debugMemory();
     }
 
     /**

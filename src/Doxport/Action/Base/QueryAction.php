@@ -3,6 +3,7 @@
 namespace Doxport\Action\Base;
 
 use Doctrine\ORM\Mapping\ClassMetadata;
+use Doctrine\ORM\Query;
 use Doxport\Doctrine\AliasGenerator;
 use Doxport\Doctrine\JoinWalk;
 use Doxport\File\AbstractFile;
@@ -119,6 +120,26 @@ abstract class QueryAction extends Action
         $array = $helper->toArray($entity, $fields);
 
         return $array;
+    }
+
+    /**
+     * Prints debugging information about the given query
+     *
+     * @param Query $query
+     */
+    protected function debugQuery(Query $query)
+    {
+        if (!$this->options['verbose']) {
+            return;
+        }
+
+        $sql = $query->getSQL();
+
+        if (is_array($sql)) {
+            $sql = implode('; ', $sql);
+        }
+
+        $this->logger->info($sql);
     }
 
     /**
