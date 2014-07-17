@@ -2,6 +2,7 @@
 
 namespace Doxport;
 
+use Doctrine\DBAL\Connections\MasterSlaveConnection;
 use Doctrine\ORM\EntityManager;
 use Doxport\Action\Base\Action;
 use Doxport\Exception\Exception;
@@ -75,10 +76,26 @@ class Doxport implements LoggerAwareInterface
     public function __construct(EntityManager $manager)
     {
         $this->entityManager = $manager;
+        $this->configureConnection();
 
         // Defaults, can be injected with setter injection
         $this->driver      = new Driver($manager);
         $this->fileFactory = new FileFactory();
+    }
+
+    /**
+     * Configures the current connection
+     *
+     * @return void
+     */
+    protected function configureConnection()
+    {
+        $connection = $this->entityManager->getConnection();
+
+        // Use the master if given a master/slave aggregate connection
+        if ($connection instanceof MasterSlaveConnection) {
+            $connection->connect('master');
+        }
     }
 
     /**
