@@ -94,6 +94,11 @@ abstract class AbstractFile
         fseek($this->file, 0, SEEK_END);
     }
 
+    /**
+     * Rewinds the file pointer
+     *
+     * @throws \Doxport\Exception\IOException
+     */
     public function rewind()
     {
         if (!$this->file) {

@@ -5,7 +5,7 @@ namespace Doxport\Action\Base;
 use Doctrine\ORM\EntityManager;
 use Doxport\File\Factory;
 use Doxport\Metadata\Driver;
-use Doxport\Util\Chunk;
+use Chunky\Chunk;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
 use Psr\Log\LoggerInterface;
