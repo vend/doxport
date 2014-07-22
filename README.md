@@ -15,6 +15,8 @@ the correct order.
 [![Build Status](https://travis-ci.org/vend/doxport.png)](https://travis-ci.org/vend/doxport)
 [![Scrutinizer Quality Score](https://scrutinizer-ci.com/g/vend/doxport/badges/quality-score.png?s=babbc605acfb81f0cf141b93fa14f2b1bb05a361)](https://scrutinizer-ci.com/g/vend/doxport/)
 [![Code Coverage](https://scrutinizer-ci.com/g/vend/doxport/badges/coverage.png?s=b19bb9d0469a3fc01d0894a3b2f7dc3522176bdc)](https://scrutinizer-ci.com/g/vend/doxport/)
+[![Latest Stable Version](https://poser.pugx.org/vend/doxport/v/stable.svg)](https://packagist.org/packages/vend/doxport)
+[![License](https://poser.pugx.org/vend/doxport/license.svg)](https://packagist.org/packages/vend/doxport)
 
 ## Installation
 
