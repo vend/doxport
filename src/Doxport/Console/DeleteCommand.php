@@ -20,7 +20,7 @@ class DeleteCommand extends QueryActionCommand
         parent::configure();
 
         $this->setName('delete')
-            ->setDescription('Deletes a set of data from the database, beginning with a specified type, but not including it');
+            ->setDescription('Deletes a set of data from the database, beginning with a specified type, but not including it (the data is exported)');
     }
 
     /**

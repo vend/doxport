@@ -143,12 +143,22 @@ abstract class QueryAction extends Action
     }
 
     /**
+     * Processes the main part of the action
+     *
      * @param JoinWalk $walk
      * @return mixed
      */
     abstract protected function processQuery(JoinWalk $walk);
 
     /**
+     * For the delete to work, foreign key constraints that can't be cleared
+     * as part of the main delete processing will be cleared in the database
+     * first. This is usually things like relational cycles.
+     *
+     * Here, we make the same select the main processing is going to. Then we
+     * store the cleared properties in the file and clear the properties from
+     * the database. (Actually making an update.)
+     *
      * @param \Fhaculty\Graph\Walk $walk
      * @param array $fields
      * @param array $joinFields

@@ -20,8 +20,7 @@ class Export extends QueryAction
     protected $clear = [];
 
     /**
-     * @param JoinWalk $walk
-     * @return void
+     * @inheritDoc
      */
     protected function processQuery(JoinWalk $walk)
     {

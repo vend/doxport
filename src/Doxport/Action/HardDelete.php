@@ -4,24 +4,21 @@ namespace Doxport\Action;
 
 use Doxport\Action\Base\QueryAction;
 use Doxport\Doctrine\JoinWalk;
-use Doxport\File\AbstractFile;
 use Fhaculty\Graph\Walk;
 
 /**
- * Delete action
+ * Hard delete action
  *
- * Deletes rows of the database, but stores the content to alternative storage
- * first
+ * Deletes rows without backing them up to alternative storage first
  */
-class Delete extends QueryAction
+class HardDelete extends QueryAction
 {
     /**
-     * @param JoinWalk $walk
-     * @return void
+     * @inheritDoc
      */
     protected function processQuery(JoinWalk $walk)
     {
-        $this->logger->notice('Doing deletion');
+        $this->logger->notice('Doing hard deletion');
 
         // Get query
         $this->logger->notice('Getting select query for {target}', ['target' => $walk->getTargetId()]);
@@ -34,10 +31,6 @@ class Delete extends QueryAction
         // Get iterator
         $iterator = $query->iterate(null);
 
-        // Output file information
-        $file = $this->fileFactory->getFile($this->getClassName($walk->getTargetId()));
-        $this->logger->notice('Outputting to {file}', ['file' => (string)$file]);
-
         // Iterate through results
         $this->logger->notice('Iterating through results...');
         $i = 0;
@@ -45,13 +38,10 @@ class Delete extends QueryAction
         foreach ($iterator as $result) {
             $entity = $result[0];
 
-            $array = $this->entityToArray($entity);
-            $file->writeObject($array);  // Write to file
-
-            $this->em->remove($entity);  // Queue delete
+            $this->em->remove($entity); // Queue delete
 
             if ($i > $this->chunk->getEstimatedSize()) {
-                $this->flush($file); // Actually apply changes
+                $this->flush($i); // Actually apply changes
                 $i = 0;
             }
 
@@ -60,29 +50,21 @@ class Delete extends QueryAction
 
         if ($i > 0) {
             // Remaining in current chunk
-            $this->flush($file);
+            $this->flush($i);
         } elseif ($i == 0) {
             $this->logger->notice('No results.');
         }
 
         $this->logger->notice('Done with {target}', ['target' => $walk->getTargetId()]);
-        $file->close();
     }
 
     /**
-     * @param AbstractFile $file
      * @param integer $count The number of queued operations on the unit of work
-     * @throws \Doxport\Exception\IOException
      * @return void
      */
-    protected function flush(AbstractFile $file, $count = null)
+    protected function flush($count = null)
     {
-        $this->logger->notice('  Flushing and syncing...');
-
-        $file->flush();
-        $file->sync();
-
-        $this->logger->notice('  done. Committing deletes...');
+        $this->logger->notice('  Committing deletes...');
 
         $this->chunk->begin();
         $this->em->flush();
@@ -93,19 +75,14 @@ class Delete extends QueryAction
     }
 
     /**
-     * Process the clear pass
-     *
-     * @param Walk $path
-     * @param array $fields
-     * @param array $joinFields
-     * @return mixed
+     * @inheritDoc
      */
     public function processClear(Walk $path, array $fields, array $joinFields)
     {
         $this->logger->notice('Doing clear of properties');
 
         // Prep work
-        $walk = $this->getJoinWalk($path);
+        $walk  = $this->getJoinWalk($path);
         $class = $this->driver->getEntityMetadata($walk->getTargetId())->getClassMetadata();
 
         // Get query
@@ -119,10 +96,6 @@ class Delete extends QueryAction
         // Get iterator
         $iterator = $query->iterate(null);
 
-        // Output file information
-        $file = $this->getClearFile($walk);
-        $this->logger->notice('Outputting to {file}', ['file' => (string)$file]);
-
         // Iterate through results
         $this->logger->notice('Iterating through results...');
         $i = 0;
@@ -131,13 +104,12 @@ class Delete extends QueryAction
             /** @var object $entity */
             $entity = $result[0];
 
-            $this->writeClearedProperties($file, $class, $entity, $joinFields);
             $this->clearProperties($class, $entity, array_merge($fields, $joinFields));
 
             $this->em->persist($entity);
 
             if ($i > $this->chunk->getEstimatedSize()) {
-                $this->flush($file, $i); // Actually apply changes
+                $this->flush($i); // Actually apply changes
                 $i = 0;
             }
 
@@ -145,12 +117,11 @@ class Delete extends QueryAction
         }
 
         if ($i > 0) {
-            $this->flush($file, $i);
+            $this->flush($i);
         } elseif ($i == 0) {
             $this->logger->notice('No results to delete');
         }
 
         $this->logger->notice('Done with {target}', ['target' => $walk->getTargetId()]);
-        $file->close();
     }
 }
