@@ -26,7 +26,7 @@
         "php":                          ">=5.4.0",
         "ext-mbstring":                       "*",
 
-        "vend/chunky":                  "~0.0.1",
+        "vend/chunky":                  "~1.0.0",
         "clue/graph":                   "~0.7.1",
         "doctrine/orm":                 "~2.4.4",
         "symfony/console":              "~2.4.6",
