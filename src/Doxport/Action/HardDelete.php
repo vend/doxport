@@ -107,13 +107,12 @@ class HardDelete extends QueryAction
             $this->clearProperties($class, $entity, array_merge($fields, $joinFields));
 
             $this->em->persist($entity);
+            $i++;
 
             if ($i > $this->chunk->getEstimatedSize()) {
                 $this->flush($i); // Actually apply changes
                 $i = 0;
             }
-
-            $i++;
         }
 
         if ($i > 0) {

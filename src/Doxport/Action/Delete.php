@@ -49,18 +49,17 @@ class Delete extends QueryAction
             $file->writeObject($array);  // Write to file
 
             $this->em->remove($entity);  // Queue delete
+            $i++;
 
             if ($i > $this->chunk->getEstimatedSize()) {
-                $this->flush($file); // Actually apply changes
+                $this->flush($file, $i); // Actually apply changes
                 $i = 0;
             }
-
-            $i++;
         }
 
         if ($i > 0) {
             // Remaining in current chunk
-            $this->flush($file);
+            $this->flush($file, $i);
         } elseif ($i == 0) {
             $this->logger->notice('No results.');
         }

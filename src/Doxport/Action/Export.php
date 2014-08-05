@@ -66,8 +66,8 @@ class Export extends QueryAction
 
             $this->em->detach($entity);
 
-            if ($i % $this->chunk->getEstimatedSize()) {
-                $this->flush($file, $clearFile);
+            if ($i > $this->chunk->getEstimatedSize()) {
+                $this->flush($file, $clearFile, $i);
                 $this->em->clear();
             }
 
@@ -78,7 +78,8 @@ class Export extends QueryAction
         $array  = null;
 
         if ($i > 0) {
-            $this->flush($file, $clearFile);
+            // Remaining in current chunk
+            $this->flush($file, $clearFile, $i);
         } elseif ($i == 0) {
             $this->logger->notice('No results for export');
         }
@@ -90,13 +91,15 @@ class Export extends QueryAction
     /**
      * Flushes the files
      *
-     * @param AbstractFile $file
-     * @param AbstractFile $clearFile
+     * @param AbstractFile      $file
+     * @param AbstractFile|null $clearFile
+     * @param int               $count
      * @return void
      */
-    protected function flush(AbstractFile $file, AbstractFile $clearFile = null)
+    protected function flush(AbstractFile $file, AbstractFile $clearFile, $count)
     {
         $this->logger->notice('  Flushing...');
+        $this->chunk->begin();
 
         $file->flush();
 
@@ -104,6 +107,7 @@ class Export extends QueryAction
             $clearFile->flush();
         }
 
+        $this->chunk->end($count);
         $this->logger->notice('  done.');
     }
 
@@ -111,9 +115,9 @@ class Export extends QueryAction
      * Closes the files
      *
      * @param AbstractFile $file
-     * @param AbstractFile $clearFile
+     * @param AbstractFile|null $clearFile
      */
-    protected function close(AbstractFile $file, AbstractFile $clearFile = null)
+    protected function close(AbstractFile $file, AbstractFile $clearFile)
     {
         $file->close();
 
