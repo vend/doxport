@@ -96,10 +96,13 @@ class Export extends QueryAction
      * @param int               $count
      * @return void
      */
-    protected function flush(AbstractFile $file, AbstractFile $clearFile, $count)
+    protected function flush(AbstractFile $file, AbstractFile $clearFile = null, $count = 0)
     {
         $this->logger->notice('  Flushing...');
-        $this->chunk->begin();
+
+        if ($count) {
+            $this->chunk->begin();
+        }
 
         $file->flush();
 
@@ -107,7 +110,10 @@ class Export extends QueryAction
             $clearFile->flush();
         }
 
-        $this->chunk->end($count);
+        if ($count) {
+            $this->chunk->end($count);
+        }
+
         $this->logger->notice('  done.');
     }
 
@@ -117,7 +123,7 @@ class Export extends QueryAction
      * @param AbstractFile $file
      * @param AbstractFile|null $clearFile
      */
-    protected function close(AbstractFile $file, AbstractFile $clearFile)
+    protected function close(AbstractFile $file, AbstractFile $clearFile = null)
     {
         $file->close();
 
