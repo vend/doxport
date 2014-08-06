@@ -53,6 +53,13 @@ abstract class Pass implements LoggerAwareInterface
     protected $exportGraph = false;
 
     /**
+     * Whether to export a list of visited entities in order (constraints.txt)
+     *
+     * @var boolean
+     */
+    protected $exportConstraints = true;
+
+    /**
      * Constructor
      *
      * @param Driver $driver
@@ -106,6 +113,14 @@ abstract class Pass implements LoggerAwareInterface
     public function setExportGraph($export)
     {
         $this->exportGraph = $export;
+    }
+
+    /**
+     * @param boolean $export
+     */
+    public function setExportConstraints($export)
+    {
+        $this->exportConstraints = $export;
     }
 
     /**

@@ -63,9 +63,10 @@ class Doxport implements LoggerAwareInterface
      * @var array<string,mixed>
      */
     protected $options = [
-        'root'    => false,
-        'image'   => false,
-        'verbose' => false
+        'root'        => false,
+        'image'       => false,
+        'constraints' => true,
+        'verbose'     => false
     ];
 
     /**

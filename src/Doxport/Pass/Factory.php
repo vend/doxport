@@ -102,6 +102,7 @@ class Factory implements LoggerAwareInterface
 
         $pass->setIncludeRoot($options['root']);
         $pass->setExportGraph($options['image']);
+        $pass->setExportConstraints($options['constraints']);
         $pass->setFileFactory($this->fileFactory);
 
         if ($options['verbose']) {
