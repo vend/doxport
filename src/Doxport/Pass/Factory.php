@@ -4,6 +4,7 @@ namespace Doxport\Pass;
 
 use Doxport\Action\Base\Action;
 use Doxport\Exception\Exception;
+use Doxport\Exception\InvalidArgumentException;
 use Fhaculty\Graph\Set\Vertices;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
@@ -81,7 +82,7 @@ class Factory implements LoggerAwareInterface
     public function get($type, Vertices $vertices = null, array $options = [])
     {
         if (!isset($this->types[$type])) {
-            throw new Exception('Cannot create pass type; type not found');
+            throw new InvalidArgumentException('Cannot create pass type; type not found');
         }
 
         $class = $this->types[$type];
