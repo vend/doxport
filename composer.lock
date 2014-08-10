@@ -4,7 +4,7 @@
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "bbb93d886863b3b0713f91c482bda522",
+    "hash": "29e298b4175ccd557f829c9f9b93c419",
     "packages": [
         {
             "name": "clue/graph",
@@ -749,16 +749,16 @@
         },
         {
             "name": "vend/chunky",
-            "version": "1.0.0",
+            "version": "1.1.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/vend/chunky.git",
-                "reference": "a7903e472ba028823d356e996987e4954337e265"
+                "reference": "d95312c7025b21b056451cc13edd984274d2217c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/vend/chunky/zipball/a7903e472ba028823d356e996987e4954337e265",
-                "reference": "a7903e472ba028823d356e996987e4954337e265",
+                "url": "https://api.github.com/repos/vend/chunky/zipball/d95312c7025b21b056451cc13edd984274d2217c",
+                "reference": "d95312c7025b21b056451cc13edd984274d2217c",
                 "shasum": ""
             },
             "require": {
@@ -776,7 +776,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "1.0.x-dev"
+                    "dev-master": "1.1.x-dev"
                 }
             },
             "autoload": {
@@ -799,7 +799,7 @@
                 "chunk",
                 "doctrine2"
             ],
-            "time": "2014-08-05 00:37:03"
+            "time": "2014-08-10 23:33:57"
         }
     ],
     "packages-dev": [
