@@ -21,16 +21,6 @@ abstract class Command extends CommandComponent implements LoggerAwareInterface
     protected $doxport;
 
     /**
-     * @return void
-     */
-    protected function configure()
-    {
-        parent::configure();
-
-        $this->addOption('verbose', 'v', InputOption::VALUE_NONE, 'Verbose logging', null);
-    }
-
-    /**
      * @param InputInterface  $input
      * @param OutputInterface $output
      * @return void
