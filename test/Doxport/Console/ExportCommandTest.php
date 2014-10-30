@@ -3,6 +3,7 @@
 namespace Doxport\Console;
 
 use Doxport\Console\Base\QueryActionCommandTest;
+use Symfony\Component\Console\Output\OutputInterface;
 
 class ExportCommandTest extends QueryActionCommandTest
 {
@@ -12,10 +13,9 @@ class ExportCommandTest extends QueryActionCommandTest
     public function testRequiresEntity()
     {
         $this->getCommandTester()->execute([
-            '--verbose' => true,
             'column'    => 'foo',
             'value'     => 'bar'
-        ]);
+        ], ['verbosity' => OutputInterface::VERBOSITY_DEBUG]);
     }
 
     /**
@@ -24,10 +24,9 @@ class ExportCommandTest extends QueryActionCommandTest
     public function testRequiresColumn()
     {
         $this->getCommandTester()->execute([
-            '--verbose' => true,
             'entity'    => 'foo',
             'value'     => 'bar'
-        ]);
+        ], ['verbosity' => OutputInterface::VERBOSITY_DEBUG]);
     }
 
     /**
@@ -36,10 +35,9 @@ class ExportCommandTest extends QueryActionCommandTest
     public function testRequiresValue()
     {
         $this->getCommandTester()->execute([
-            '--verbose' => true,
             'entity'    => 'foo',
             'column'    => 'bar'
-        ]);
+        ], ['verbosity' => OutputInterface::VERBOSITY_DEBUG]);
     }
 
     /**

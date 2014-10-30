@@ -3,6 +3,7 @@
 namespace Doxport\Console;
 
 use Doxport\Console\Base\ActionCommandTest;
+use Symfony\Component\Console\Output\OutputInterface;
 
 class ImportCommandTest extends ActionCommandTest
 {
@@ -11,9 +12,7 @@ class ImportCommandTest extends ActionCommandTest
      */
     public function testRequiresDataDir()
     {
-        $this->getCommandTester()->execute([
-            '--verbose' => true
-        ]);
+        $this->getCommandTester()->execute([], ['verbosity' => OutputInterface::VERBOSITY_DEBUG]);
     }
 
     /**
