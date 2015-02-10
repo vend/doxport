@@ -29,8 +29,8 @@
         "vend/chunky":                  "~1.1.0",
         "clue/graph":                   "~0.7.1",
         "doctrine/orm":                 "~2.4.4",
-        "symfony/console":              "~2.4.6",
-        "symfony/filesystem":           "~2.4.8",
+        "symfony/console":              ">=2.4.6",
+        "symfony/filesystem":           ">=2.4.8",
         "psr/log":                      "~1.0.0"
     },
 
