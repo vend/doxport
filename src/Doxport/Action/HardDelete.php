@@ -34,11 +34,13 @@ class HardDelete extends QueryAction
         // Iterate through results
         $this->logger->notice('Iterating through results...');
         $i = 0;
+        $total = 0;
 
         foreach ($iterator as $result) {
             $entity = $result[0];
 
             $this->em->remove($entity); // Queue delete
+            $total++;
 
             if ($i > $this->chunk->getEstimatedSize()) {
                 $this->flush($i); // Actually apply changes
@@ -55,7 +57,7 @@ class HardDelete extends QueryAction
             $this->logger->notice('No results.');
         }
 
-        $this->logger->notice('Done with {target}', ['target' => $walk->getTargetId()]);
+        $this->logger->notice('Done with {target} ({total} deleted)', ['target' => $walk->getTargetId(), 'total' => $total]);
     }
 
     /**
